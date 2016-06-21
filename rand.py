@@ -2,18 +2,19 @@
 
 import copy
 import random
+from warnings import warn
 
 
-class Weight:
-    def __init__(self, outcome, weight):
-        self.x = outcome
-        self.y = weight
-
-
+###############################################################################
+#   Module error classes
+###############################################################################
 class PointNotFoundError(Exception):
     pass
 
 
+###############################################################################
+#   Local utility functions
+###############################################################################
 def _linear_interp(x1, y1, x2, y2, x3, round_result=False):
     """Take two points and interpolate between them at x3"""
     slope = (y2 - y1) / (x2 - x1)
@@ -25,6 +26,39 @@ def _linear_interp(x1, y1, x2, y2, x3, round_result=False):
         return result
 
 
+def _point_under_curve(curve, point):
+    """
+    Determine if a point is under a piecewise curve defined by a list of points
+    Args:
+        curve [(x, y)]:
+        point (x, y):
+
+    Returns: Bool
+    """
+    for i in range(0, len(curve) - 1):
+        if curve[i][0] <= point[0] <= curve[i + 1][0]:
+            curve_y = _linear_interp(curve[i][0], curve[i][1],
+                                     curve[i + 1][0], curve[i + 1][0],
+                                     point[0])
+            if point[1] <= curve_y:
+                # The sample point is under the curve
+                return True
+    else:
+        return False
+
+
+###############################################################################
+#   Weight class
+###############################################################################
+class Weight:
+    def __init__(self, outcome, weight):
+        self.x = outcome
+        self.y = weight
+
+
+###############################################################################
+# Methods
+###############################################################################
 def markov_weights_dict(min_key, max_key):
     """
     Generate a dictionary of {distance, weight} pairs for use in
@@ -101,14 +135,11 @@ def weighted_curve_rand(weights, round_result=False):
     Returns: float or int
 
     """
+    # Type safety check
     if not isinstance(weights, list):
         weights = [weights]
-
     # TODO: Is it really necessary to copy the weights?
-    weights = copy.copy(weights)
-
-    # Loop through every weight in weights[] and make sure that they are
-    # Weight objects, converting if not
+    weights = weights[:]
     i = 0
     while i < len(weights):
         if isinstance(weights[i], Weight):
@@ -137,38 +168,30 @@ def weighted_curve_rand(weights, round_result=False):
     if len(weights) == 1:
         return weights[0].x
 
-    # Sort list so that weights are listed in order of ascending X name
-    weights = sorted(weights, key=lambda this_weight: this_weight.x)
+    # Sort list so that weights are listed in order of ascending X value
+    weights = sorted(weights, key=lambda w: w.x)
 
     # TODO: Refactor this to use the newly defined _linear_interp()
-    x_min = min([point.x for point in weights])
-    x_max = max([point.x for point in weights])
+    x_min = weights[0].x
+    x_max = weights[-1].x
     y_min = min([point.y for point in weights])
     y_max = max([point.y for point in weights])
     # Roll random numbers until a valid one is found
-    point_found = False
     attempt_count = 0
-    while not point_found:
+    while True:
         # Get sample point
-        sample = Weight(random.uniform(x_min, x_max),
-                        random.uniform(y_min, y_max))
-        for i in range(0, len(weights) - 1):
-            if weights[i].x <= sample.x <= weights[i + 1].x:
-                slope = ((weights[i + 1].y - weights[i].y) /
-                         (weights[i + 1].x - weights[i].x))
-                y_int = weights[i].y - (slope * weights[i].x)
-                curve_y = (slope * sample.x) + y_int
-                if sample.y <= curve_y:
-                    # The sample point is under the curve
-                    if round_result:
-                        return int(round(sample.x))
-                    else:
-                        return sample.x
+        sample = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
+        if _point_under_curve([(w.x, w.y) for w in weights], sample):
+            # The sample point is under the curve
+            if round_result:
+                return int(round(sample[0]))
+            else:
+                return sample[0]
         attempt_count += 1
-        if attempt_count == 10000:
-            print("WARNING: Point in weighted_curve_rand() not being"
-                  "found after over 10000 attempts,"
-                  "something is probably wrong")
+        if attempt_count > 10000:
+            warn('Point not being found in weighted_curve_rand() after 10000 '
+                 'attempts, defaulting to a random weight point')
+            return random.choice(weights).x
 
 
 def weighted_option_rand(weights):
@@ -176,7 +199,7 @@ def weighted_option_rand(weights):
     Generate a non-uniform random value based on a list of input_weights or
     tuples. treats each outcome (Weight.x) as a discreet unit with a chance
     to occur. Constructs a line segment where each weight is outcome is
-    alloted a length and rolls a random point. input_weights outcomes may be
+    allotted a length and rolls a random point. input_weights outcomes may be
     of any type, including instances
 
     Args:
@@ -185,51 +208,35 @@ def weighted_option_rand(weights):
     Returns: a random name based on the weights
 
     """
-
+    # Type safety check
     if not isinstance(weights, list):
         weights = [weights]
-
     # TODO: Is it really necessary to copy the weights?
-    weights = copy.copy(weights)
-
-    # Loop through every weight in weights[] and make sure that they are
-    # Weight objects, converting if not
+    weights = weights[:]
     i = 0
     while i < len(weights):
         if isinstance(weights[i], Weight):
             pass
-        # Could cause issues with older code, but nodes really should be cast
-        #  to Weights outside of this module
-        # elif isinstance(weights[i], nodes.Node):
-        #     weights[i] = Weight(weights[i].name, weights[i].use_weight)
         elif isinstance(weights[i], tuple):
             weights[i] = Weight(weights[i][0], weights[i][1])
         else:
             raise TypeError(
                     "Weight at index {0} is not a valid type".format(str(i)))
-
         i += 1
 
-    # If just one weight is passed, simply return the weight's x value
+    # If there's only one choice, choose it
     if len(weights) == 1:
         return weights[0].x
 
-    # Find total name of points y coords
-    prob_sum = 0
-    for current_point in weights:
-        prob_sum += current_point.y
-    rand_num = random.uniform(0, prob_sum)
-    current_pos = 0
-    index = 0
-    while index < len(weights):
-        if current_pos <= rand_num <= (current_pos + weights[index].y):
-            return weights[index].x
-        current_pos += weights[index].y
-        index += 1
-    # If we have made it this far,
-    # the point was not found and something is wrong
-    raise PointNotFoundError("Point at %s was not found in "
-                             "discreet_weighted_rand!" % rand_num)
+    prob_sum = sum(w.y for w in weights)
+    sample = random.uniform(0, prob_sum)
+    i = 0
+    while i < len(weights):
+        if weights[i].y <= sample <= weights[i + 1].y:
+            return weights[i].x
+        i += 1
+    else:
+        raise PointNotFoundError
 
 
 def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
@@ -271,6 +278,7 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
 
     # Create and populate weight_list
 
+    # TODO: is there a better way?
     # Pin down random weights at min_outcome and max_outcome to keep the
     # weight_list properly bounded
     weight_list = [Weight(min_outcome, random.randint(1, 100)),

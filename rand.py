@@ -171,7 +171,6 @@ def weighted_curve_rand(weights, round_result=False):
     # Sort list so that weights are listed in order of ascending X value
     weights = sorted(weights, key=lambda w: w.x)
 
-    # TODO: Refactor this to use the newly defined _linear_interp()
     x_min = weights[0].x
     x_max = weights[-1].x
     y_min = min([point.y for point in weights])

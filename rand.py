@@ -118,8 +118,8 @@ def weighted_curve_rand(weights, round_result=False):
         else:
             raise TypeError(
                     "Weight at index {0} is not a valid type".format(str(i)))
-
         i += 1
+
     # TODO: Sort through all weight objects,
     # averaging the y value of objects with the same x
     """

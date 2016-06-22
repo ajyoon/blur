@@ -229,10 +229,12 @@ def weighted_option_rand(weights):
 
     prob_sum = sum(w.y for w in weights)
     sample = random.uniform(0, prob_sum)
+    current_pos = 0
     i = 0
     while i < len(weights):
-        if weights[i].y <= sample <= weights[i + 1].y:
+        if current_pos <= sample <= (current_pos + weights[i].y):
             return weights[i].x
+        current_pos += weights[i].y
         i += 1
     else:
         raise PointNotFoundError

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import copy, random
+import random
 
-from .rand import Weight, weighted_option_rand, weighted_curve_rand, random_weight_list
+from chance.rand import weighted_option_rand
 from . import nodes
 
 
@@ -73,25 +73,9 @@ class Network:
         :param include_self: Bool, determines if nodes can be feathered to themselves
         :return: None
         """
-        # TODO: it seems feather_links() is broken, probably has to do with instance copying and such...
-        copy_node_list = []
-        # For every node in the network...
-        for center_node in self.node_list:
-            # Get every node the center_node is linked to...
-            for branch_node in center_node.link_list:
-                # If include_self is set to True, make sure to pass over branch_nodes which are the node itself
-                if (not include_self) and (branch_node.target.name == center_node.name):
-                    continue
-                # Copy the branch node
-                c_node = copy.deepcopy(branch_node.target)
-                # Multiply all of its link weights by given factor
-                for c_node_link in c_node.link_list:
-                    c_node_link.weight *= factor
-                # Append the copied node to copy_node_list
-                copy_node_list.append(c_node)
-            for new_node in copy_node_list:
-                self.merge_nodes(center_node, new_node)
-            copy_node_list = []
+        # TODO: Build me!
+        pass
+
 
     def apply_noise(self, max_factor=0.1):
         """
@@ -209,27 +193,22 @@ def word_mine(source, relationship_weights=None, allow_self_links=True, merge_sa
                                      Note that this is pretty computationally expensive
     :return: instance of Network
     """
-    # import docx
-    punctuation_list = [' ', ',', '.', ';', '!', '?', ':']  # '-' removed for latex
+    punctuation_list = [' ', ',', '.', ';', '!', '?', ':']
     action_list = ['+']
     node_sequence = []
     network = Network()
     network.source = source
 
     # Set up relative position weights
-    if relationship_weights is not None:
-        distance_weights = copy.copy(relationship_weights)
-    else:
+    if relationship_weights is None:
         distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
                             6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                             11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
-    # for key, value in distance_weights.items():
-    #     if value <= 0:
-    #         del distance_weights[key]
 
     file_string = open(source).read()
 
-    # Parse the file_string, sending words, punctuations, and actions to node_sequence in the order they appear
+    # Parse the file_string, sending words, punctuations, and actions
+    # to node_sequence in the order they appear
     temp_string = ""
     i = 0
     while i < len(file_string):

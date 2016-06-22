@@ -2,7 +2,7 @@
 
 import random
 
-from . import rand
+from chance import rand
 
 class Link:
     def __init__(self, target, weight):

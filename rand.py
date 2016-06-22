@@ -133,7 +133,6 @@ def weighted_curve_rand(weights, round_result=False):
         round_result (Bool):
 
     Returns: float or int
-
     """
     # Type safety check
     if not isinstance(weights, list):
@@ -205,7 +204,6 @@ def weighted_option_rand(weights):
         input_weights [(outcome, weight)]:
 
     Returns: a random name based on the weights
-
     """
     # Type safety check
     if not isinstance(weights, list):
@@ -252,7 +250,6 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
         max_possible_weights (int):
 
     Returns: [Weight]
-
     """
 
     # TODO: get rid of max_weight_density, its use is confusing and redundant

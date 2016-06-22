@@ -57,8 +57,10 @@ class SoftOptions(SoftObject):
         """
         Initialize from a list of options, assigning uniform weights
 
-        :param list[Any] options:
-        :return: SoftOptions
+        Args:
+            options list[Any]:
+
+        Returns: SoftOptions
         """
         return cls([(value, 1) for value in options])
 
@@ -67,10 +69,12 @@ class SoftOptions(SoftObject):
         """
         Initialize from a list of options, assigning random weights which
         can optionally be themselves controlled by a list of weights
-        :param list[Any] options:
-        :param list[(number, number)] weight_profile: a list of weights
-        which will be used to determine the weights of the options
-        :return: SoftOptions
+
+        Args:
+            options list[Any]:
+            weight_profile list[(number, number)]: a list of weights
+                which will be used to determine the weights of the options
+        Returns SoftOptions
         """
         if weight_profile is None:
             return cls([(value, random.randint(1, 10) for value in options)])
@@ -114,10 +118,12 @@ class SoftFloat(SoftObject):
         ``weight_interval``. Use this if you intend to modify the weights
         in any complex way after initialization.
 
-        :param float lowest:
-        :param float highest:
-        :param int weight_interval:
-        :return: SoftFloat
+        Args:
+            lowest (float):
+            highest (float):
+            weight_interval (int):
+
+        Returns: SoftFloat
         """
         if weight_interval is None:
             weights = [(lowest, 1), (highest, 1)]

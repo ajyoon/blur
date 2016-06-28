@@ -6,7 +6,7 @@ from chance.rand import weighted_option_rand
 from . import nodes
 
 
-class Network:
+class Graph:
     def __init__(self, name=None):
         self.node_list = []
         self.source = None
@@ -175,11 +175,11 @@ class Network:
 
 
 
-def word_mine(source, relationship_weights=None, allow_self_links=True, merge_same_words=False):
+def word_mine(source, distance_weights=None, allow_self_links=True, merge_same_words=False):
     """
-    Reads a text document and generates a Network object based on it
+    Reads a text document and generates a Graph object based on it
     :param source: str, either path to a .docx file or a string literal
-    :param relationship_weights: dict of relative indices corresponding with word weights.
+    :param distance_weights: dict of relative indices corresponding with word weights.
                                   For example, if a dict entry is '1: 1000' this means that every word is linked to the
                                   word which follows it with a weight of 1000. '-4: 350' would mean that every word is
                                   linked to the 4th word behind it with a weight of 350
@@ -191,16 +191,16 @@ def word_mine(source, relationship_weights=None, allow_self_links=True, merge_sa
                                      the network jump to a highly unpredictable place because all occurences of "the"
                                      are grouped into one node.
                                      Note that this is pretty computationally expensive
-    :return: instance of Network
+    :return: instance of Graph
     """
     punctuation_list = [' ', ',', '.', ';', '!', '?', ':']
     action_list = ['+']
     node_sequence = []
-    network = Network()
+    network = Graph()
     network.source = source
 
     # Set up relative position weights
-    if relationship_weights is None:
+    if distance_weights is None:
         distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
                             6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                             11: 10, 12: 10, 13: 5, 14: 5, 15: 75}

@@ -77,7 +77,7 @@ class SoftOptions(SoftObject):
         Returns SoftOptions
         """
         if weight_profile is None:
-            return cls([(value, random.randint(1, 10) for value in options)])
+            return cls([((value, random.randint(1, 10)) for value in options)])
         else:
             return cls([(value,
                          rand.weighted_curve_rand(weight_profile, True))

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-from .graph import Network
+from .graph import Graph
 from .nodes import Value, WeightListNode
 
 
 def indenter():
     """
     Builds and returns a network which controls behavior for indentation values (either left- or right- indentation)
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
 
-    network = Network()
+    network = Graph()
 
     n1 = Value(0)
     n2 = WeightListNode('Shift Right', [(1, 20), (3, 3), (11, 1)])
@@ -46,10 +46,10 @@ def indenter_erratic():
     """
     Does the same thing as indenter() but with a stronger bias toward jumping left and right.
     Builds and returns a network which controls behavior for indentation values (either left- or right- indentation)
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
 
-    network = Network()
+    network = Graph()
 
     n1 = Value(0)
     n2 = WeightListNode('Shift Right', [(3, 6), (11, 1)])
@@ -78,11 +78,11 @@ def indenter_erratic():
 def instrument_indenter():
     """
     Builds and returns a network which controls behavior for indentation values (either left- or right- indentation)
-    Network values specialized for instrument indentation
-    :return: instance of chance.network.Network
+    Graph values specialized for instrument indentation
+    :return: instance of chance.network.Graph
     """
 
-    network = Network()
+    network = Graph()
     n1 = Value(0)
     n2 = WeightListNode('Shift Right', [(3, 6), (11, 1)])
     n3 = WeightListNode('Shift Left', [(-3, 6), (-11, 1)])
@@ -118,9 +118,9 @@ def instrument_pause_or_play():
     Constructs and returns a network with two states: 1 (play) and 0 (don't play)
     Designed so that, when passed to document_tools.pdf_scribe, 'don't play' results in a space equal to the
     global font size (shared.Globals.FontSize)
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
-    network = Network()
+    network = Graph()
     dense_play = Value(1)
     play = Value(1)
     light_play = Value(1)
@@ -162,9 +162,9 @@ def music_rhythmic_or_not():
     """
     Constructs and returns a network with two states: True (rhythmic) and False (non-rhythmic)
     Designed with a strong bias toward non-rhythmic content
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
-    network = Network()
+    network = Graph()
     dense_rhythmic = Value(True)
     rhythmic = Value(True)
     first_rhythmic = Value(True)
@@ -198,9 +198,9 @@ def music_rhythmic_or_not():
 def rhythm():
     """
     Constructs and returns a network which outputs floating point numbers between -1 and 1
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
-    network = Network()
+    network = Graph()
 
     stay_same = Value(0)
     much_slower = WeightListNode('Major Slower', [(-1, 1), (-0.5, 3), (-0.2, 10)])
@@ -231,9 +231,9 @@ def text_pause_or_write():
     Constructs and returns a network with two states: 1 (write) and 0 (don't write)
     Designed so that, when passed to document_tools.pdf_scribe, 'don't write' results in a space equal to the
     global font size (shared.Globals.FontSize)
-    :return: instance of chance.network.Network
+    :return: instance of chance.network.Graph
     """
-    network = Network()
+    network = Graph()
     dense_write = Value(1)
     write = Value(1)
     light_write = Value(1)

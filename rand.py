@@ -59,6 +59,20 @@ class Weight:
 ###############################################################################
 # Methods
 ###############################################################################
+def percent_possible(percent):
+    """
+    Return True ``percent`` / 100 times.
+
+    Args:
+        percent (int or float): percent possibility to return True
+
+    Returns: Bool
+    """
+    sample = random.uniform(0, 100)
+    if sample < percent:
+        return True
+
+
 def markov_weights_dict(min_key, max_key):
     """
     Generate a dictionary of {distance, weight} pairs for use in
@@ -147,7 +161,7 @@ def weighted_curve_rand(weights, round_result=False):
             weights[i] = Weight(weights[i][0], weights[i][1])
         else:
             raise TypeError(
-                    "Weight at index {0} is not a valid type".format(str(i)))
+                "Weight at index {0} is not a valid type".format(str(i)))
         i += 1
 
     # TODO: Sort through all weight objects,
@@ -309,3 +323,17 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
         weight_list = resolved_weight_list
 
     return weight_list
+
+
+def weighted_sort(weights):
+    """
+
+    Args:
+        weights [(Any, float, float)]:
+            [(list_item, place_in_percent, weight)]
+
+    Returns:
+
+    """
+    # TODO: Build me
+    pass

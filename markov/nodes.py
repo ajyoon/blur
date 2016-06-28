@@ -25,7 +25,7 @@ class Node:
     def __init__(self, name=None, parent=None, self_destruct=False):
         """
         :param name: str or int, becomes the name and name of the node
-        :param parent: instance of Network to which this node belongs (potentially usable to let nodes
+        :param parent: instance of Graph to which this node belongs (potentially usable to let nodes
                         trigger network-level events or modifications
         """
         self.name = name
@@ -121,7 +121,7 @@ class Node:
 
 
 class NoteBehavior(Node):
-    # For use as Node objects in a Network, allows continuous relationship-based behavior for notes
+    # For use as Node objects in a Graph, allows continuous relationship-based behavior for notes
     def __init__(self, name=None, direction=None, special_action=None,
                  interval_weights=None, pitch_set=None, count_intervals_by_slots=False):
         """

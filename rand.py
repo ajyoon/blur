@@ -73,6 +73,46 @@ def percent_possible(percent):
         return True
 
 
+def pos_or_neg(value, pos_weight=None, neg_weight=None):
+    """
+    Return either positive or negative ``value``
+
+    If both ``pos_weight`` and ``neg_weight`` are numbers, use them as
+    weights to decide the outcome. Otherwise flip a coin. This is a convenience
+    function for ``some_val = abs(some_val) * pos_or_neg_1()``
+
+    Args:
+        value (int or float): the value to operate on
+        pos_weight (int or float): weight to return 1
+        neg_weight (int or float): weight to return -1
+
+    Returns: int or float
+    """
+    return abs(value) * pos_or_neg_1(pos_weight, neg_weight)
+    
+
+def pos_or_neg_1(pos_weight=None, neg_weight=None):
+    """
+    Return either 1 or -1
+
+    If both ``pos_weight`` and ``neg_weight`` are numbers, use them as
+    weights to decide the outcome. Otherwise flip a coin.
+
+    Args:
+        pos_weight (int or float): weight to return 1
+        neg_weight (int or float): weight to return -1
+
+    Returns: int (1 or -1)
+    """
+    if pos_weight is not None and neg_weight is not None:
+        return weighted_option_rand([(1, pos_weight), (-1, neg_weight)])
+    else:
+        if random.randint(0, 1):
+            return 1
+        else:
+            return -1
+
+
 def markov_weights_dict(min_key, max_key):
     """
     Generate a dictionary of {distance, weight} pairs for use in

@@ -80,9 +80,7 @@ def percent_possible(percent):
 
     Returns: Bool
     """
-    sample = random.uniform(0, 100)
-    if sample < percent:
-        return True
+    return random.uniform(0, 100) < percent
 
 
 def pos_or_neg(value, pos_weight=None, neg_weight=None):

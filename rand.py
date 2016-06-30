@@ -59,6 +59,18 @@ class Weight:
 ###############################################################################
 # Methods
 ###############################################################################
+def prob_bool(probability):
+    """
+    Return True or False depending on probability
+
+    Args:
+        probability (float): Probability (between 0 and 1) to return True
+
+    Returns: Bool
+    """
+    return random.uniform(0, 1) < probability
+
+
 def percent_possible(percent):
     """
     Return True ``percent`` / 100 times.

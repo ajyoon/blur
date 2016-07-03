@@ -90,7 +90,7 @@ def pos_or_neg(value, pos_weight=None, neg_weight=None):
     Returns: int or float
     """
     return abs(value) * pos_or_neg_1(pos_weight, neg_weight)
-    
+
 
 def pos_or_neg_1(pos_weight=None, neg_weight=None):
     """
@@ -112,15 +112,6 @@ def pos_or_neg_1(pos_weight=None, neg_weight=None):
             return 1
         else:
             return -1
-
-
-def markov_weights_dict(min_key, max_key):
-    """
-    Generate a dictionary of {distance, weight} pairs for use in
-    network.word_mine()
-    """
-    pairs = random_weight_list(min_key, max_key, 1)
-    return dict((weight[0], weight[1]) for weight in pairs)
 
 
 # TODO: Test me!

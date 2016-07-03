@@ -48,15 +48,6 @@ def _point_under_curve(curve, point):
 
 
 ###############################################################################
-#   Weight class
-###############################################################################
-class Weight:
-    def __init__(self, outcome, weight):
-        self.x = outcome
-        self.y = weight
-
-
-###############################################################################
 # Methods
 ###############################################################################
 def prob_bool(probability):
@@ -129,7 +120,7 @@ def markov_weights_dict(min_key, max_key):
     network.word_mine()
     """
     pairs = random_weight_list(min_key, max_key, 1)
-    return dict((weight.x, weight.y) for weight in pairs)
+    return dict((weight[0], weight[1]) for weight in pairs)
 
 
 # TODO: Test me!
@@ -185,127 +176,96 @@ def merge_markov_weights_dicts(dict_1, dict_2, ratio):
 
 def weighted_curve_rand(weights, round_result=False):
     """
-    Generate a non-uniform random value based on a list of input_weights or
-    tuples. Treats input_weights as coordinates for a probability
-    distribution curve and rolls accordingly. Constructs a piece-wise linear
-    curve according to coordinates given in input_weights and rolls random
-    values in the curve's bounding box until a value is found under the curve
-    All input_weights outcome values must be numbers.
+    Generate a non-uniform random value based on a list of tuple weights
+
+    Treats weights as coordinates for a probability distribution curve and
+    rolls accordingly. Constructs a piece-wise linear curve according to
+    coordinates given in input_weights and rolls random values in the
+    curve's bounding box until a value is found under the curve
+
+    Weight tuples should be of the form: (outcome, weight). All weights
+    outcome values must be numbers. Weights with weight 0 or less will have
+    no chance to be rolled
 
     Args:
-        weights [(outcome, weight)]:
-        round_result (Bool):
+        weights (list[(outcome, weight)]):
+        round_result (Optional[Bool])):
 
     Returns: float or int
     """
-    # Type safety check
-    if not isinstance(weights, list):
-        weights = [weights]
-    # TODO: Is it really necessary to copy the weights?
-    weights = weights[:]
-    i = 0
-    while i < len(weights):
-        if isinstance(weights[i], Weight):
-            pass
-        elif isinstance(weights[i], tuple):
-            weights[i] = Weight(weights[i][0], weights[i][1])
-        else:
-            raise TypeError(
-                "Weight at index {0} is not a valid type".format(str(i)))
-        i += 1
-
-    # TODO: Sort through all weight objects,
-    # averaging the y value of objects with the same x
-    """
-    cleaned_weights = []
-    for index in range(0, len(weights)):
-        for test_index in range(0, len(weights)):
-            if index == test_index:
-                continue
-            if weights[index].x == weights[test_index].x:
-                mean_y = (weights[index].y + weights[test_index].y) / 2.0
-                cleaned_weights.append((weights[index].x, mean_y))
-    """
-
     # If just one weight is passed, simply return the weight's name
     if len(weights) == 1:
-        return weights[0].x
+        return weights[0][0]
 
-    # Sort list so that weights are listed in order of ascending X value
-    weights = sorted(weights, key=lambda w: w.x)
+    # Is there a way to do this more efficiently? Maybe even require that
+    # ``weights`` already be sorted?
+    weights = sorted(weights, key=lambda w: w[0])
 
-    x_min = weights[0].x
-    x_max = weights[-1].x
-    y_min = min([point.y for point in weights])
-    y_max = max([point.y for point in weights])
+    x_min = weights[0][0]
+    x_max = weights[-1][0]
+    y_min = 0
+    y_max = max([point[1] for point in weights])
+
     # Roll random numbers until a valid one is found
     attempt_count = 0
-    while True:
+    while attempt_count < 50000:
         # Get sample point
         sample = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
-        if _point_under_curve([(w.x, w.y) for w in weights], sample):
+        if _point_under_curve(weights, sample):
             # The sample point is under the curve
             if round_result:
                 return int(round(sample[0]))
             else:
                 return sample[0]
         attempt_count += 1
-        if attempt_count > 10000:
-            warn('Point not being found in weighted_curve_rand() after 10000 '
-                 'attempts, defaulting to a random weight point')
-            return random.choice(weights).x
+    else:
+        warn('Point not being found in weighted_curve_rand() after 50000 '
+             'attempts, defaulting to a random weight point')
+        return random.choice(weights)[0]
 
 
 def weighted_option_rand(weights):
     """
-    Generate a non-uniform random value based on a list of input_weights or
-    tuples. treats each outcome (Weight.x) as a discreet unit with a chance
-    to occur. Constructs a line segment where each weight is outcome is
-    allotted a length and rolls a random point. input_weights outcomes may be
-    of any type, including instances
+    Generate a non-uniform random value based on a list of weight tuples.
+    Treats each outcome as a discreet unit with a chance to occur.
+
+    Constructs a line segment where each weight is outcome is allotted a
+    length and rolls a random point.
+
+    Weight tuples should be of the form: (outcome, weight). Weight
+    outcome values may be of any type. Weights with weight 0 or less will have
+    no chance to be rolled.
 
     Args:
-        input_weights [(outcome, weight)]:
+        weights (list[(outcome, weight)]):
 
-    Returns: a random name based on the weights
+    Returns: Any
+
+    Raises: PointNotFoundError
     """
-    # Type safety check
-    if not isinstance(weights, list):
-        weights = [weights]
-    # TODO: Is it really necessary to copy the weights?
-    weights = weights[:]
-    i = 0
-    while i < len(weights):
-        if isinstance(weights[i], Weight):
-            pass
-        elif isinstance(weights[i], tuple):
-            weights[i] = Weight(weights[i][0], weights[i][1])
-        else:
-            raise TypeError(
-                    "Weight at index {0} is not a valid type".format(str(i)))
-        i += 1
-
     # If there's only one choice, choose it
     if len(weights) == 1:
-        return weights[0].x
+        return weights[0][0]
 
-    prob_sum = sum(w.y for w in weights)
+    # replace with lambda key?
+    prob_sum = sum(w[1] for w in weights)
     sample = random.uniform(0, prob_sum)
     current_pos = 0
     i = 0
     while i < len(weights):
-        if current_pos <= sample <= (current_pos + weights[i].y):
-            return weights[i].x
-        current_pos += weights[i].y
+        if current_pos <= sample <= (current_pos + weights[i][1]):
+            return weights[i][0]
+        current_pos += weights[i][1]
         i += 1
     else:
         raise PointNotFoundError
 
 
+# TODO: heavily rewrite or delete me entirely
 def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
                        max_possible_weights=None):
     """
-    Generate a list of Weight within a given min_outcome and max_outcome bound.
+    Generate a list of weight tuples within a given bound.
 
     Args:
         min_outcome (int or float):
@@ -313,7 +273,7 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
         max_weight_density (float):  the maximum density of resulting weights
         max_possible_weights (int):
 
-    Returns: [Weight]
+    Returns: list[(outcome, weight)]
     """
 
     # TODO: get rid of max_weight_density, its use is confusing and redundant
@@ -343,8 +303,8 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
     # TODO: is there a better way?
     # Pin down random weights at min_outcome and max_outcome to keep the
     # weight_list properly bounded
-    weight_list = [Weight(min_outcome, random.randint(1, 100)),
-                   Weight(max_outcome, random.randint(1, 100))]
+    weight_list = [(min_outcome, random.randint(1, 100)),
+                   (max_outcome, random.randint(1, 100))]
 
     # Main population loop. Subtract 2 from max_weights to account for
     # already inserted start and end caps
@@ -354,22 +314,22 @@ def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
         # Test contents in weight_list to make sure
         # none of them have the same outcome
         for index in range(0, len(weight_list)):
-            if weight_list[index].x == outcome:
+            if weight_list[index][0] == outcome:
                 is_duplicate_outcome = True
                 break
         if not is_duplicate_outcome:
             weight_list.append(Weight(outcome, random.randint(1, 100)))
 
     # Sort the list
-    weight_list = sorted(weight_list, key=lambda z: z.x)
+    weight_list = sorted(weight_list, key=lambda z: z[0])
 
     # Undo resolution multiplication if necessary
     if resolution_multiplier is not None:
         resolved_weight_list = []
         for old_weight in weight_list:
             resolved_weight_list.append(Weight(
-                round((old_weight.x / resolution_multiplier), 3),
-                old_weight.y))
+                round((old_weight[0] / resolution_multiplier), 3),
+                old_weight[1]))
         weight_list = resolved_weight_list
 
     return weight_list

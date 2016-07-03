@@ -247,7 +247,6 @@ def weighted_option_rand(weights):
     if len(weights) == 1:
         return weights[0][0]
 
-    # replace with lambda key?
     prob_sum = sum(w[1] for w in weights)
     sample = random.uniform(0, prob_sum)
     current_pos = 0
@@ -259,80 +258,6 @@ def weighted_option_rand(weights):
         i += 1
     else:
         raise PointNotFoundError
-
-
-# TODO: heavily rewrite or delete me entirely
-def random_weight_list(min_outcome, max_outcome, max_weight_density=0.1,
-                       max_possible_weights=None):
-    """
-    Generate a list of weight tuples within a given bound.
-
-    Args:
-        min_outcome (int or float):
-        max_outcome (int or float):
-        max_weight_density (float):  the maximum density of resulting weights
-        max_possible_weights (int):
-
-    Returns: list[(outcome, weight)]
-    """
-
-    # TODO: get rid of max_weight_density, its use is confusing and redundant
-
-    # Prevent sneaky errors
-    # Add resolution multiplier if either min_outcome or max_outcome are floats
-    resolution_multiplier = None
-    if ((not isinstance(min_outcome, int)) or
-            (not isinstance(max_outcome, int))):
-        resolution_multiplier = 1000.0
-        min_outcome = int(round(min_outcome * resolution_multiplier))
-        max_outcome = int(round(max_outcome * resolution_multiplier))
-    if min_outcome > max_outcome:
-        swapper = min_outcome
-        min_outcome = max_outcome
-        max_outcome = swapper
-
-    # Set max_weights according to max_weight_density
-    max_weights = int(round((max_outcome - min_outcome) * max_weight_density))
-
-    if (max_possible_weights is not None) and (
-            max_weights > max_possible_weights):
-        max_weights = max_possible_weights
-
-    # Create and populate weight_list
-
-    # TODO: is there a better way?
-    # Pin down random weights at min_outcome and max_outcome to keep the
-    # weight_list properly bounded
-    weight_list = [(min_outcome, random.randint(1, 100)),
-                   (max_outcome, random.randint(1, 100))]
-
-    # Main population loop. Subtract 2 from max_weights to account for
-    # already inserted start and end caps
-    for i in range(0, max_weights - 2):
-        outcome = random.randint(min_outcome, max_outcome)
-        is_duplicate_outcome = False
-        # Test contents in weight_list to make sure
-        # none of them have the same outcome
-        for index in range(0, len(weight_list)):
-            if weight_list[index][0] == outcome:
-                is_duplicate_outcome = True
-                break
-        if not is_duplicate_outcome:
-            weight_list.append(Weight(outcome, random.randint(1, 100)))
-
-    # Sort the list
-    weight_list = sorted(weight_list, key=lambda z: z[0])
-
-    # Undo resolution multiplication if necessary
-    if resolution_multiplier is not None:
-        resolved_weight_list = []
-        for old_weight in weight_list:
-            resolved_weight_list.append(Weight(
-                round((old_weight[0] / resolution_multiplier), 3),
-                old_weight[1]))
-        weight_list = resolved_weight_list
-
-    return weight_list
 
 
 def weighted_sort(weights):

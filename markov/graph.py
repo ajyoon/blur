@@ -23,11 +23,15 @@ class Graph:
 
     def merge_nodes(self, keep_node, kill_node):
         """
-        Takes two nodes and merges them together, merging their links by combining the two link lists and
-         summing the weights of links which point to the same node
-        :param keep_node: instance of chance.nodes.Node (or subclass) to be kept
-        :param kill_node: instance of chance.nodes.Node (or subclass) to be deleted
-        :return:
+        Takes two nodes and merges them together, merging their links by
+        combining the two link lists and summing the weights of links which
+        point to the same node
+
+        Args:
+            keep_node (Node): node to be kept
+            kill_node (Node): node to be deleted
+
+        Returns: None
         """
         assert isinstance(keep_node, nodes.Node)
         assert isinstance(kill_node, nodes.Node)
@@ -48,9 +52,13 @@ class Graph:
 
     def add_nodes(self, node):
         """
-        Adds a given node or list of nodes to self.node_list - if a node already exists in the network, merge them
-        :param node: Node instance or list of Node instances
-        :return:
+        Adds a given node or list of nodes to self.node_list.
+        If a node already exists in the network, merge them
+
+        Args:
+            node:  Node instance or list of Node instances
+        
+        Returns: None
         """
         if not isinstance(node, list):
             add_list = [node]
@@ -70,20 +78,26 @@ class Graph:
 
     def feather_links(self, factor=0.01, include_self=False):
         """
-        Goes through every node in the network and adds their linked nodes' links multiplied by given factor
-        :param factor: multiplier of neighbor links
-        :param include_self: Bool, determines if nodes can be feathered to themselves
-        :return: None
+        Go through every node in the network and adds their
+        linked nodes' links multiplied by given factor
+
+        Args:
+            factor (float): multiplier of neighbor links
+            include_self (bool): if nodes can be feathered to themselves
+
+        Returns: None
         """
         # TODO: Build me!
         pass
 
-
     def apply_noise(self, max_factor=0.1):
         """
-        Goes through every node in the network, adding random amounts to every link scaled to its weight and max_factor
-        :param max_factor: float
-        :return:
+        Go through every node in the network, adding noise to every link
+        scaled to its weight and max_factor
+
+        Args: max_factor (float):
+
+        Returns: None
         """
         # Some simple type handling
         if isinstance(max_factor, int):
@@ -91,11 +105,13 @@ class Graph:
         # Main node loop
         for node in self.node_list:
             for link in node.link_list:
-                link.weight += round(random.uniform(0, link.weight * max_factor), 3)
+                link.weight += round(random.uniform(
+                    0, link.weight * max_factor), 3)
 
     def refresh_links(self, copy_network):
         # Is this necessary???
-        # Finds every duplicate node from self and copy_network, and replaces links in duplicate nodes
+        # Finds every duplicate node from self and copy_network,
+        # and replaces links in duplicate nodes
         for copy_node in copy_network.node_list:
             for keep_node in self.node_list:
                 if copy_node.name == keep_node.name:
@@ -113,17 +129,20 @@ class Graph:
         Deletes a node by a given name and all network links pointing to it
         :param name: str
         """
-        # Remove the node from self.node_list
-        self.node_list[:] = [node for node in self.node_list if (not node.name == name)]
-        # Look through every link in the network, removing all references to the newly removed node
+        self.node_list = [node for node in self.node_list if node.name != name]
+        # Remove links pointing to the deleted node
         for node in self.node_list:
-            node.link_list[:] = [link for link in node.link_list if (not link.target_name == name)]
+            node.link_list = [link for link in node.link_list if
+                              link.target_name != name]
 
     def has_node_with_name(self, name):
         """
-        Checks to see if any node in self.node_list has the same Node.name as name
-        :param name: str or int
-        :return: Bool
+        Whether any node in self.node_list has name of ``name``
+
+        Args:
+            name (str)
+
+        Returns: Bool
         """
         for node in self.node_list:
             if node.name == name:
@@ -136,23 +155,25 @@ class Graph:
         :return: Node instance
         """
         self.previous_node = self.current_node
-        node = weighted_option_rand([(n.name, n.use_weight)for n in
-                                  self.node_list])
+        node = weighted_option_rand([(n.name, n.use_weight)
+                                     for n in self.node_list])
         self.current_node = self.find_node_by_name(node)
         return self.current_node
 
-
     def pick(self, current_node=None):
         """
-        Picks the next node for the network based on a starting node which is
+        Pick the next node for the network based on a starting node which is
         either explicitly stated or implicitly found according to these rules:
 
-            - if current_node is specified, start from there
-            - if current_node is None, start from self.current_node
-            - if current_node is None and self.current_node is None, pick from the network's nodes' use weights
+            * if current_node is specified, start from there
+            * if current_node is None, start from self.current_node
+            * if current_node is None and self.current_node is None,
+              pick from the network's nodes' use weights
 
-        :param current_node: Node object, or None to pick according to self.current_node
-        :return: Next node
+        Args:
+            current_node (Optional[Node]): Node to pick from.
+
+        Returns: Node
         """
         self.previous_node = self.current_node
         # If None was passed (default), start from self.current_node
@@ -162,38 +183,42 @@ class Graph:
             else:
                 return self.pick_by_use_weight()
         # Otherwise, use a discreet weighted random on start_node.link_list
-        self.current_node = weighted_option_rand([(link.target, link.weight)
-                                                  for link in current_node.link_list])
+        self.current_node = weighted_option_rand(
+            [(link.target, link.weight) for link in current_node.link_list])
         return self.current_node
 
     def walk(self, steps):
         """
-        Populates self.output_node_sequence by walking along the network, picking from node to node
-        :param steps: int, how many nodes to pick
+        Populate self.output_node_sequence by walking along the network,
+        picking from node to node
+
+        Args:
+            steps (int): number of nodes to pick
         """
         assert self.node_list != []
         for i in range(steps):
             self.output_node_sequence.append(self.pick())
 
 
-
-def word_mine(source, distance_weights=None, allow_self_links=True, merge_same_words=False):
+def word_mine(source,
+              distance_weights=None,
+              allow_self_links=True,
+              merge_same_words=False):
     """
-    Reads a text document and generates a Graph object based on it
-    :param source: str, either path to a .docx file or a string literal
-    :param distance_weights: dict of relative indices corresponding with word weights.
-                                  For example, if a dict entry is '1: 1000' this means that every word is linked to the
-                                  word which follows it with a weight of 1000. '-4: 350' would mean that every word is
-                                  linked to the 4th word behind it with a weight of 350
-    :param allow_self_links: Bool - determines if words are allowed to follow themselves in the output network
-    :param merge_same_words: Bool - determines if nodes which have the same value should be merged or not
-                                     False means that the resulting network will move much more continuously through
-                                     the source material, while True means that the network will move much more
-                                     erratically. For example - if a very common word, such as "the" is encountered,
-                                     the network jump to a highly unpredictable place because all occurences of "the"
-                                     are grouped into one node.
-                                     Note that this is pretty computationally expensive
-    :return: instance of Graph
+    Read a text document and generates a Graph object based on it
+
+    Args:
+        source (str): path to the source document
+        distance_weights (dict): dict of relative indices corresponding with
+            word weights. For example, if a dict entry is '1: 1000' this means
+            that every word is linked to the word which follows it with a
+            weight of 1000. '-4: 350' would mean that every word is
+            linked to the 4th word behind it with a weight of 350
+        allow_self_links (bool): if words can be linked to themselves
+        merge_same_words (bool): if nodes which have the same value should be
+            merged or not.
+    
+    Returns: Graph
     """
     punctuation_list = [' ', ',', '.', ';', '!', '?', ':']
     action_list = ['+']
@@ -247,7 +272,8 @@ def word_mine(source, distance_weights=None, allow_self_links=True, merge_same_w
                 i += 1
             # Send new temp_string to another word in the word_list
             node_sequence.append(nodes.Word(temp_string))
-            # @ at the end of a word group will indicate that the word self-destructs after it appears once in usage
+            # @ at the end of a word group will indicate that the word
+            # self-destructs after it appears once in usage
             if node_sequence[-1].name[-1] == '@':
                 node_sequence[-1].name = node_sequence[-1].name[:-1]
                 node_sequence[-1].self_destruct = True
@@ -267,40 +293,44 @@ def word_mine(source, distance_weights=None, allow_self_links=True, merge_same_w
         i += 1
 
     if merge_same_words:
-        # Send a copy of node_sequence to network, but remove all duplicate nodes first
+        # Send a copy of node_sequence to network,
+        # but remove all duplicate nodes first
         for node in node_sequence:
             if not network.has_node_with_name(node.name):
                 network.node_list.append(node)
 
-        # Now use the ordered (and still containing same-name nodes) node_sequence to build the links in network
+        # Now use the ordered (and still containing same-name nodes)
+        # node_sequence to build the links in network
         for i in range(len(node_sequence)):
             for x in distance_weights.keys():
-                wrapping_index = (i + x)
-                if wrapping_index >= len(node_sequence):
-                    wrapping_index = - (wrapping_index - len(node_sequence))
+                wrap_index = (i + x)
+                if wrap_index >= len(node_sequence):
+                    wrap_index = - (wrap_index - len(node_sequence))
                 network.find_node_by_name(node_sequence[i].name).add_link(
-                    network.find_node_by_name(node_sequence[wrapping_index].name), distance_weights[x])
+                    network.find_node_by_name(node_sequence[wrap_index].name),
+                    distance_weights[x])
     else:
         network.add_nodes(node_sequence)
-        # Within network.node_list, find all relationships according to distance_weights
+        # Find all relationships according to distance_weights
         for i in range(len(network.node_list)):
             for x in distance_weights.keys():
-                # Use a wrapping index so that the source material circles on itself
-                # This is useful for preventing the network from getting stuck at the beginning or end of the source
-                # It's also cool
-                wrapping_index = (i + x)
-                while wrapping_index >= len(network.node_list):
-                    wrapping_index = - (wrapping_index - len(network.node_list))
-                while wrapping_index <= -1 * len(network.node_list):
-                    wrapping_index += len(network.node_list)
-                network.node_list[i].add_link(network.node_list[wrapping_index], distance_weights[x])
+                # Make indexes circular to prevent IndexErrors
+                wrap_index = (i + x)
+                while wrap_index >= len(network.node_list):
+                    wrap_index = - (wrap_index - len(network.node_list))
+                while wrap_index <= -1 * len(network.node_list):
+                    wrap_index += len(network.node_list)
+                network.node_list[i].add_link(
+                    network.node_list[wrap_index], distance_weights[x])
 
     # Special handling for \n node: remove all links to Punctuation objects
     for node in network.node_list:
         if node.name == '\n':
-            node.link_list[:] = [link for link in node.link_list if link.target.name not in punctuation_list]
+            node.link_list = [link for link in node.link_list if
+                              link.target.name not in punctuation_list]
 
-    # if self_links have been disabled, remove all self referential links (except for blank lines)
+    # if self_links have been disabled,
+    # remove all self referential links (except for blank lines)
     if not allow_self_links:
         for node in network.node_list:
             if node.name != '\n':

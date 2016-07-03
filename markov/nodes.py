@@ -26,11 +26,12 @@ class Link:
 
 
 class Node:
-    def __init__(self, name=None, parent=None, self_destruct=False):
+    def __init__(self, name=None, self_destruct=False):
         """
         Args:
             name (str or int): Name of the node
-            parent (Graph): the graph this node belongs in
+            self_destruct (bool): whether this note deletes itself after
+                being picked by a graph
         """
         self.name = name
         self.self_destruct = self_destruct
@@ -45,37 +46,23 @@ class Node:
         else:
             return False
 
-    def add_link(self, target, weight=1):
+    def add_link(self, targets, weight=1):
         """
         Args:
-            target (Node or list[Node]): node this link points to
-            weight (int or float): weight fo the link
+            targets (Node or list[Node]): node or nodes to link to
+            weight (int or float): weight for the new link(s)
         """
-        # Check to make sure there isn't already a link to the target node
-        if isinstance(target, list):
-            for target_item in target:
-                already_exists = False
-                if weight < 0:
-                    weight = 0
-                for link in self.link_list:
-                    if link.target == target_item:
-                        already_exists = True
-                        link.add_weight(weight)
-                        link.target.use_weight += 1
-                        break
-                if not already_exists:
-                    self.link_list.append(Link(target_item, weight))
-        else:
-            already_exists = False
-            if weight < 0:
-                weight = 0
-            for link in self.link_list:
-                if link.target == target:
-                    already_exists = True
-                    link.add_weight(weight)
-                    link.target.use_weight += 1
+        # Generalize targets to a list to simplify code
+        if not isinstance(targets, list):
+            targets = [targets]
+
+        for target in targets:
+            # Check to see if self already has a link to target
+            for existing_link in self.link_list:
+                if existing_link.target == target:
+                    existing_link.weight += weight
                     break
-            if not already_exists:
+            else:
                 self.link_list.append(Link(target, weight))
 
     def add_link_to_self(self, source, weight):

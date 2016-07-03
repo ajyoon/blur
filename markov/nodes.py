@@ -37,7 +37,6 @@ class Node:
         self.self_destruct = self_destruct
         self.use_weight = 1
         self.link_list = []
-        # TODO: implement negative link weights? Maybe...?
 
     def find_link(self, target_value):
         for link in self.link_list:
@@ -67,7 +66,7 @@ class Node:
 
     def add_link_to_self(self, source, weight):
         """
-        Add a real link from source node to self at given weight
+        Add a link from source node to self at given weight
 
         Args:
             source (Node):
@@ -75,18 +74,11 @@ class Node:
 
         Returns: None
         """
-        # TODO: take a closer look when not drunk
-        # If target is just one object and not a list
+        # Generalize source to a list to simplify code
         if not isinstance(source, list):
-            if not isinstance(source, Node):
-                raise TypeError("source must be of type Node or list[Node]")
-            source.add_link(self, weight=weight)
-        else:
-            for source_node in source:
-                if not isinstance(source_node, Node):
-                    raise TypeError(
-                        "all nodes in source must be of type Node")
-                source_node.add_link(self, weight=weight)
+            source = [source]
+        for source_node in source:
+            source_node.add_link(self, weight=weight)
 
     def add_reciprocal_link(self, target, weight):
         """
@@ -95,21 +87,16 @@ class Node:
 
         Args:
             target (Node or list[Node]):
-            weight (weight of both links): ?????????????????????????????
+            weight (weight of both links):
 
         Returns: None
         """
         # If target is just one object and not a list
-        # TODO: Are these explicit type checks really necessary?
         if not isinstance(target, list):
-            if not isinstance(target, Node):
-                raise TypeError("target must be of type Node")
             self.add_link(target, weight)
             target.add_link(self, weight)
         else:
             for node in target:
-                if not isinstance(target, Node):
-                    raise TypeError("target must be of type Node")
                 self.add_reciprocal_link(node, weight)
 
     def remove_links_to_self(self):

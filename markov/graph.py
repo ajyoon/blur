@@ -52,12 +52,12 @@ class Graph:
 
     def add_nodes(self, node):
         """
-        Adds a given node or list of nodes to self.node_list.
+        Add a given node or list of nodes to self.node_list.
         If a node already exists in the network, merge them
 
         Args:
-            node:  Node instance or list of Node instances
-        
+            node (Node or list[node]):
+
         Returns: None
         """
         if not isinstance(node, list):
@@ -95,7 +95,11 @@ class Graph:
         Go through every node in the network, adding noise to every link
         scaled to its weight and max_factor
 
-        Args: max_factor (float):
+        TODO: alow a custom noise profile (in the form of a weight list)
+            to be passed
+        
+        Args:
+            max_factor (float):
 
         Returns: None
         """

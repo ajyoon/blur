@@ -67,6 +67,7 @@ class Node:
     def add_link_to_self(self, source, weight):
         """
         Add a link from source node to self at given weight
+        
 
         Args:
             source (Node):

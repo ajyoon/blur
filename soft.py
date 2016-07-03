@@ -23,7 +23,7 @@ class SoftObject:
         raise NotImplementedError
 
     # Needed?
-    #def drift_weights(self):
+    # def drift_weights(self):
     #    raise NotImplementedError
 
 
@@ -35,7 +35,8 @@ class SoftOptions(SoftObject):
         """
         Initialize from a list of (value, weight) tuples
 
-        :param list[(value, weight)] options:
+        Args:
+            list[(value, weight)] options:
         """
         if not isinstance(options, list):
             if isinstance(options, tuple):
@@ -74,7 +75,8 @@ class SoftOptions(SoftObject):
             options list[Any]:
             weight_profile list[(number, number)]: a list of weights
                 which will be used to determine the weights of the options
-        Returns SoftOptions
+
+        Returns: SoftOptions
         """
         if weight_profile is None:
             return cls([((value, random.randint(1, 10)) for value in options)])

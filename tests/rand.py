@@ -1,5 +1,5 @@
 import unittest
-import rand
+from .. import rand
 
 
 # Maybe break into one class per method? Or is that excessive?

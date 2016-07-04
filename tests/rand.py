@@ -2,6 +2,7 @@ import unittest
 import rand
 
 
+# Maybe break into one class per method? Or is that excessive?
 class TestRand(unittest.TestCase):
     def test__linear_interp(self):
         # TODO: Build me
@@ -12,8 +13,11 @@ class TestRand(unittest.TestCase):
         pass
 
     def test_prob_bool(self):
-        # TODO: Build me
-        pass
+        # Test guaranteed outcomes
+        self.assertTrue(rand.prob_bool(100))
+        self.assertTrue(rand.prob_bool(1))
+        self.assertFalse(rand.prob_bool(0))
+        self.assertFalse(rand.prob_bool(-100))
 
     def test_percent_possible(self):
         # TODO: Build me

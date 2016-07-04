@@ -74,44 +74,39 @@ def percent_possible(percent):
     return random.uniform(0, 100) < percent
 
 
-def pos_or_neg(value, pos_weight=None, neg_weight=None):
+def pos_or_neg(value, prob_pos=None):
     """
-    Return either positive or negative ``value``
-
-    If both ``pos_weight`` and ``neg_weight`` are numbers, use them as
-    weights to decide the outcome. Otherwise flip a coin. This is a convenience
-    function for ``some_val = abs(some_val) * pos_or_neg_1()``
+    Return either positive or negative ``value`` based on ``prob_pos``
 
     Args:
         value (int or float): the value to operate on
-        pos_weight (int or float): weight to return 1
-        neg_weight (int or float): weight to return -1
+        prob_pos (Optional[float]): The probability to return positive.
+            Should be between 0 and 1. If not specified, assume 0.5
 
     Returns: int or float
     """
-    return abs(value) * pos_or_neg_1(pos_weight, neg_weight)
+    return abs(value) * pos_or_neg_1(prob_pos)
 
 
-def pos_or_neg_1(pos_weight=None, neg_weight=None):
+def pos_or_neg_1(prob_pos=None):
     """
-    Return either 1 or -1
-
-    If both ``pos_weight`` and ``neg_weight`` are numbers, use them as
-    weights to decide the outcome. Otherwise flip a coin.
+    Return either 1 with probability of ``prob_pos``, otherwise -1
 
     Args:
-        pos_weight (int or float): weight to return 1
-        neg_weight (int or float): weight to return -1
+        prob_pos (Optional[float]): The probability to return (+)1.
+            Should be between 0 and 1. If not specified, assume 0.5
 
-    Returns: int (1 or -1)
+    Returns: int, either 1 or -1
     """
-    if pos_weight is not None and neg_weight is not None:
-        return weighted_option_rand([(1, pos_weight), (-1, neg_weight)])
+    # TODO: This could be implemented with just one argument -
+    # the chance to be positive ((or negative))
+    if prob_pos is None:
+        prob_pos = 0.5
+
+    if random.uniform(0, 1) < prob_pos:
+        return 1
     else:
-        if random.randint(0, 1):
-            return 1
-        else:
-            return -1
+        return -1
 
 
 # TODO: Test me!

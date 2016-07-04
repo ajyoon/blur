@@ -8,5 +8,5 @@ TODO:
 * Implement complete test coverage
 * Set up automated testing with travis-ci
 
-### Status
+# Build Status
 [![Build Status](https://travis-ci.org/ajyoon/chance.svg?branch=master)](https://travis-ci.org/ajyoon/chance)

@@ -78,6 +78,8 @@ def pos_or_neg(value, prob_pos=None):
     """
     Return either positive or negative ``value`` based on ``prob_pos``
 
+    A convenience function for ``abs(value) * pos_or_neg_1``
+
     Args:
         value (int or float): the value to operate on
         prob_pos (Optional[float]): The probability to return positive.
@@ -98,11 +100,8 @@ def pos_or_neg_1(prob_pos=None):
 
     Returns: int, either 1 or -1
     """
-    # TODO: This could be implemented with just one argument -
-    # the chance to be positive ((or negative))
     if prob_pos is None:
         prob_pos = 0.5
-
     if random.uniform(0, 1) < prob_pos:
         return 1
     else:

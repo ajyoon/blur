@@ -44,7 +44,7 @@ class Graph:
         # Remove kill_node from the graph
         self.remove_node(kill_node)
 
-    def add_nodes(self, node):
+    def add_nodes(self, nodes):
         """
         Add a given node or list of nodes to self.node_list.
         If a node already exists in the network, merge them
@@ -54,18 +54,18 @@ class Graph:
 
             Returns: None
         """
-        if not isinstance(node, list):
-            add_list = [node]
+        # Generalize nodes to a list
+        if not isinstance(nodes, list):
+            add_list = [nodes]
         else:
-            add_list = node
-
+            add_list = nodes
         for add_node in add_list:
             for currently_existing_node in self.node_list:
                 if currently_existing_node.name == add_node.name:
                     self.merge_nodes(currently_existing_node, add_node)
                     break
-                else:
-                    self.node_list.append(add_node)
+            else:
+                self.node_list.append(add_node)
 
     def feather_links(self, factor=0.01, include_self=False):
         """
@@ -88,29 +88,17 @@ class Graph:
 
         TODO: alow a custom noise profile (in the form of a weight list)
             to be passed
-        
+
         Args:
             max_factor (float):
 
         Returns: None
         """
-        # Some simple type handling
-        if isinstance(max_factor, int):
-            max_factor *= 1.0
         # Main node loop
         for node in self.node_list:
             for link in node.link_list:
                 link.weight += round(random.uniform(
                     0, link.weight * max_factor), 3)
-
-    def refresh_links(self, copy_network):
-        # Is this necessary???
-        # Finds every duplicate node from self and copy_network,
-        # and replaces links in duplicate nodes
-        for copy_node in copy_network.node_list:
-            for keep_node in self.node_list:
-                if copy_node.name == keep_node.name:
-                    keep_node.link_list = copy_node.link_list
 
     def find_node_by_name(self, name):
         for node in self.node_list:
@@ -123,16 +111,20 @@ class Graph:
         """
         Remove a node from the graph, removing all links pointing to it
 
+        If ``node`` is not in the graph, do nothing.
+
         Args:
             node (Node): The node to be removed
 
         Returns: None
         """
+        if node not in self.node_list:
+            return
+        self.node_list.remove(node)
         # Remove links pointing to the deleted node
         for n in self.node_list:
             n.link_list = [link for link in n.link_list if
                            link.target != node]
-        self.node_list.remove(node)
 
     # TODO: Delete me after refactoring word_mine
     def remove_node_by_name(self, name):
@@ -206,7 +198,6 @@ class Graph:
         Args:
             steps (int): number of nodes to pick
         """
-        assert self.node_list != []
         for i in range(steps):
             self.output_node_sequence.append(self.pick())
 
@@ -285,7 +276,7 @@ def word_mine(source,
             node_sequence.append(nodes.Word(temp_string))
             # @ at the end of a word group will indicate that the word
             # self-destructs after it appears once in usage
-            if node_sequence[-1].name[-1] == '@':
+            if node_sequence[-1].name.endswith('@'):
                 node_sequence[-1].name = node_sequence[-1].name[:-1]
                 node_sequence[-1].self_destruct = True
             temp_string = ""
@@ -347,5 +338,7 @@ def word_mine(source,
             if node.name != '\n':
                 node.remove_links_to_self()
 
+    print('Word graph built with node list length of: {0}'.format(
+        len(network.node_list)))
     return network
 

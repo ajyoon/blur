@@ -1,3 +1,4 @@
+
 """
 UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
 """
@@ -25,7 +26,7 @@ class Graph:
         """
         Takes two nodes and merges them together, merging their links by
         combining the two link lists and summing the weights of links which
-        point to the same node
+        point to the same node.
 
         Args:
             keep_node (Node): node to be kept
@@ -33,22 +34,16 @@ class Graph:
 
         Returns: None
         """
-        assert isinstance(keep_node, nodes.Node)
-        assert isinstance(kill_node, nodes.Node)
-        merge_index = 0
+        # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
-            duplicate_found = False
-            i = 0
-            while i < len(keep_node.link_list):
-                if str(kill_link.target) == str(keep_node.link_list[i].target):
-                    duplicate_found = True
-                    merge_index = i
+            for i, existing_link in enumerate(keep_node.link_list):
+                if kill_link.target == existing_link.target:
+                    existing_link.weight += kill_link.weight
                     break
-                i += 1
-            if duplicate_found:
-                keep_node.link_list[merge_index].weight += kill_link.weight
             else:
                 keep_node.add_link(kill_link.target, kill_link.weight)
+        # Remove kill_node from the graph
+        self.remove_node(kill_node)
 
     def add_nodes(self, node):
         """
@@ -58,7 +53,7 @@ class Graph:
         Args:
             node (Node or list[node]):
 
-        Returns: None
+            Returns: None
         """
         if not isinstance(node, list):
             add_list = [node]
@@ -128,6 +123,22 @@ class Graph:
         else:
             raise ValueError('Could not find node by name ' + str(name))
 
+    def remove_node(self, node):
+        """
+        Remove a node from the graph, removing all links pointing to it
+
+        Args:
+            node (Node): The node to be removed
+
+        Returns: None
+        """
+        # Remove links pointing to the deleted node
+        for n in self.node_list:
+            n.link_list = [link for link in n.link_list if
+                           link.target != node]
+        self.node_list.remove(node)
+
+    # TODO: Delete me after refactoring word_mine
     def remove_node_by_name(self, name):
         """
         Deletes a node by a given name and all network links pointing to it

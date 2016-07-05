@@ -62,7 +62,7 @@ class Graph:
         for add_node in add_list:
             for currently_existing_node in self.node_list:
                 if currently_existing_node.name == add_node.name:
-                    selfelf.merge_nodes(currently_existing_node, add_node)
+                    self.merge_nodes(currently_existing_node, add_node)
                     break
                 else:
                     self.node_list.append(add_node)

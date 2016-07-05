@@ -20,7 +20,6 @@ class Graph:
         self.input_sequence = []
         self.weight = None
         self.chance_to_leave = None
-        self._allow_self_links = True
 
     def merge_nodes(self, keep_node, kill_node):
         """
@@ -61,13 +60,10 @@ class Graph:
             add_list = node
 
         for add_node in add_list:
-            if self._allow_self_links:
-                self.node_list.append(add_node)
-            else:
-                for currently_existing_node in self.node_list:
-                    if currently_existing_node.name == add_node.name:
-                        self.merge_nodes(currently_existing_node, add_node)
-                        break
+            for currently_existing_node in self.node_list:
+                if currently_existing_node.name == add_node.name:
+                    selfelf.merge_nodes(currently_existing_node, add_node)
+                    break
                 else:
                     self.node_list.append(add_node)
 

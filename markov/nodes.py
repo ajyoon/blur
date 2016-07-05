@@ -53,9 +53,11 @@ class Node:
         """
         # Generalize targets to a list to simplify code
         if not isinstance(targets, list):
-            targets = [targets]
+            target_list = [targets]
+        else:
+            target_list = targets
 
-        for target in targets:
+        for target in target_list:
             # Check to see if self already has a link to target
             for existing_link in self.link_list:
                 if existing_link.target == target:
@@ -67,7 +69,7 @@ class Node:
     def add_link_to_self(self, source, weight):
         """
         Add a link from source node to self at given weight
-        
+
 
         Args:
             source (Node):

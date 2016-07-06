@@ -84,8 +84,6 @@ class TestGraph(unittest.TestCase):
         self.node_3.use_weight = 1
         # Repeatedly test and verify probability within a margin of error
         # This is not fool-proof.
-        # Would be neat in to do significant statistical verification
-        # of rand.py where more solid tests would be appropriate.
         trial_count = 100
         node_1_count = 0
         for i in range(trial_count):

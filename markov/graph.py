@@ -44,7 +44,7 @@ class Graph:
         # Remove kill_node from the graph
         self.remove_node(kill_node)
 
-    def add_nodes(self, nodes):
+    def add_nodes(self, nodes, merge_existing_names=False):
         """
         Add a given node or list of nodes to self.node_list.
         If a node already exists in the network, merge them
@@ -59,13 +59,14 @@ class Graph:
             add_list = [nodes]
         else:
             add_list = nodes
-        for add_node in add_list:
-            for currently_existing_node in self.node_list:
-                if currently_existing_node.name == add_node.name:
-                    self.merge_nodes(currently_existing_node, add_node)
-                    break
-            else:
-                self.node_list.append(add_node)
+        if merge_existing_names:
+            for add_node in add_list:
+                for currently_existing_node in self.node_list:
+                    if currently_existing_node.name == add_node.name:
+                        self.merge_nodes(currently_existing_node, add_node)
+                        break
+        else:
+            self.node_list.extend(add_list)
 
     def feather_links(self, factor=0.01, include_self=False):
         """
@@ -101,6 +102,16 @@ class Graph:
                     0, link.weight * max_factor), 3)
 
     def find_node_by_name(self, name):
+        """
+        Find and return a node in self.node_list with the name ``name``
+
+        If multiple nodes exist with the name ``name``,
+        return the first one found.
+
+        Returns: Node
+
+        Raises: ValueError if no node with
+        """
         for node in self.node_list:
             if node.name == name:
                 return node
@@ -126,11 +137,14 @@ class Graph:
             n.link_list = [link for link in n.link_list if
                            link.target != node]
 
-    # TODO: Delete me after refactoring word_mine
     def remove_node_by_name(self, name):
         """
-        Deletes a node by a given name and all network links pointing to it
-        :param name: str
+        Delete all nodes in self.node_list with the name ``name``
+
+        Args:
+            name (Any):
+
+        Returns: None
         """
         self.node_list = [node for node in self.node_list if node.name != name]
         # Remove links pointing to the deleted node
@@ -155,7 +169,12 @@ class Graph:
 
     def pick_by_use_weight(self):
         """
-        :return: Node instance
+        Pick a node in the graph based on node ``use_weight`` values.
+
+        Additionally, set ``self.previous_node`` to ``self.current_node``,
+        Then set ``self.current_node`` to the newly picked node
+
+        Returns: Node
         """
         self.previous_node = self.current_node
         node = weighted_option_rand([(n.name, n.use_weight)
@@ -163,45 +182,35 @@ class Graph:
         self.current_node = self.find_node_by_name(node)
         return self.current_node
 
-    def pick(self, current_node=None):
+    def pick(self, starting_node=None):
         """
-        Pick the next node for the network based on a starting node which is
-        either explicitly stated or implicitly found according to these rules:
+        Pick a node on the graph based on the links in a starting node
 
-            * if current_node is specified, start from there
-            * if current_node is None, start from self.current_node
-            * if current_node is None and self.current_node is None,
-              pick from the network's nodes' use weights
+        Additionally, set ``self.previous_node`` to ``self.current_node``,
+        Then set ``self.current_node`` to the newly picked node
+
+        * if starting_node is specified, start from there
+        * if starting_node is None, start from self.current_node
+        * if starting_node is None and self.current_node is None,
+          pick from the network's nodes' use weights
 
         Args:
-            current_node (Optional[Node]): Node to pick from.
+            starting_node (Optional[Node]): Node to pick from.
 
         Returns: Node
         """
         self.previous_node = self.current_node
-        # If None was passed (default), start from self.current_node
-        if current_node is None:
-            if self.current_node is not None:
-                current_node = self.current_node
-            else:
+        if starting_node is None:
+            if self.current_node is None:
                 return self.pick_by_use_weight()
-        # Otherwise, use a discreet weighted random on start_node.link_list
+            else:
+                starting_node = self.current_node
+        # Use weighted_option_rand on start_node.link_list
         self.current_node = weighted_option_rand(
-            [(link.target, link.weight) for link in current_node.link_list])
+            [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
 
-    def walk(self, steps):
-        """
-        Populate self.output_node_sequence by walking along the network,
-        picking from node to node
-
-        Args:
-            steps (int): number of nodes to pick
-        """
-        for i in range(steps):
-            self.output_node_sequence.append(self.pick())
-
-
+# TODO: Heavily rewrite me!!!
 def word_mine(source,
               distance_weights=None,
               allow_self_links=True,
@@ -219,11 +228,10 @@ def word_mine(source,
         allow_self_links (bool): if words can be linked to themselves
         merge_same_words (bool): if nodes which have the same value should be
             merged or not.
-    
+
     Returns: Graph
     """
     punctuation_list = [' ', ',', '.', ';', '!', '?', ':']
-    action_list = ['+']
     node_sequence = []
     network = Graph()
     network.source = source
@@ -236,7 +244,7 @@ def word_mine(source,
 
     file_string = open(source).read()
 
-    # Parse the file_string, sending words, punctuations, and actions
+    # Parse the file_string, sending words, and punctuations
     # to node_sequence in the order they appear
     temp_string = ""
     i = 0
@@ -252,13 +260,6 @@ def word_mine(source,
             if not file_string[i] == ' ':
                 node_sequence.append(nodes.Punctuation(file_string[i]))
                 temp_string = ''
-
-        elif file_string[i] in action_list:
-            # Send anything in temp_string to a new word
-            if temp_string != '':
-                node_sequence.append(nodes.Word(temp_string))
-                temp_string = ''
-            node_sequence.append(nodes.Action(file_string[i]))
 
         # If special < character is encountered, indicating word groups
         elif file_string[i] == '<':
@@ -294,42 +295,15 @@ def word_mine(source,
             temp_string += file_string[i]
         i += 1
 
-    if merge_same_words:
-        # Send a copy of node_sequence to network,
-        # but remove all duplicate nodes first
-        for node in node_sequence:
-            if not network.has_node_with_name(node.name):
-                network.node_list.append(node)
-
-        # Now use the ordered (and still containing same-name nodes)
-        # node_sequence to build the links in network
-        for i in range(len(node_sequence)):
-            for x in distance_weights.keys():
-                wrap_index = (i + x)
-                if wrap_index >= len(node_sequence):
-                    wrap_index = - (wrap_index - len(node_sequence))
-                network.find_node_by_name(node_sequence[i].name).add_link(
-                    network.find_node_by_name(node_sequence[wrap_index].name),
-                    distance_weights[x])
-    else:
-        network.add_nodes(node_sequence)
-        # Find all relationships according to distance_weights
-        for i in range(len(network.node_list)):
-            for x in distance_weights.keys():
-                # Make indexes circular to prevent IndexErrors
-                wrap_index = (i + x)
-                while wrap_index >= len(network.node_list):
-                    wrap_index = - (wrap_index - len(network.node_list))
-                while wrap_index <= -1 * len(network.node_list):
-                    wrap_index += len(network.node_list)
-                network.node_list[i].add_link(
-                    network.node_list[wrap_index], distance_weights[x])
-
-    # Special handling for \n node: remove all links to Punctuation objects
-    for node in network.node_list:
-        if node.name == '\n':
-            node.link_list = [link for link in node.link_list if
-                              link.target.name not in punctuation_list]
+    network.add_nodes(node_sequence, merge_same_words)
+    # Find all relationships according to distance_weights
+    for i in range(len(network.node_list)):
+        for x in distance_weights.keys():
+            # Make indexes circular to prevent IndexErrors
+            index_sign = 1 if x >= 0 else -1
+            wrapped_index = (x + i) % (index_sign * len(network.node_list))
+            network.node_list[i].add_link(network.node_list[wrapped_index],
+                                          distance_weights[x])
 
     # if self_links have been disabled,
     # remove all self referential links (except for blank lines)
@@ -338,7 +312,4 @@ def word_mine(source,
             if node.name != '\n':
                 node.remove_links_to_self()
 
-    print('Word graph built with node list length of: {0}'.format(
-        len(network.node_list)))
     return network
-

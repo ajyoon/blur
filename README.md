@@ -6,6 +6,8 @@ Currently in the middle of a major refactor to fix mistakes from long ago when t
 TODO:
 * Heavily refactor code, correcting and cleaning up all kinds of mistakes
 * Implement complete test coverage
+* Start using some kind of version numbering system
+* Place on PyPI? May need to rename package since it seems `chance` is already taken.
 
 ### Build Status
 [![Build Status](https://travis-ci.org/ajyoon/chance.svg?branch=master)](https://travis-ci.org/ajyoon/chance)

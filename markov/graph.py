@@ -10,16 +10,11 @@ from . import nodes
 
 
 class Graph:
-    def __init__(self, name=None):
+    def __init__(self):
         self.node_list = []
         self.source = None
-        self.output_node_sequence = []
-        self.name = name
         self.current_node = None
-        self.previous_node = None
-        self.input_sequence = []
         self.weight = None
-        self.chance_to_leave = None
 
     def merge_nodes(self, keep_node, kill_node):
         """
@@ -171,12 +166,10 @@ class Graph:
         """
         Pick a node in the graph based on node ``use_weight`` values.
 
-        Additionally, set ``self.previous_node`` to ``self.current_node``,
-        Then set ``self.current_node`` to the newly picked node
+        Additionally, set ``self.current_node`` to the newly picked node.
 
         Returns: Node
         """
-        self.previous_node = self.current_node
         node = weighted_option_rand([(n.name, n.use_weight)
                                      for n in self.node_list])
         self.current_node = self.find_node_by_name(node)
@@ -186,8 +179,7 @@ class Graph:
         """
         Pick a node on the graph based on the links in a starting node
 
-        Additionally, set ``self.previous_node`` to ``self.current_node``,
-        Then set ``self.current_node`` to the newly picked node
+        Additionally, set ``self.current_node`` to the newly picked node.
 
         * if starting_node is specified, start from there
         * if starting_node is None, start from self.current_node
@@ -199,7 +191,6 @@ class Graph:
 
         Returns: Node
         """
-        self.previous_node = self.current_node
         if starting_node is None:
             if self.current_node is None:
                 return self.pick_by_use_weight()
@@ -209,6 +200,7 @@ class Graph:
         self.current_node = weighted_option_rand(
             [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
+
 
 # TODO: Heavily rewrite me!!!
 def word_mine(source,

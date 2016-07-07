@@ -38,10 +38,22 @@ class TestGraph(unittest.TestCase):
                                   merge_existing_names=True)
         self.assertEqual(len(self.test_graph.node_list), 3)
 
-    def test_feather_links(self):
-        # Todo: Build me
-        pass
+    def test_feather_links_allowing_self_links(self):
+        self.test_graph.feather_links(1, include_self=True)
+        # Python floating point rounding causes strange weights
+        self.assertEqual(
+            [(l.target, l.weight) for l in self.node_1.link_list],
+            [(self.node_2, 234.4),
+             (self.node_3, 375.26),
+             (self.node_1, 0.33999999999999997)])
 
+    def test_feather_links_not_allowing_self_links(self):
+        self.test_graph.feather_links(1, include_self=False)
+        self.assertEqual(
+            [(l.target, l.weight) for l in self.node_1.link_list],
+            [(self.node_2, 234.4),
+             (self.node_3, 375.26)])
+        
     def test_apply_noise(self):
         # Todo: Build me
         pass

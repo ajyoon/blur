@@ -3,7 +3,9 @@
 UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
 """
 
+from __future__ import division
 import random
+
 
 from chance.rand import weighted_option_rand
 from . import nodes
@@ -65,8 +67,9 @@ class Graph:
 
     def feather_links(self, factor=0.01, include_self=False):
         """
-        Go through every node in the network and adds their
-        linked nodes' links multiplied by given factor
+        Feather the links of connected nodes.
+
+        TODO: Explain me better
 
         Args:
             factor (float): multiplier of neighbor links
@@ -74,8 +77,26 @@ class Graph:
 
         Returns: None
         """
-        # TODO: Build me!
-        pass
+        def feather_node(node):
+            node_weight_sum = sum(l.weight for l in node.link_list)
+            # Iterate over a copy of the original link list since we will
+            # need to refer to this while modifying node.link_list
+            for original_link in node.link_list[:]:
+                neighbor_node = original_link.target
+                neighbor_weight = original_link.weight
+                feather_weight = neighbor_weight / node_weight_sum
+                neighbor_node_weight_sum = sum(l.weight for
+                                               l in neighbor_node.link_list)
+                for neighbor_link in neighbor_node.link_list:
+                    if (not include_self) and (neighbor_link.target == node):
+                        continue
+                    relative_link_weight = (neighbor_link.weight /
+                                            neighbor_node_weight_sum)
+                    feathered_link_weight = round((relative_link_weight *
+                                                   feather_weight * factor), 2)
+                    node.add_link(neighbor_link.target, feathered_link_weight)
+        for n in self.node_list:
+            feather_node(n)
 
     def apply_noise(self, max_factor=0.1):
         """
@@ -201,6 +222,22 @@ class Graph:
             [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
 
+    def print_nodes_and_links(self):
+        """
+        Print a list of every node and what its links are
+
+        Returns: None
+        """
+        print('Graph object:')
+        for node in self.node_list:
+            print('Node: {0}\n'
+                  'Links:\n'
+                  '--------'.format(node.name))
+            for link in node.link_list:
+                print('    target: {0}, target name: {1}|| weight: {2}\n'
+                      '    .....................................'.format(
+                          link.target, link.target.name, link.weight))
+        print('=========================================================')
 
 # TODO: Heavily rewrite me!!!
 def word_mine(source,

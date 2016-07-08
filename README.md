@@ -8,6 +8,8 @@ TODO:
 * Implement complete test coverage
 * Start using some kind of version numbering system
 * Place on PyPI? May need to rename package since it seems `chance` is already taken.
+* Add a folder of example usages
+* Create extensive documentation
 
 ### Build Status
 [![Build Status](https://travis-ci.org/ajyoon/chance.svg?branch=master)](https://travis-ci.org/ajyoon/chance)

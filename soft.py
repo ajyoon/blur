@@ -121,8 +121,8 @@ class SoftFloat(SoftObject):
         in any complex way after initialization.
 
         Args:
-            lowest (float):
-            highest (float):
+            lowest (float or int):
+            highest (float or int):
             weight_interval (int):
 
         Returns: SoftFloat
@@ -144,7 +144,7 @@ class SoftFloat(SoftObject):
 
 class SoftInt(SoftFloat):
     """
-    A stochastic float value defined by a list of weights. Has the exact
+    A stochastic int value defined by a list of weights. Has the exact
     same functionality as SoftFloat, except that ``get()`` returns int values
     """
     def get(self):

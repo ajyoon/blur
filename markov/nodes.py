@@ -8,6 +8,10 @@ from chance import rand
 
 
 class Link:
+    """
+    A link that points to a ``Node`` object with a weight for use
+    in ``Graph`` models
+    """
     def __init__(self, target, weight):
         """
         Args:
@@ -16,10 +20,6 @@ class Link:
         """
         self.target = target
         self.weight = weight
-        self.target_name = target.name
-
-    def add_weight(self, amount=1):
-        self.weight += amount
 
     def __str__(self):
         return str(self.target)
@@ -120,7 +120,7 @@ class Node:
 class NoteBehavior(Node):
     """For use as Node objects in a Graph.
     Allows continuous relationship-based behavior for notes"""
-    
+
     def __init__(self, name=None, direction=None, special_action=None,
                  interval_weights=None, pitch_set=None,
                  count_intervals_by_slots=False):

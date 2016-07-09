@@ -69,11 +69,16 @@ class Graph:
         """
         Feather the links of connected nodes.
 
-        TODO: Explain me better
+        Go through every node in the network and make it inherit the links
+        of the other nodes it is connected to. Because the link weight sum
+        for any given node can be very different within a graph, the weights
+        of inherited links are made proportional to the sum weight of the
+        parent nodes.
 
         Args:
             factor (float): multiplier of neighbor links
-            include_self (bool): if nodes can be feathered to themselves
+            include_self (bool): whether nodes can inherit links pointing
+                to themselves
 
         Returns: None
         """
@@ -87,6 +92,8 @@ class Graph:
                 feather_weight = neighbor_weight / node_weight_sum
                 neighbor_node_weight_sum = sum(l.weight for
                                                l in neighbor_node.link_list)
+                # Iterate over the links belonging to the neighbor_node,
+                # copying its links to ``node`` with proportional weights
                 for neighbor_link in neighbor_node.link_list:
                     if (not include_self) and (neighbor_link.target == node):
                         continue
@@ -166,7 +173,7 @@ class Graph:
         # Remove links pointing to the deleted node
         for node in self.node_list:
             node.link_list = [link for link in node.link_list if
-                              link.target_name != name]
+                              link.target.name != name]
 
     def has_node_with_name(self, name):
         """
@@ -238,6 +245,7 @@ class Graph:
                       '    .....................................'.format(
                           link.target, link.target.name, link.weight))
         print('=========================================================')
+
 
 # TODO: Heavily rewrite me!!!
 def word_mine(source,

@@ -86,17 +86,18 @@ class Node:
 
         Args:
             target (Node or list[Node]):
-            weight (weight of both links):
+            weight (weight for new links):
 
         Returns: None
         """
-        # If target is just one object and not a list
+        # Generalize ``target`` to a list
         if not isinstance(target, list):
-            self.add_link(target, weight)
-            target.add_link(self, weight)
+            target_list = [target]
         else:
-            for node in target:
-                self.add_reciprocal_link(node, weight)
+            target_list = target
+        for t in target_list:
+            self.add_link(t, weight)
+            t.add_link(self, weight)
 
     def remove_links_to_self(self):
         self.link_list = [link for link in self.link_list if

@@ -21,10 +21,6 @@ class Link:
         self.target = target
         self.weight = weight
 
-    def __str__(self):
-        return str(self.target)
-
-
 class Node:
     def __init__(self, name=None, self_destruct=False):
         """

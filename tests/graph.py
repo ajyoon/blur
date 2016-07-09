@@ -53,10 +53,31 @@ class TestGraph(unittest.TestCase):
             [(l.target, l.weight) for l in self.node_1.link_list],
             [(self.node_2, 234.4),
              (self.node_3, 375.26)])
-        
-    def test_apply_noise(self):
-        # Todo: Build me
-        pass
+
+    def test_apply_noise_with_uniform_amount(self):
+        UNIFORM_NOISE_AMOUNT = 0.1
+        original_node_1_link_weights = [
+            l.weight for l in self.node_1.link_list]
+        self.test_graph.apply_noise(uniform_amount=UNIFORM_NOISE_AMOUNT)
+        new_link_weights = [l.weight for l in self.node_1.link_list]
+        for index, weight in enumerate(new_link_weights):
+            weight_difference = (abs(weight -
+                                     original_node_1_link_weights[index]) /
+                                 original_node_1_link_weights[index])
+            self.assertLessEqual(weight_difference, UNIFORM_NOISE_AMOUNT)
+
+    def test_apply_noise_with_weighted_amount(self):
+        MAX_NOISE_WEIGHT = 0.1
+        NOISE_WEIGHTS = [(0, 1), (MAX_NOISE_WEIGHT, 10)]
+        original_node_1_link_weights = [
+            l.weight for l in self.node_1.link_list]
+        self.test_graph.apply_noise(noise_weights=NOISE_WEIGHTS)
+        new_link_weights = [l.weight for l in self.node_1.link_list]
+        for index, weight in enumerate(new_link_weights):
+            weight_difference = (abs(weight -
+                                     original_node_1_link_weights[index]) /
+                                 original_node_1_link_weights[index])
+            self.assertLessEqual(weight_difference, MAX_NOISE_WEIGHT)
 
     def test_find_node_by_name(self):
         found_node = self.test_graph.find_node_by_name('Node 2')
@@ -126,4 +147,3 @@ class TestGraph(unittest.TestCase):
         self.assertTrue(picked_node in [self.node_2, self.node_3])
         # Test that self.test_graph.current_node correctly updated
         self.assertEqual(self.test_graph.current_node, picked_node)
-

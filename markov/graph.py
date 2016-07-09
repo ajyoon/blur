@@ -7,7 +7,7 @@ from __future__ import division
 import random
 
 
-from chance.rand import weighted_option_rand
+from chance.rand import weighted_option_rand, weighted_curve_rand
 from . import nodes
 
 
@@ -105,24 +105,31 @@ class Graph:
         for n in self.node_list:
             feather_node(n)
 
-    def apply_noise(self, max_factor=0.1):
+    def apply_noise(self, noise_weights=None, uniform_amount=0.1):
         """
-        Go through every node in the network, adding noise to every link
-        scaled to its weight and max_factor
+        Add noise to every link in the network.
 
-        TODO: alow a custom noise profile (in the form of a weight list)
-            to be passed
+        Can use either a ``uniform_amount`` or a ``noise_weight`` weight
+        profile. If ``noise_weight`` is set, ``uniform_amount`` will be
+        ignored.
 
         Args:
-            max_factor (float):
+            noise_weights (Optional[(amount, weight)]): a list of weights
+                describing the noise to be added to each link
+            uniform_amount (float): the maximum amount of uniform noise
+                to be applied if ``noise_weights`` is not set
 
         Returns: None
         """
         # Main node loop
         for node in self.node_list:
             for link in node.link_list:
-                link.weight += round(random.uniform(
-                    0, link.weight * max_factor), 3)
+                if noise_weights is not None:
+                    noise_amount = round(weighted_curve_rand(noise_weights), 3)
+                else:
+                    noise_amount = round(random.uniform(
+                        0, link.weight * uniform_amount), 3)
+                link.weight += noise_amount
 
     def find_node_by_name(self, name):
         """

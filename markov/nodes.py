@@ -36,12 +36,22 @@ class Node:
         self.use_weight = 1
         self.link_list = []
 
-    def find_link(self, target_value):
+    def find_link(self, target_node):
+        """
+        Find the link that points to ``target_node`` if it exists.
+
+        If no link in ``self`` points to ``target_node``, return None
+
+        Args:
+            target_node (Node): The node to look for in ``self.link_list``
+
+        Returns: Node or None
+        """
         for link in self.link_list:
-            if link.target.value == target_value:
+            if link.target == target_node:
                 return link
         else:
-            return False
+            return None
 
     def add_link(self, targets, weight=1):
         """

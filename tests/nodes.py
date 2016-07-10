@@ -16,23 +16,23 @@ class Node(unittest.TestCase):
         # TODO: Build me!
         pass
 
-    def test___init__(self, name=None, self_destruct=False):
+    def test_init(self):
         # TODO: Build me!
         pass
 
-    def test_find_link(self, target_value):
+    def test_find_link(self):
         # TODO: Build me!
         pass
 
-    def test_add_link(self, targets, weight=1):
+    def test_add_link(self):
         # TODO: Build me!
         pass
 
-    def test_add_link_to_self(self, source, weight):
+    def test_add_link_to_self(self):
         # TODO: Build me!
         pass
 
-    def test_add_reciprocal_link(self, target, weight):
+    def test_add_reciprocal_link(self):
         # TODO: Build me!
         pass
 

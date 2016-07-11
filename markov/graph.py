@@ -327,7 +327,7 @@ class Graph:
                                 6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                                 11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
         graph = cls()
-        expression = '<.+>|[,\.\;\!\?\:\\\/\'\"]|[a-zA-z]+'
+        expression = '<(?:.+)>|(?:[,\.\;\!\?\:\\\/\'\"])|(?:[a-zA-z]+)'
         words = re.findall(expression, source)
         temp_node_list = [nodes.Node(w) for w in words]
 

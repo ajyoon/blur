@@ -53,11 +53,18 @@ class Node:
         else:
             return None
 
-    def add_link(self, targets, weight=1):
+    def add_link(self, targets, weight):
         """
+        Add link(s) pointing to ``targets``.
+
+        If a link already exists pointing to a target, just add ``weight``
+        to that link's weight
+
         Args:
             targets (Node or list[Node]): node or nodes to link to
             weight (int or float): weight for the new link(s)
+
+        Returns: None
         """
         # Generalize targets to a list to simplify code
         if not isinstance(targets, list):

@@ -327,8 +327,11 @@ class Graph:
                                 6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                                 11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
         graph = cls()
-        expression = '<(?:.+)>|(?:[,\.\;\!\?\:\\\/\'\"])|(?:[a-zA-z]+)'
-        words = re.findall(expression, source)
+        expression = '<(.+)>|([,\.\;\!\?\:\\\/\'\"])|([a-zA-z]+)'
+        matches = re.findall(expression, source)
+        # Un-tuple matches since we are only using groups to strip brackets
+        # Is there a better way to do this?
+        words = [next(t for t in match if t) for match in matches]
         temp_node_list = [nodes.Node(w) for w in words]
 
         for i, node in enumerate(temp_node_list):

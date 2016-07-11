@@ -5,7 +5,7 @@ UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
 
 from __future__ import division
 import random
-
+import re
 
 from chance.rand import weighted_option_rand, weighted_curve_rand
 from . import nodes
@@ -253,107 +253,93 @@ class Graph:
                           link.target, link.target.name, link.weight))
         print('=========================================================')
 
+    @classmethod
+    def from_file(cls,
+                  source,
+                  distance_weights=None,
+                  allow_self_links=True,
+                  merge_same_words=False):
+        """
+        Read a string from a file and generate a Graph object based on it
 
-# TODO: Heavily rewrite me!!!
-def word_mine(source,
-              distance_weights=None,
-              allow_self_links=True,
-              merge_same_words=False):
-    """
-    Read a text document and generates a Graph object based on it
+        Words and punctuation marks are made into nodes.
+        To use whitespace and punctuation marks within a word
+        (e.g. to make ``'hello, world!'``) into a single node, surround the
+        text in question with angle brackets ``'<hello, world!>'``.
 
-    Args:
-        source (str): path to the source document
-        distance_weights (dict): dict of relative indices corresponding with
-            word weights. For example, if a dict entry is '1: 1000' this means
-            that every word is linked to the word which follows it with a
-            weight of 1000. '-4: 350' would mean that every word is
-            linked to the 4th word behind it with a weight of 350
-        allow_self_links (bool): if words can be linked to themselves
-        merge_same_words (bool): if nodes which have the same value should be
-            merged or not.
+        This is a convenience function for opening a file and passing its
+        contents to Graph.from_string()
 
-    Returns: Graph
-    """
-    punctuation_list = [' ', ',', '.', ';', '!', '?', ':']
-    node_sequence = []
-    network = Graph()
-    network.source = source
+        Args:
+            source (str): the string to derive the graph from
+            distance_weights (dict): dict of relative indices corresponding
+                with word weights. For example, if a dict entry is ``1: 1000``
+                this means that every word is linked to the word which follows
+                it with a weight of 1000. ``-4: 350`` would mean that every
+                word is linked to the 4th word behind it with a weight of 350.
+                A key of ``0`` refers to the weight words get
+                pointing to themselves. Keys pointing beyond the edge of the
+                word list will wrap around the list.
+            allow_self_links (bool): if words can be linked to themselves
+            merge_same_words (bool): if nodes which have the same value should
+                be merged or not.
 
-    # Set up relative position weights
-    if distance_weights is None:
-        distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
-                            6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
-                            11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
+        Returns: Graph
+        """
+        source_string = open(source, 'r').read()
+        return cls.from_string(source_string,
+                               distance_weights,
+                               allow_self_links,
+                               merge_same_words)
 
-    file_string = open(source).read()
+    @classmethod
+    def from_string(cls,
+                    source,
+                    distance_weights=None,
+                    allow_self_links=True,
+                    merge_same_words=False):
+        """
+        Read a string and generate a Graph object based on it
 
-    # Parse the file_string, sending words, and punctuations
-    # to node_sequence in the order they appear
-    temp_string = ""
-    i = 0
-    while i < len(file_string):
-        # If the character belongs in the punctuation list
-        if file_string[i] in punctuation_list:
-            # Send anything in temp_string to a new word
-            if temp_string != '':
-                node_sequence.append(nodes.Word(temp_string))
-                temp_string = ''
-            # If a space is encountered, skip it
-            # Otherwise, add the punctuation character to word_list
-            if not file_string[i] == ' ':
-                node_sequence.append(nodes.Punctuation(file_string[i]))
-                temp_string = ''
+        Words and punctuation marks are made into nodes.
+        To use whitespace and punctuation marks within a word
+        (e.g. to make ``'hello, world!'``) into a single node, surround the
+        text in question with angle brackets ``'<hello, world!>'``.
 
-        # If special < character is encountered, indicating word groups
-        elif file_string[i] == '<':
-            # Send temp_string to the word_list and clear temp_string
-            if temp_string != '':
-                node_sequence.append(nodes.Word(temp_string))
-                temp_string = ''
-            # Skip over < character
-            i += 1
-            # Loop until end of word group is reached (marked by >)
-            while file_string[i] != '>':
-                temp_string += file_string[i]
-                i += 1
-            # Send new temp_string to another word in the word_list
-            node_sequence.append(nodes.Word(temp_string))
-            # @ at the end of a word group will indicate that the word
-            # self-destructs after it appears once in usage
-            if node_sequence[-1].name.endswith('@'):
-                node_sequence[-1].name = node_sequence[-1].name[:-1]
-                node_sequence[-1].self_destruct = True
-            temp_string = ""
-            # Skip over > character
-            i += 1
+        Args:
+            source (str): the string to derive the graph from
+            distance_weights (dict): dict of relative indices corresponding
+                with word weights. For example, if a dict entry is ``1: 1000``
+                this means that every word is linked to the word which follows
+                it with a weight of 1000. ``-4: 350`` would mean that every
+                word is linked to the 4th word behind it with a weight of 350.
+                A key of ``0`` refers to the weight words get
+                pointing to themselves. Keys pointing beyond the edge of the
+                word list will wrap around the list.
+            allow_self_links (bool): if words can be linked to themselves
+            merge_same_words (bool): if nodes which have the same value should
+                be merged or not.
 
-        # If we've reached the final character in the file,
-        # send whatever remains in temp_string to to a node
-        elif i == len(file_string) - 1 and temp_string != '':
-            temp_string += file_string[i]
-            node_sequence.append(nodes.Word(temp_string))
-            temp_string = ''
-        else:
-            # Add the next character in the file to temp_string
-            temp_string += file_string[i]
-        i += 1
+        Returns: Graph
+        """
+        if distance_weights is None:
+            distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
+                                6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
+                                11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
+        graph = cls()
+        expression = '<.+>|[,\.\;\!\?\:\\\/\'\"]|[a-zA-z]+'
+        words = re.findall(expression, source)
+        temp_node_list = [nodes.Node(w) for w in words]
 
-    network.add_nodes(node_sequence, merge_same_words)
-    # Find all relationships according to distance_weights
-    for i in range(len(network.node_list)):
-        for x in distance_weights.keys():
-            # Make indexes circular to prevent IndexErrors
-            index_sign = 1 if x >= 0 else -1
-            wrapped_index = (x + i) % (index_sign * len(network.node_list))
-            network.node_list[i].add_link(network.node_list[wrapped_index],
-                                          distance_weights[x])
+        for i, node in enumerate(temp_node_list):
+            for key, weight in distance_weights.items():
+                # Wrap the index of edge items
+                index_sign = 1 if i >= 0 else -1
+                wrapped_index = (key + i) % (index_sign * len(temp_node_list))
+                if (not allow_self_links) and (
+                        temp_node_list[wrapped_index].name == node.name):
+                    continue
+                node.add_link(temp_node_list[wrapped_index], weight)
 
-    # if self_links have been disabled,
-    # remove all self referential links (except for blank lines)
-    if not allow_self_links:
-        for node in network.node_list:
-            if node.name != '\n':
-                node.remove_links_to_self()
-
-    return network
+        graph.add_nodes(temp_node_list, merge_existing_names=merge_same_words)
+        return graph

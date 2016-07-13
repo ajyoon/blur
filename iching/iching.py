@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A simple model I Ching
 
@@ -5,6 +6,8 @@ All data and probabilities taken from Wikipedia at:
 https://en.wikipedia.org/wiki/I_Ching_divination and
 https://en.wikipedia.org/wiki/List_of_hexagrams_of_the_I_Ching
 """
+
+from __future__ import unicode_literals
 
 import random
 import warnings
@@ -154,7 +157,7 @@ _hexagram_dict = {
 }
 
 
-def get_hexagram(method='THREE COIN', return_hexagram_number=True):
+def get_hexagram(method='THREE COIN'):
     """
     Return one or two hexagrams using any of a variety of divination methods
 
@@ -166,8 +169,10 @@ def get_hexagram(method='THREE COIN', return_hexagram_number=True):
 
     Args:
         method (Optional[str]): THREE COIN, YARROW, NAIVE
-        return_hexagram_number (Optional[bool]): Whether or not to
-            lookup the hexagrams' ``int`` numbers
+
+    Returns: tuple(int) or int
+
+    Raises: ValueError if ``method`` is invalid
     """
     if method == 'THREE COIN':
         weights = [('MOVING YANG', 2),
@@ -180,10 +185,7 @@ def get_hexagram(method='THREE COIN', return_hexagram_number=True):
                    ('STATIC YANG', 11),
                    ('STATIC YIN',  17)]
     elif method == 'NAIVE':
-        if return_hexagram_number:
-            return random.randint(1, 64)
-        else:
-            return tuple(random.randint(0, 1) for i in range(6))
+        return random.randint(1, 64)
     else:
         raise ValueError
 
@@ -207,8 +209,5 @@ def get_hexagram(method='THREE COIN', return_hexagram_number=True):
     # Convert hexagrams lists into tuples
     hexagram_1 = tuple(hexagram_1)
     hexagram_2 = tuple(hexagram_2)
-    if return_hexagram_number:
-        return (_hexagram_dict[hexagram_1],
-                _hexagram_dict[hexagram_2])
-    else:
-        return (hexagram_1, hexagram_2)
+    return (_hexagram_dict[hexagram_1],
+            _hexagram_dict[hexagram_2])

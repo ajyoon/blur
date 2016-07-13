@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 Extended descriptions of the hexagrams.
 
 All information copied from wikipedia at:
 https://en.wikipedia.org/wiki/List_of_hexagrams_of_the_I_Ching
 """
+
+from __future__ import unicode_literals
 
 descriptions = {
     1:  'Hexagram 1 is named 乾 (qián), "Force". Other variations include "the creative", "strong action", "the key", and "god". Its inner (lower) trigram is ☰ (乾 qián) force = (天) heaven, and its outer (upper) trigram is the same.',

@@ -327,7 +327,11 @@ class Graph:
                                 6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                                 11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
         graph = cls()
-        expression = '<(.+)>|([,\.\;\!\?\:\\\/\'\"])|([a-zA-z]+)'
+        # regex that matches:
+        #   * Anything surrounded by angle bracks,
+        #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
+        #   * Any continuous group of alphanumerical characters
+        expression = '<(.+)>|([,\.\;\!\?\:\\\/\'\"\(\)\[\])|([a-zA-z0-9]+)'
         matches = re.findall(expression, source)
         # Un-tuple matches since we are only using groups to strip brackets
         # Is there a better way to do this?

@@ -139,6 +139,11 @@ class SoftFloat(SoftObject):
         return cls(weights)
 
     def get(self):
+        """
+        Get a ``float`` value in the probability space of the object
+
+        Returns: float
+        """
         return rand.weighted_curve_rand(self.weights, round_result=False)
 
 
@@ -148,4 +153,78 @@ class SoftInt(SoftFloat):
     same functionality as SoftFloat, except that ``get()`` returns int values
     """
     def get(self):
+        """
+        Get an ``int`` value in the probability space of the object
+
+        Returns: int
+        """
         return rand.weighted_curve_rand(self.weights, round_result=True)
+
+
+class SoftColor(SoftObject):
+    """
+    An RGB color whose individual channels are ``SoftInt`` objects
+
+    ``SoftColor.get()`` returns an ``(r, g, b) tuple``.
+    To get a hexadecimal color value, use ``to_hex()``.
+
+    Examples:
+        >>> color.get()
+        (234, 124, 32)
+        >>> color.get().to_hex()
+        #ea7c20
+    """
+    def __init__(self, red, green, blue):
+        """
+        Args:
+            red (SoftInt or tuple(args for SoftInt)):
+            green (SoftInt or tuple(args for SoftInt)):
+            blue (SoftInt or tuple(args for SoftInt)):
+        """
+        self.red = red
+        if isinstance(red, tuple):
+            self.red = SoftInt(*self.red)
+        self.green = green
+        if isinstance(green, tuple):
+            self.green = SoftInt(*self.green)
+        self.blue = blue
+        if isinstance(blue, tuple):
+            self.blue = SoftInt(*self.blue)
+
+    @staticmethod
+    def _bound_color_value(color):
+        """
+        Clamp a color value to be between ``0`` and ``255``
+
+        Args:
+            color (int):
+
+        Returns: int
+        """
+        if color < 0:
+            return 0
+        elif color > 255:
+            return 255
+        else:
+            return color
+
+    @staticmethod
+    def to_hex(color):
+        """
+        Convert a color tuple to a hexadecimal string
+
+        Args:
+            color (tuple):
+
+        Returns: string
+        """
+        return '#{0:02x}{1:02x}{2:02x}'.format(
+            _bound_color_value(color[0]),
+            _bound_color_value(color[1]),
+            _bound_color_value(color[2]))
+
+    def get(self):
+        """
+        Get a color tuple
+        """
+        return (self.red.get(), self.green.get(), self.blue.get())

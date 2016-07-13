@@ -29,6 +29,11 @@ def _linear_interp(x1, y1, x2, y2, x3, round_result=False):
 def _point_under_curve(curve, point):
     """
     Determine if a point is under a piecewise curve defined by a list of points
+
+    Points within ``curve`` must be sorted in nondecreasing order by x value.
+    If multiple points in ``curve`` have the same x value, all but the last
+    will be ignored.
+
     Args:
         curve [(x, y)]:
         point (x, y):
@@ -36,11 +41,15 @@ def _point_under_curve(curve, point):
     Returns: Bool
     """
     for i in range(0, len(curve) - 1):
+        # Skip over points which have the same x value
+        # arbitrarily preferring the last occuring point with that x value
+        if curve[i][0] == curve[i + 1][0]:
+            continue
         if curve[i][0] <= point[0] <= curve[i + 1][0]:
             curve_y = _linear_interp(curve[i][0], curve[i][1],
                                      curve[i + 1][0], curve[i + 1][0],
                                      point[0])
-            if point[1] <= curve_y:
+            if point[1] < curve_y:
                 # The sample point is under the curve
                 return True
     else:
@@ -106,57 +115,6 @@ def pos_or_neg_1(prob_pos=None):
         return 1
     else:
         return -1
-
-
-# TODO: Test me!
-def merge_markov_weights_dicts(dict_1, dict_2, ratio):
-    """Merge two markov_weights_dict's
-    where ratio the weight of dict_1 to dict_2.
-    Ratio must be greater than 0 and less than or equal to 1"""
-    min_key = min(list(dict_1.keys()) + list(dict_2.keys()))
-    max_key = max(list(dict_1.keys()) + list(dict_2.keys()))
-
-    def interp_dict(in_dict):
-        """Return a copy of in_dict with interpolated values for every
-        integer key within the range of in_dict's keys"""
-        out_dict = {}
-        min_key = min(list(in_dict.keys()))
-        max_key = max(list(in_dict.keys()))
-        for key in range(min_key, max_key):
-            if key in in_dict:
-                out_dict[key] = in_dict[key]
-            else:
-                # We need to interpolate this key in out_dict
-                # Find the nearest key to the left and right
-                # (because the min and max keys are defined,
-                # we have no edge case to deal with)
-                lower_key = max([k for k in in_dict.keys() if k < key])
-                lower_value = in_dict[lower_key]
-                higher_key = min([k for k in in_dict.keys() if k > key])
-                higher_value = in_dict[lower_key]
-                out_dict[key] = _linear_interp(lower_key, lower_value,
-                                               higher_key, higher_value,
-                                               key)
-        return out_dict
-
-    interp_dict_1 = interp_dict(dict_1)
-    interp_dict_2 = interp_dict(dict_2)
-    # Merge the two dicts
-    merged_dict = {}
-    for key in range(min_key, max_key):
-        if key in interp_dict_1 and key not in interp_dict_2:
-            merged_dict[key] = interp_dict_1[key]
-        elif key in interp_dict_2 and key not in interp_dict_1:
-            merged_dict[key] = interp_dict_2[key]
-        else:
-            # Merge the values
-            # If KeyError occurs, fix something above
-            # There is probably some 4th grade algebra way to simplify this
-            weighted_value = ((interp_dict_1[key] * ratio) +
-                              (interp_dict_2[key] * (1 / ratio))) / 2
-            merged_dict[key] = weighted_value
-
-    return merged_dict
 
 
 def weighted_curve_rand(weights, round_result=False):
@@ -252,7 +210,7 @@ def weighted_sort(weights):
         weights [(Any, float, float)]:
             [(list_item, place_in_percent, weight)]
 
-    Returns:
+    Returns: One of the objects in weights[][0]
 
     """
     # TODO: Build me

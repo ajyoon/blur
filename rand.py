@@ -15,15 +15,32 @@ class PointNotFoundError(Exception):
 ###############################################################################
 #   Local utility functions
 ###############################################################################
-def _linear_interp(x1, y1, x2, y2, x3, round_result=False):
-    """Take two points and interpolate between them at x3"""
-    slope = (y2 - y1) / (x2 - x1)
-    y_int = y1 - (slope * x1)
-    result = (slope * x3) + y_int
-    if round_result:
-        return int(round(result))
+def _linear_interp(curve, test_x, round_result=False):
+    """
+    Take a series of points and interpolate between them at ``test_x``
+
+    Args:
+        curve (list[tuple]): A list of ``(x, y)`` points sorted in
+            nondecreasing ``x`` value. If multiple points have the same
+            ``x`` value, all but the last occuring will be ignored.
+        test_x (float): The ``x`` value to find the ``y`` value of
+    """
+    index = 0
+    for index in range(len(curve) - 1):
+        # Ignore points which share an x value with the following point
+        if curve[index][0] == curve[index + 1][0]:
+            continue
+        if curve[index][0] <= test_x <= curve[index + 1][0]:
+            slope = ((curve[index + 1][1] - curve[index][1]) /
+                     (curve[index + 1][0] - curve[index][0]))
+            y_intercept = curve[index][1] - (slope * curve[index][0])
+            result = (slope * test_x) + y_intercept
+            if round_result:
+                return int(round(result))
+            else:
+                return result
     else:
-        return result
+        raise PointNotFoundError
 
 
 def _point_under_curve(curve, point):
@@ -40,19 +57,9 @@ def _point_under_curve(curve, point):
 
     Returns: Bool
     """
-    for i in range(0, len(curve) - 1):
-        # Skip over points which have the same x value
-        # arbitrarily preferring the last occuring point with that x value
-        if curve[i][0] == curve[i + 1][0]:
-            continue
-        if curve[i][0] <= point[0] <= curve[i + 1][0]:
-            curve_y = _linear_interp(curve[i][0], curve[i][1],
-                                     curve[i + 1][0], curve[i + 1][0],
-                                     point[0])
-            if point[1] < curve_y:
-                # The sample point is under the curve
-                return True
-    else:
+    try:
+        return _linear_interp(curve, point[0]) > point[1]
+    except PointNotFoundError:
         return False
 
 

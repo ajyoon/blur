@@ -337,8 +337,7 @@ class Graph:
         for i, node in enumerate(temp_node_list):
             for key, weight in distance_weights.items():
                 # Wrap the index of edge items
-                index_sign = 1 if i >= 0 else -1
-                wrapped_index = (key + i) % (index_sign * len(temp_node_list))
+                wrapped_index = (key + i) % len(temp_node_list)
                 if (not allow_self_links) and (
                         temp_node_list[wrapped_index].name == node.name):
                     continue

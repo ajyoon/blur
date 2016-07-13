@@ -17,14 +17,10 @@ class SoftObject:
     An abstract base class for ``SoftObject``s.
 
     Every SoftObject represents a stochastic blurry object whose value
-    is determined with the ``get()`` function.
+    is determined with the ``get()`` method.
     """
     def get(self):
         raise NotImplementedError
-
-    # Needed?
-    # def drift_weights(self):
-    #    raise NotImplementedError
 
 
 class SoftOptions(SoftObject):
@@ -86,7 +82,34 @@ class SoftOptions(SoftObject):
                        for value in options])
 
     def get(self):
+        """
+        Get one of the options within the probability space of the object
+
+        Returns: Any
+        """
         return rand.weighted_option_rand(self.options)
+
+
+class SoftBool(SoftObject):
+    """
+    A stochastic bool defined by a probability to be ``True``
+    """
+    def __init__(self, prob_true):
+        """
+        Args:
+            prob_true (float): The probability that ``get()`` returns ``True``
+                where ``prob_true <= 0`` is always ``False`` and
+                ``prob_true >= 1`` is always ``True``.
+        """
+        self.prob_true = prob_true
+
+    def get(self):
+        """
+        Get either ``True`` or ``False`` depending on ``self.prob_true``
+
+        Returns: bool
+        """
+        return random.uniform(0, 1) <= self.prob_true
 
 
 class SoftFloat(SoftObject):

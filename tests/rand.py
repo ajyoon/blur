@@ -1,31 +1,59 @@
+from __future__ import division
+
 import unittest
+import math
 import random
 
 from .. import rand
 
+"""
+Tests for functions in the ``rand`` module.
+
+Due to the stochastic nature of many of these functions,
+this is not absolute proof that the fcuntions are working as expected.
+False failures, while highly unlikely, are possible.
+
+If something fails and you aren't sure why, try re-running
+the tests a few times before going bug-hunting.
+"""
 
 class TestRand(unittest.TestCase):
     def test__linear_interp(self):
         # Positive integer slope with and without rounding
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, 2, 2, 1, round_result=False), 1)
+            rand._linear_interp([(0, 0), (2, 2)], 1, round_result=False),
+            1)
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, 2, 2, 1, round_result=True), 1)
+            rand._linear_interp([(0, 0), (2, 2)], 1, round_result=True),
+            1)
         # Negative integer slope with and without rounding
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, -2, -2, -1, round_result=False), -1)
+            rand._linear_interp([(-2, -2), (0, 0)], -1, round_result=False),
+            -1)
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, -2, -2, -1, round_result=True), -1)
+            rand._linear_interp([(-2, -2), (0, 0)], -1, round_result=True),
+            -1)
         # Positive non-integer slope with and without rounding
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, 4, 1, 1, round_result=True), 0)
+            rand._linear_interp([(0, 0), (4, 1)], 1, round_result=True),
+            0)
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, 4, 1, 1, round_result=False), 0.25)
+            rand._linear_interp([(0, 0), (4, 1)], 1, round_result=False),
+            0.25)
         # Negative non-integer slope with and without rounding
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, -4, -1, -1, round_result=True), 0)
+            rand._linear_interp([(-4, -1), (0, 0)], -1, round_result=True),
+            0)
         self.assertAlmostEqual(
-            rand._linear_interp(0, 0, -4, -1, -1, round_result=False), -0.25)
+            rand._linear_interp([(-4, -1), (0, 0)], -1, round_result=False),
+            -0.25)
+        # Three points in curve with and without rounding
+        self.assertAlmostEqual(
+            rand._linear_interp([(0, 0), (2, 2), (18, 7)],
+                                1, round_result=False), 1)
+        self.assertAlmostEqual(
+            rand._linear_interp([(0, 0), (2, 2), (18, 7)],
+                                1, round_result=True), 1)
 
     def test__point_under_curve(self):
         # Build several random curves and test points below the minimum
@@ -152,8 +180,42 @@ class TestRand(unittest.TestCase):
         self.assertTrue(300 <= ten_count <= 900)
 
     def test_weighted_curve_rand(self):
-        # TODO: Build me
-        pass
+        """
+        Test ``rand.weighted_curve_rand()``  by finding a large number of
+        points from a randomly built weight distribution and comparing the
+        distribution against the expectation using a crude histogram model.
+        """
+        MIN_X = -1000
+        MIN_Y = 0
+        MAX_X = 1000
+        MAX_Y = 1000
+        curve = [(random.randint(MIN_X, MAX_X), random.randint(MIN_Y, MAX_Y))
+                 for i in range(30)]
+        # Attach points to domain bounds at MIN_Y
+        curve.append((MIN_X, MIN_Y))
+        curve.append((MAX_X, MIN_Y))
+        # Sort the points in the curve as this is a
+        # requirement of _linear_interp()
+        curve.sort(key=lambda p: p[0])
+
+        BIN_WIDTH = 1
+        bins = {b: 0 for b in range(MIN_X, MAX_X, BIN_WIDTH)}
+        TEST_COUNT = 1000
+        for i in range(TEST_COUNT):
+            point = rand.weighted_curve_rand(curve, round_result=False)
+            # Match the found point to the closest bin to the left
+            bins[int(math.floor(point / BIN_WIDTH) * BIN_WIDTH)] += 1
+        # Make sure the binning is working as expected
+        self.assertEqual(sum(values for i, values in bins.items()), TEST_COUNT,
+                         msg='This test itself is broken! '
+                             'Not all rolled points were matched to a bin.')
+        sum_probability = 0
+        for bin_x in bins.keys():
+            sum_probability += rand._linear_interp(curve, bin_x)
+        for bin_x, count in bins.items():
+            bin_probability = rand._linear_interp(curve, bin_x)
+            expected_count = (bin_probability / sum_probability) * TEST_COUNT
+            self.assertLess(abs(count - expected_count), TEST_COUNT / 10)
 
     def test_weighted_sort(self):
         # TODO: Build me

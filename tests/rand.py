@@ -114,8 +114,8 @@ class TestRand(unittest.TestCase):
         )
         mean_diff = abs(MEAN - samples_mean)
         variance_diff = abs(VARIANCE - samples_variance)
-        self.assertLess(mean_diff, abs(MEAN / 10))
-        self.assertLess(variance_diff, abs(VARIANCE / 10))
+        self.assertLess(mean_diff, abs(MEAN / 5))
+        self.assertLess(variance_diff, abs(VARIANCE / 5))
 
     def test_prob_bool(self):
         # Test guaranteed outcomes

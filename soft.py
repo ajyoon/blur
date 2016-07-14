@@ -1,10 +1,6 @@
-# Make a series of classes for soft numbers
+# A series of classes for soft numbers
 # whose values change every time they are retrieved
 # according to defined chance profiles
-#
-# Could make subclasses for float, int, bool, maybe some others?
-#
-# Even a more complicated soft string could be defined
 
 from warnings import warn
 
@@ -34,19 +30,6 @@ class SoftOptions(SoftObject):
         Args:
             list[(value, weight)] options:
         """
-        if not isinstance(options, list):
-            if isinstance(options, tuple):
-                if len(options) == 2:
-                    self.options = [options]
-                    return
-                elif len(options) == 1:
-                    self.options = [options[0], 1]
-                    return
-                else:
-                    raise TypeError
-            else:
-                raise TypeError
-
         self.options = options
 
     @classmethod

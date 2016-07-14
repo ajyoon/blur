@@ -100,6 +100,7 @@ def normal_distribution(mean, variance, weight_count=23):
         current_x += step
     return weights
 
+
 def prob_bool(probability):
     """
     Return True or False depending on probability

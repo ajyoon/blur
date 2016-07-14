@@ -106,7 +106,7 @@ class TestRand(unittest.TestCase):
         STANDARD_DEVIATION = math.sqrt(VARIANCE)
         SAMPLE_COUNT = 200
         curve = rand.normal_distribution(MEAN, VARIANCE, 23)
-        samples = [rand.weighted_curve_rand(curve) for i in range(SAMPLE_COUNT)]
+        samples = [rand.weighted_rand(curve) for i in range(SAMPLE_COUNT)]
         samples_mean = sum(samples) / len(samples)
         samples_variance = (
             sum((s - samples_mean) ** 2 for s in samples) /
@@ -205,9 +205,9 @@ class TestRand(unittest.TestCase):
         self.assertTrue(50 <= five_count <= 600)
         self.assertTrue(300 <= ten_count <= 900)
 
-    def test_weighted_curve_rand(self):
+    def test_weighted_rand(self):
         """
-        Test ``rand.weighted_curve_rand()``  by finding a large number of
+        Test ``rand.weighted_rand()``  by finding a large number of
         points from a randomly built weight distribution and comparing the
         distribution against the expectation using a crude histogram model.
         """
@@ -228,7 +228,7 @@ class TestRand(unittest.TestCase):
         bins = {b: 0 for b in range(MIN_X, MAX_X, BIN_WIDTH)}
         TEST_COUNT = 1000
         for i in range(TEST_COUNT):
-            point = rand.weighted_curve_rand(curve, round_result=False)
+            point = rand.weighted_rand(curve, round_result=False)
             # Match the found point to the closest bin to the left
             bins[int(math.floor(point / BIN_WIDTH) * BIN_WIDTH)] += 1
         # Make sure the binning is working as expected

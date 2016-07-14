@@ -7,7 +7,7 @@ from __future__ import division
 import random
 import re
 
-from chance.rand import weighted_option, weighted_curve_rand
+from chance.rand import weighted_option, weighted_rand
 from . import nodes
 
 
@@ -125,7 +125,7 @@ class Graph:
         for node in self.node_list:
             for link in node.link_list:
                 if noise_weights is not None:
-                    noise_amount = round(weighted_curve_rand(noise_weights), 3)
+                    noise_amount = round(weighted_rand(noise_weights), 3)
                 else:
                     noise_amount = round(random.uniform(
                         0, link.weight * uniform_amount), 3)

@@ -78,7 +78,7 @@ class SoftOptions(SoftObject):
             return cls([((value, random.randint(1, 10)) for value in options)])
         else:
             return cls([(value,
-                         rand.weighted_curve_rand(weight_profile, True))
+                         rand.weighted_rand(weight_profile, True))
                        for value in options])
 
     def get(self):
@@ -167,7 +167,7 @@ class SoftFloat(SoftObject):
 
         Returns: float
         """
-        return rand.weighted_curve_rand(self.weights, round_result=False)
+        return rand.weighted_rand(self.weights, round_result=False)
 
 
 class SoftInt(SoftFloat):
@@ -181,7 +181,7 @@ class SoftInt(SoftFloat):
 
         Returns: int
         """
-        return rand.weighted_curve_rand(self.weights, round_result=True)
+        return rand.weighted_rand(self.weights, round_result=True)
 
 
 class SoftColor(SoftObject):

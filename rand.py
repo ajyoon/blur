@@ -158,7 +158,7 @@ def pos_or_neg_1(prob_pos=None):
         return -1
 
 
-def weighted_curve_rand(weights, round_result=False):
+def weighted_rand(weights, round_result=False):
     """
     Generate a non-uniform random value based on a list of tuple weights
 
@@ -203,7 +203,7 @@ def weighted_curve_rand(weights, round_result=False):
                 return sample[0]
         attempt_count += 1
     else:
-        warn('Point not being found in weighted_curve_rand() after 50000 '
+        warn('Point not being found in weighted_rand() after 50000 '
              'attempts, defaulting to a random weight point')
         return random.choice(weights)[0]
 

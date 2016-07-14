@@ -10,7 +10,7 @@ from .. import rand
 Tests for functions in the ``rand`` module.
 
 Due to the stochastic nature of many of these functions,
-this is not absolute proof that the fcuntions are working as expected.
+this is not absolute proof that the functions are working as expected.
 False failures, while highly unlikely, are possible.
 
 If something fails and you aren't sure why, try re-running
@@ -54,6 +54,9 @@ class TestRand(unittest.TestCase):
         self.assertAlmostEqual(
             rand._linear_interp([(0, 0), (2, 2), (18, 7)],
                                 1, round_result=True), 1)
+        # test_x out of the domain of the curve
+        with self.assertRaises(rand.PointNotFoundError):
+            rand._linear_interp([(0, 0), (2, 2)], -1, round_result=False)
 
     def test__point_under_curve(self):
         # Build several random curves and test points below the minimum
@@ -90,6 +93,29 @@ class TestRand(unittest.TestCase):
         point_on_upper_x_bound = (MAX_X, MIN_Y - 1)
         self.assertTrue(rand._point_under_curve(
             curve, point_on_upper_x_bound))
+
+    def test_normal_distribution(self):
+        """
+        Test the accuracy of ``rand.normal_distribution()``
+        by using the curve it creates to generate a large number of samples,
+        and then calculate the real variance and mean of the resulting
+        sample group
+        """
+        MEAN = -12
+        VARIANCE = 2.5
+        STANDARD_DEVIATION = math.sqrt(VARIANCE)
+        SAMPLE_COUNT = 200
+        curve = rand.normal_distribution(MEAN, VARIANCE, 23)
+        samples = [rand.weighted_curve_rand(curve) for i in range(SAMPLE_COUNT)]
+        samples_mean = sum(samples) / len(samples)
+        samples_variance = (
+            sum((s - samples_mean) ** 2 for s in samples) /
+            len(samples)
+        )
+        mean_diff = abs(MEAN - samples_mean)
+        variance_diff = abs(VARIANCE - samples_variance)
+        self.assertLess(mean_diff, abs(MEAN / 10))
+        self.assertLess(variance_diff, abs(VARIANCE / 10))
 
     def test_prob_bool(self):
         # Test guaranteed outcomes

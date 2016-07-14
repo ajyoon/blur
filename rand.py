@@ -2,6 +2,8 @@
 from __future__ import division
 import copy
 import random
+import math
+
 from warnings import warn
 
 
@@ -24,6 +26,9 @@ def _linear_interp(curve, test_x, round_result=False):
             nondecreasing ``x`` value. If multiple points have the same
             ``x`` value, all but the last occuring will be ignored.
         test_x (float): The ``x`` value to find the ``y`` value of
+
+    Raises:
+        PointNotFoundError if ``test_x`` is out of the domain of ``curve``
     """
     index = 0
     for index in range(len(curve) - 1):
@@ -66,6 +71,35 @@ def _point_under_curve(curve, point):
 ###############################################################################
 # Methods
 ###############################################################################
+def normal_distribution(mean, variance, weight_count=23):
+    """
+    Return a list of weights approximating a normal distribution
+
+    Args:
+        mean (float): The mean of the distribution
+        variance (float): The variance of the distribution
+        weight_count (Optional[int]): The number of weights that will
+            be used to approximate the distribution
+
+    Returns: list[tuple(float, float)]
+    """
+    # Pin 0 to +- 5 sigma as bouds
+    def _normal_function(x, mean, variance):
+        e_power = -1 * (((x - mean) ** 2) / (2 * variance))
+        return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
+
+    standard_deviation = math.sqrt(variance)
+    MIN_X = (standard_deviation * -5) + mean
+    MAX_X = (standard_deviation * 5) + mean
+    step = (MAX_X - MIN_X) / weight_count
+    current_x = MIN_X
+    weights = []
+    while current_x < MAX_X:
+        weights.append((current_x,
+                        _normal_function(current_x, mean, variance)))
+        current_x += step
+    return weights
+
 def prob_bool(probability):
     """
     Return True or False depending on probability
@@ -191,7 +225,7 @@ def weighted_option_rand(weights):
 
     Returns: Any
 
-    Raises: PointNotFoundError
+    Raises: PointNotFoundError if something goes wrong internally.
     """
     # If there's only one choice, choose it
     if len(weights) == 1:
@@ -207,7 +241,9 @@ def weighted_option_rand(weights):
         current_pos += weights[i][1]
         i += 1
     else:
-        raise PointNotFoundError
+        raise PointNotFoundError(
+            'Something went wrong in weighted_option_rand() :( '
+            'Please submit a bug report at https://github.com/ajyoon/chance')
 
 
 def weighted_sort(weights):

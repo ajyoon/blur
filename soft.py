@@ -5,23 +5,29 @@
 from warnings import warn
 
 import random
-import rand
+from . import rand
 
 
 class SoftObject:
     """
     An abstract base class for ``SoftObject``s.
 
+    Direct instances of ``SoftObject`` should not be created; instead, the
+    appropriate subclass should be used.
+
     Every SoftObject represents a stochastic blurry object whose value
     is determined with the ``get()`` method.
     """
+    def __init__(self):
+        raise NotImplementedError
+
     def get(self):
         raise NotImplementedError
 
 
 class SoftOptions(SoftObject):
     """
-    One of many objects with optional varied weights
+    One of many objects with corrosponding weights
     """
     def __init__(self, options):
         """
@@ -33,16 +39,23 @@ class SoftOptions(SoftObject):
         self.options = options
 
     @classmethod
-    def with_uniform_weights(cls, options):
+    def with_uniform_weights(cls, options, weight=1):
         """
         Initialize from a list of options, assigning uniform weights
 
         Args:
-            options list[Any]:
+            options list[Any]: The list of options this object can return
+                with the ``get()`` method.
+            weight (Optional[float or int]): The weight to be assigned to
+                every option. Regardless of what this is, the probability
+                of each option will be the same. In almost all cases this can
+                be ignored. The only case for explicitly setting this is if
+                you need to modify the weights after creation
+                with specific requirements.
 
         Returns: SoftOptions
         """
-        return cls([(value, 1) for value in options])
+        return cls([(value, weight) for value in options])
 
     @classmethod
     def with_random_weights(cls, options, weight_profile=None):

@@ -100,18 +100,6 @@ class SoftFloat(SoftObject):
     A stochastic float value defined by a list of weights
     """
     def __init__(self, weights):
-        if not isinstance(weights, list):
-            if isinstance(weights, tuple):
-                if len(weights) > 2:
-                    self.weights = [weights]
-                    return
-                elif len(weights) == 1:
-                    self.weights = [weights[0], 1]
-                    return
-                else:
-                    raise TypeError
-            else:
-                raise TypeError
         self.weights = weights
 
     @classmethod

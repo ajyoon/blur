@@ -208,7 +208,7 @@ def weighted_curve_rand(weights, round_result=False):
         return random.choice(weights)[0]
 
 
-def weighted_option_rand(weights):
+def weighted_option(weights):
     """
     Generate a non-uniform random value based on a list of weight tuples.
     Treats each outcome as a discreet unit with a chance to occur.
@@ -242,7 +242,7 @@ def weighted_option_rand(weights):
         i += 1
     else:
         raise PointNotFoundError(
-            'Something went wrong in weighted_option_rand() :( '
+            'Something went wrong in weighted_option() :( '
             'Please submit a bug report at https://github.com/ajyoon/chance')
 
 

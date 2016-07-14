@@ -87,7 +87,7 @@ class SoftOptions(SoftObject):
 
         Returns: Any
         """
-        return rand.weighted_option_rand(self.options)
+        return rand.weighted_option(self.options)
 
 
 class SoftBool(SoftObject):

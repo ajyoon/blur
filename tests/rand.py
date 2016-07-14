@@ -99,7 +99,7 @@ class TestRand(unittest.TestCase):
         Test the accuracy of ``rand.normal_distribution()``
         by using the curve it creates to generate a large number of samples,
         and then calculate the real variance and mean of the resulting
-        sample group
+        sample group and compare the two within a comfortable margin.
         """
         MEAN = -12
         VARIANCE = 2.5
@@ -185,13 +185,13 @@ class TestRand(unittest.TestCase):
                 pos_count += 1
         self.assertTrue(300 <= pos_count <= 700)
 
-    def test_weighted_option_rand(self):
+    def test_weighted_option(self):
         options = [(0, 1), (5, 2), (10, 5)]
         zero_count = 0
         five_count = 0
         ten_count = 0
         for i in range(1000):
-            result = rand.weighted_option_rand(options)
+            result = rand.weighted_option(options)
             if result == 0:
                 zero_count += 1
             elif result == 5:
@@ -199,7 +199,7 @@ class TestRand(unittest.TestCase):
             elif result == 10:
                 ten_count += 1
             else:
-                self.fail('Unexpected weighted_option_rand'
+                self.fail('Unexpected weighted_option'
                           'result {0}'.format(result))
         self.assertTrue(25 <= zero_count <= 250)
         self.assertTrue(50 <= five_count <= 600)

@@ -12,7 +12,7 @@ from __future__ import unicode_literals
 import random
 import warnings
 
-from chance.rand import weighted_option_rand
+from chance.rand import weighted_option
 
 hexagrams = {
     # number: (character, name, english name)
@@ -193,7 +193,7 @@ def get_hexagram(method='THREE COIN'):
     hexagram_2 = []
 
     for i in range(6):
-        roll = weighted_option_rand(weights)
+        roll = weighted_option(weights)
         if roll == 'MOVING YANG':
             hexagram_1.append(1)
             hexagram_2.append(0)

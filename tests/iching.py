@@ -1,6 +1,6 @@
 import unittest
 
-from ..iching import iching, long_descriptions
+from .. import iching
 
 
 class IChing(unittest.TestCase):
@@ -28,4 +28,4 @@ class IChing(unittest.TestCase):
             gram = iching.get_hexagram(method='invalid method name')
 
     def test_long_description_dict_length(self):
-        self.assertEqual(len(long_descriptions.descriptions), 64)
+        self.assertEqual(len(iching.descriptions), 64)

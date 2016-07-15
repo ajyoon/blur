@@ -3,8 +3,8 @@
 A simple model I Ching
 
 All data and probabilities taken from Wikipedia at:
-https://en.wikipedia.org/wiki/I_Ching_divination and
-https://en.wikipedia.org/wiki/List_of_hexagrams_of_the_I_Ching
+    * https://en.wikipedia.org/wiki/I_Ching_divination and
+    * https://en.wikipedia.org/wiki/List_of_hexagrams_of_the_I_Ching
 """
 
 from __future__ import unicode_literals
@@ -15,7 +15,7 @@ import warnings
 from blur.rand import weighted_option
 
 hexagrams = {
-    # number: (character, name, english name)
+    # number: (character, name, english_name)
     1:  ('䷀', '乾',   'Force'),
     2:  ('䷁', '坤',   'Field'),
     3:  ('䷂', '屯',   'Sprouting'),
@@ -164,8 +164,9 @@ def get_hexagram(method='THREE COIN'):
     The ``NAIVE`` method simply returns a uniformally random ``int`` between
     ``1`` and ``64``.
 
-    All other methods return a tuple of two ``int`` where the first represents
-    the starting hexagram and the second represents the 'moving to' hexagram.
+    All other methods return a ``tuple`` of two ``int`` where the first
+    represents the starting hexagram and the second represents the 'moving to'
+    hexagram.
 
     Args:
         method (Optional[str]): THREE COIN, YARROW, NAIVE

@@ -175,11 +175,13 @@ class SoftColor(SoftObject):
     ``SoftColor.get()`` returns an ``(r, g, b) tuple``.
     To get a hexadecimal color value, use ``to_hex()``.
 
-    Examples:
-        >>> color.get()
-        (234, 124, 32)
-        >>> color.get().to_hex()
-        #ea7c20
+    >>> rgb = color.get()
+    >>> rgb
+    (234, 124, 32)
+    >>> rgb.to_hex()
+    '#ea7c20'
+    >>> color.get().to_hex()  # Pretending color.get() output is the same
+    '#ea7c20'
     """
     def __init__(self, red, green, blue):
         """

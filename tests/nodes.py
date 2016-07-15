@@ -1,6 +1,6 @@
 import unittest
 
-from ..markov import nodes
+from blur.markov import nodes
 
 
 class Link(unittest.TestCase):

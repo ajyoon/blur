@@ -1,5 +1,5 @@
 import unittest
-from ..markov import graph, nodes
+from blur.markov import graph, nodes
 
 
 class TestGraph(unittest.TestCase):

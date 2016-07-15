@@ -4,7 +4,7 @@ import unittest
 import math
 import random
 
-from .. import rand
+from blur import rand
 
 """
 Tests for functions in the ``rand`` module.

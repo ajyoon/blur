@@ -1,6 +1,6 @@
 import unittest
 
-from .. import iching
+from blur import iching
 
 
 class IChing(unittest.TestCase):

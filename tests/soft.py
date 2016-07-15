@@ -4,7 +4,7 @@ import unittest
 import math
 import random
 
-from .. import soft
+from blur import soft
 
 
 class TestSoftObject(unittest.TestCase):

@@ -5,7 +5,7 @@
 from warnings import warn
 
 import random
-from . import rand
+from blur import rand
 
 
 class SoftObject:

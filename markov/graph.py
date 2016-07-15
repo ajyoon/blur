@@ -7,7 +7,7 @@ from __future__ import division
 import random
 import re
 
-from chance.rand import weighted_option, weighted_rand
+from blur.rand import weighted_option, weighted_rand
 from . import nodes
 
 

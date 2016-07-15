@@ -4,7 +4,7 @@ UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
 
 import random
 
-from chance import rand
+from blur import rand
 
 
 class Link:

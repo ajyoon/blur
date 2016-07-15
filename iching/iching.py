@@ -12,7 +12,7 @@ from __future__ import unicode_literals
 import random
 import warnings
 
-from chance.rand import weighted_option
+from blur.rand import weighted_option
 
 hexagrams = {
     # number: (character, name, english name)

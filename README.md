@@ -12,4 +12,4 @@ TODO:
 * Create extensive documentation
 
 ### Build Status
-=[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=master)](https://travis-ci.org/ajyoon/blur)
+[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=master)](https://travis-ci.org/ajyoon/blur)

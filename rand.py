@@ -8,13 +8,6 @@ from warnings import warn
 
 
 ###############################################################################
-#   Module error classes
-###############################################################################
-class PointNotFoundError(Exception):
-    pass
-
-
-###############################################################################
 #   Local utility functions
 ###############################################################################
 def _linear_interp(curve, test_x, round_result=False):
@@ -28,7 +21,7 @@ def _linear_interp(curve, test_x, round_result=False):
         test_x (float): The ``x`` value to find the ``y`` value of
 
     Raises:
-        PointNotFoundError if ``test_x`` is out of the domain of ``curve``
+        ValueError if ``test_x`` is out of the domain of ``curve``
     """
     index = 0
     for index in range(len(curve) - 1):
@@ -45,7 +38,7 @@ def _linear_interp(curve, test_x, round_result=False):
             else:
                 return result
     else:
-        raise PointNotFoundError
+        raise ValueError
 
 
 def _point_under_curve(curve, point):
@@ -64,7 +57,7 @@ def _point_under_curve(curve, point):
     """
     try:
         return _linear_interp(curve, point[0]) > point[1]
-    except PointNotFoundError:
+    except ValueError:
         return False
 
 
@@ -226,7 +219,7 @@ def weighted_option(weights):
 
     Returns: Any
 
-    Raises: PointNotFoundError if something goes wrong internally.
+    Raises: ValueError if something goes wrong internally.
     """
     # If there's only one choice, choose it
     if len(weights) == 1:
@@ -242,7 +235,7 @@ def weighted_option(weights):
         current_pos += weights[i][1]
         i += 1
     else:
-        raise PointNotFoundError(
+        raise ValueError(
             'Something went wrong in weighted_option() :( '
             'Please submit a bug report at https://github.com/ajyoon/chance')
 

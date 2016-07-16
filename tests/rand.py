@@ -55,7 +55,7 @@ class TestRand(unittest.TestCase):
             rand._linear_interp([(0, 0), (2, 2), (18, 7)],
                                 1, round_result=True), 1)
         # test_x out of the domain of the curve
-        with self.assertRaises(rand.PointNotFoundError):
+        with self.assertRaises(ValueError):
             rand._linear_interp([(0, 0), (2, 2)], -1, round_result=False)
 
     def test__point_under_curve(self):

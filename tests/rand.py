@@ -314,6 +314,47 @@ class TestRand(unittest.TestCase):
             expected_count = (bin_probability / sum_probability) * TEST_COUNT
             self.assertLess(abs(count - expected_count), TEST_COUNT / 10)
 
-    def test_weighted_sort(self):
-        # TODO: Build me
-        pass
+    def test_weighted_shuffle_output_shape(self):
+        original_list = [('Something', 50,     10),
+                         ('Another',   20,     5),
+                         ('Again',     90,     1),
+                         ('And',       'STAY', 700),
+                         ('More',      0,      5)]
+        shuffled = rand.weighted_shuffle(original_list)
+        for item in shuffled:
+            self.assertIsInstance(item, str)
+
+    def test_weighted_shuffle_doesnt_lose_or_add_items(self):
+        original_list = [('Something', 50,     10),
+                         ('Another',   20,     5),
+                         ('Again',     90,     1),
+                         ('And',       'STAY', 700),
+                         ('More',      0,      5)]
+        shuffled = rand.weighted_shuffle(original_list)
+        self.assertEqual(len(original_list), len(shuffled))
+        for item in original_list:
+            self.assertIn(item[0], shuffled)
+
+    def test_weighted_shuffle_with_all_weights_as_0(self):
+        original_list = [('Something', 50,     10),
+                         ('Another',   20,     5),
+                         ('Again',     90,     1),
+                         ('And',       'STAY', 700),
+                         ('More',      0,      5)]
+        shuffled = rand.weighted_shuffle(original_list)
+        self.assertEqual(len(original_list), len(shuffled))
+        for item in original_list:
+            self.assertIn(item[0], shuffled)
+
+    def test_weighted_shuffle_with_extremely_strong_weight(self):
+        original_list = [('Something',   50,     10),
+                         ('Another',     20,     5),
+                         ('Again',       90,     1),
+                         ('Mostly Stay', 'STAY', 7000),
+                         ('More',        0,      5)]
+        mostly_stay_success_count = 0
+        for i in range(500):
+            shuffled = rand.weighted_shuffle(original_list)
+            if shuffled.index('Mostly Stay') == 3:
+                mostly_stay_success_count += 1
+        self.assertGreater(mostly_stay_success_count, 300)

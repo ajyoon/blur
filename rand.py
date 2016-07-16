@@ -315,7 +315,8 @@ def weighted_choice(weights):
 
     Weight tuples should be of the form: (outcome, weight). Weight
     outcome values may be of any type. Weights with weight 0 or less will have
-    no chance to be rolled.
+    no chance to be rolled, unless all weights are 0, in which case a
+    uniformally random choice will be returned.
 
     Args:
         weights (list[(outcome, weight)]):
@@ -331,6 +332,10 @@ def weighted_choice(weights):
     # pick a uniformally random point along the line, and take
     # the outcome that point corrosponds to
     prob_sum = sum(w[1] for w in weights)
+    if prob_sum == 0:
+        # If probabilities add up to 0, assume everything is 0 and return
+        # a uniformally random choice
+        return random.choice([opt[0] for opt in options])
     sample = random.uniform(0, prob_sum)
     current_pos = 0
     i = 0
@@ -350,12 +355,66 @@ def weighted_shuffle(weights):
     """
     Non-uniformally shuffle a list.
 
+    ``weights`` is a list of the form: [(list_item, place, weight)].
+    ``list_item`` is the item to place in the final list. ``place`` is either a
+    ``float`` between 0 and 100 representing the percent along the list it will
+    end up, or the ``str`` 'STAY' meaning the item will stay where it appears
+    in ``weights``. ``weight`` is the weight given to the chance that the item
+    appears in the specified ``place``.
+
+    The algorithm works by choosing an item from ``weights`` according to the
+    ``weight`` element and placing its ``list_item`` its the specified
+    ``place``. Items with the lowest ``weight`` will tend to be placed last,
+    filling in gaps left between higher priority items, making their positions
+    less predictable. ``weight`` values of 0 have the lowest possible
+    priority and will be placed anywhere left after other items have been
+    placed.
+
     Args:
-        weights [(Any, float, float)]:
-            [(list_item, place_in_percent, weight)]
+        weights [(Any, float or str, float)]:
 
-    Returns: The shuffled list
+    Returns:
+        list: The shuffled list
 
+    Raises:
+        TypeError: If passed ``weights`` is not formed correctly
     """
-    # TODO: Build me
-    pass
+    working_list = weights[:]
+    # list of tuples [list_item, target_index]
+    # used to store positions before moving them into the final list
+    shuffle_positions = []
+
+    def closest_available(requested_index):
+        """The closest index that isn't taken in ``shuffle_positions``."""
+        taken_positions = [position[1] for position in shuffle_positions]
+        available_indexes = [i for i in range(len(weights))
+                             if i not in taken_positions]
+        return min((available_index for available_index in available_indexes),
+                   key=lambda index: abs(move_index - index))
+
+    while working_list:
+        # Pick which item to move
+        move_index = weighted_choice(
+            [(index, weight[2]) for index, weight in enumerate(working_list)])
+        move_item = working_list[move_index][0]
+        # Find the index where the item will be placed
+        if isinstance(working_list[move_index][1], str):
+            if working_list[move_index][1] == 'STAY':
+                # Place in the index closest to where the item appears already
+                target_position = closest_available(move_index)
+            else:
+                raise TypeError
+        else:
+            # Place in the index closest to working_list[][1] percent along
+            requested_index = int((working_list[move_index][1] / 100) *
+                                  move_index)
+            target_position = closest_available(requested_index)
+        shuffle_positions.append((move_item, target_position))
+        # Remove the item weight from working_list
+        working_list.pop(move_index)
+
+    # Construct the shuffled list and return it
+    shuffled_list = [None] * len(weights)
+    for item, target_index in shuffle_positions:
+        shuffled_list[target_index] = item
+    return shuffled_list

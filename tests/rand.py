@@ -1,11 +1,3 @@
-from __future__ import division
-
-import unittest
-import math
-import random
-
-from blur import rand
-
 """
 Tests for functions in the ``rand`` module.
 
@@ -16,6 +8,15 @@ False failures, while highly unlikely, are possible.
 If something fails and you aren't sure why, try re-running
 the tests a few times before going bug-hunting.
 """
+
+from __future__ import division
+
+import unittest
+import math
+import random
+
+from blur import rand
+
 
 class TestRand(unittest.TestCase):
     def test__linear_interp(self):
@@ -114,6 +115,11 @@ class TestRand(unittest.TestCase):
         with self.assertRaises(ValueError):
             rand.bound_weights(weights, 10, 5)
 
+    def test_bound_weights_without_bounds_raises_TypeError(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        with self.assertRaises(TypeError):
+            rand.bound_weights(weights)
+
     def test_bound_weights_doesnt_modify_input(self):
         weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
         original_weights = weights[:]
@@ -132,11 +138,19 @@ class TestRand(unittest.TestCase):
         self.assertEqual(rand.bound_weights(weights, 2, 4),
                          [(2, 2), (4, 2)])
 
-    def _test_bound_weights_clipping_between_existing_weights(self):
+    def test_bound_weights_clipping_between_existing_weights(self):
         weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
         self.assertEqual(rand.bound_weights(weights, 1, 5),
-                         [(1, 1), (2, 2), (4, 2), (6, 1)])
+                         [(1, 1), (2, 2), (4, 2), (5, 1)])
 
+    def test_bound_weights_with_only_one_bound(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        # With only minimum
+        self.assertEqual(rand.bound_weights(weights, minimum=1),
+                         [(1, 1), (2, 2), (4, 2), (6, 0)])
+        # With only maximum
+        self.assertEqual(rand.bound_weights(weights, maximum=5),
+                         [(0, 0), (2, 2), (4, 2), (5, 1)])
 
     def test_normal_distribution(self):
         """
@@ -149,7 +163,7 @@ class TestRand(unittest.TestCase):
         VARIANCE = 2.5
         STANDARD_DEVIATION = math.sqrt(VARIANCE)
         SAMPLE_COUNT = 200
-        curve = rand.normal_distribution(MEAN, VARIANCE, 23)
+        curve = rand.normal_distribution(MEAN, VARIANCE)
         samples = [rand.weighted_rand(curve) for i in range(SAMPLE_COUNT)]
         samples_mean = sum(samples) / len(samples)
         samples_variance = (
@@ -160,6 +174,10 @@ class TestRand(unittest.TestCase):
         variance_diff = abs(VARIANCE - samples_variance)
         self.assertLess(mean_diff, abs(MEAN / 5))
         self.assertLess(variance_diff, abs(VARIANCE / 5))
+
+    def test_normal_distribution_with_bounds(self):
+        # TODO: build me!
+        pass
 
     def test_prob_bool(self):
         # Test guaranteed outcomes

@@ -98,7 +98,7 @@ def _clamp_value(value, minimum, maximum):
 ###############################################################################
 # Methods
 ###############################################################################
-def bound_weights(weights, minimum, maximum):
+def bound_weights(weights, minimum=None, maximum=None):
     """
     Bound a weight list so that all outcomes fit within specified bounds.
 
@@ -107,6 +107,9 @@ def bound_weights(weights, minimum, maximum):
     ``maximum`` are removed. If weights are removed from either end, attach
     weights at the modified edges at the same weight (y-axis) position they
     had interpolated in the original list.
+
+    At least one of ``minimum`` and ``maximum`` must be set,
+    or else this raises TypeError
 
     Args:
         weights (list[(float or int, float or int)]): the list of weights
@@ -118,53 +121,77 @@ def bound_weights(weights, minimum, maximum):
         list[(int or float, int or float)]: The bounded weight list
 
     Raises:
-        ValueError: if maximum < minimum
+        ValueError: if ``maximum < minimum``
+        TypeError: if both ``minimum`` and ``maximum`` are ``None``
     """
-    if maximum < minimum:
-        raise ValueError
     # Copy weights to avoid side-effects
     bounded_weights = weights[:]
     # Remove weights outside of minimum and maximum
-    bounded_weights = [bw for bw in bounded_weights
-                       if minimum <= bw[0] <= maximum]
+    if minimum is not None and maximum is not None:
+        if maximum < minimum:
+            raise ValueError
+        bounded_weights = [bw for bw in bounded_weights
+                           if minimum <= bw[0] <= maximum]
+    elif minimum is not None:
+        bounded_weights = [bw for bw in bounded_weights
+                           if minimum <= bw[0]]
+    elif maximum is not None:
+        bounded_weights = [bw for bw in bounded_weights
+                           if bw[0] <= maximum]
+    else:
+        # Both minimum and maximum are not defined
+        raise TypeError
     # If weights were removed, attach new endpoints where they would have
     # appeared in the original curve
     if (bounded_weights[0][0] > weights[0][0] and
             bounded_weights[0][0] != minimum):
-        bound_weights.insert(0, (minimum, _linear_interp(weights, minimum)))
-    if (bounded_weights[-1][0] > weights[-1][0] and
+        bounded_weights.insert(0, (minimum, _linear_interp(weights, minimum)))
+    if (bounded_weights[-1][0] < weights[-1][0] and
             bounded_weights[-1][0] != maximum):
         bounded_weights.append((maximum, _linear_interp(weights, maximum)))
     return bounded_weights
 
-def normal_distribution(mean, variance, weight_count=23):
+
+def normal_distribution(mean, variance,
+                        minimum=None, maximum=None, weight_count=23):
     """
     Return a list of weights approximating a normal distribution.
 
     Args:
         mean (float): The mean of the distribution
         variance (float): The variance of the distribution
+        minimum (float): The minimum outcome possible to
+            bound the output distribution to
+        maximum (float): The maximum outcome possible to
+            bound the output distribution to
         weight_count (Optional[int]): The number of weights that will
             be used to approximate the distribution
 
     Returns: list[(float, float)]
+
+    Raises:
+        ValueError: if ``maximum < minimum``
+        TypeError: if both ``minimum`` and ``maximum`` are ``None``
     """
-    # Pin 0 to +- 5 sigma as bouds
     def _normal_function(x, mean, variance):
         e_power = -1 * (((x - mean) ** 2) / (2 * variance))
         return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
-
+    # Pin 0 to +- 5 sigma as bounds, or minimum and maximum
+    # if they cross +/- sigma
     standard_deviation = math.sqrt(variance)
-    MIN_X = (standard_deviation * -5) + mean
-    MAX_X = (standard_deviation * 5) + mean
-    step = (MAX_X - MIN_X) / weight_count
-    current_x = MIN_X
+    min_x = (standard_deviation * -5) + mean
+    max_x = (standard_deviation * 5) + mean
+    step = (max_x - min_x) / weight_count
+    current_x = min_x
     weights = []
-    while current_x < MAX_X:
+    while current_x < max_x:
         weights.append((current_x,
                         _normal_function(current_x, mean, variance)))
         current_x += step
-    return weights
+    if minimum is not None or maximum is not None:
+        return bound_weights(weights, minimum, maximum)
+    else:
+        return weights
 
 
 def prob_bool(probability):

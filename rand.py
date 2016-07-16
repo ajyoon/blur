@@ -286,7 +286,7 @@ def weighted_rand(weights, round_result=False):
 
     # Roll random numbers until a valid one is found
     attempt_count = 0
-    while attempt_count < 50000:
+    while attempt_count < 500000:
         # Get sample point
         sample = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
         if _point_under_curve(weights, sample):
@@ -297,12 +297,14 @@ def weighted_rand(weights, round_result=False):
                 return sample[0]
         attempt_count += 1
     else:
-        warn('Point not being found in weighted_rand() after 50000 '
-             'attempts, defaulting to a random weight point')
+        warn('Point not being found in weighted_rand() after 500000 '
+             'attempts, defaulting to a random weight point. '
+             'If this happens often, it is probably a bug, so please let us '
+             'know with a bug report at https://github.com/ajyoon/blur')
         return random.choice(weights)[0]
 
 
-def weighted_option(weights):
+def weighted_choice(weights):
     """
     Generate a non-uniform random value based on a list of weight tuples.
 
@@ -319,9 +321,8 @@ def weighted_option(weights):
         weights (list[(outcome, weight)]):
 
     Returns: Any
-
-    Raises: ValueError if something goes wrong internally.
     """
+    # TODO: Maybe rename weighted_choice() to match stdlib name
     # If there's only one choice, choose it
     if len(weights) == 1:
         return weights[0][0]
@@ -340,9 +341,10 @@ def weighted_option(weights):
         current_pos += weights[i][1]
         i += 1
     else:
-        raise ValueError(
-            'Something went wrong in weighted_option() :( '
-            'Please submit a bug report at https://github.com/ajyoon/chance')
+        warn("Option couldn't be found in weighted_choice(). "
+             "It's not you it's me. "
+             "Please submit a bug report at https://github.com/ajyoon/blur")
+        return random.choice([opt[0] for opt in options])
 
 
 def weighted_shuffle(weights):
@@ -353,7 +355,7 @@ def weighted_shuffle(weights):
         weights [(Any, float, float)]:
             [(list_item, place_in_percent, weight)]
 
-    Returns: One of the objects in weights[][0]
+    Returns: The shuffled list
 
     """
     # TODO: Build me

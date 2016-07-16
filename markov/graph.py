@@ -7,7 +7,7 @@ from __future__ import division
 import random
 import re
 
-from blur.rand import weighted_option, weighted_rand
+from blur.rand import weighted_choice, weighted_rand
 from . import nodes
 
 
@@ -205,7 +205,7 @@ class Graph:
 
         Returns: Node
         """
-        node = weighted_option([(n.name, n.use_weight)
+        node = weighted_choice([(n.name, n.use_weight)
                                      for n in self.node_list])
         self.current_node = self.find_node_by_name(node)
         return self.current_node
@@ -231,8 +231,8 @@ class Graph:
                 return self.pick_by_use_weight()
             else:
                 starting_node = self.current_node
-        # Use weighted_option on start_node.link_list
-        self.current_node = weighted_option(
+        # Use weighted_choice on start_node.link_list
+        self.current_node = weighted_choice(
             [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
 

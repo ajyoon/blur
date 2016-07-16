@@ -19,6 +19,7 @@ from blur import rand
 
 
 class TestRand(unittest.TestCase):
+    """Tests for all methods in the ``rand`` module."""
     def test__linear_interp(self):
         # Positive integer slope with and without rounding
         self.assertAlmostEqual(
@@ -154,8 +155,9 @@ class TestRand(unittest.TestCase):
 
     def test_normal_distribution(self):
         """
-        Test the accuracy of ``rand.normal_distribution()``
-        by using the curve it creates to generate a large number of samples,
+        Test the accuracy of ``rand.normal_distribution()``.
+
+        Use the curve it creates to generate a large number of samples,
         and then calculate the real variance and mean of the resulting
         sample group and compare the two within a comfortable margin.
         """
@@ -252,13 +254,13 @@ class TestRand(unittest.TestCase):
                 pos_count += 1
         self.assertTrue(300 <= pos_count <= 700)
 
-    def test_weighted_option(self):
+    def test_weighted_choice(self):
         options = [(0, 1), (5, 2), (10, 5)]
         zero_count = 0
         five_count = 0
         ten_count = 0
         for i in range(1000):
-            result = rand.weighted_option(options)
+            result = rand.weighted_choice(options)
             if result == 0:
                 zero_count += 1
             elif result == 5:
@@ -266,7 +268,7 @@ class TestRand(unittest.TestCase):
             elif result == 10:
                 ten_count += 1
             else:
-                self.fail('Unexpected weighted_option'
+                self.fail('Unexpected weighted_choice'
                           'result {0}'.format(result))
         self.assertTrue(25 <= zero_count <= 250)
         self.assertTrue(50 <= five_count <= 600)
@@ -274,9 +276,11 @@ class TestRand(unittest.TestCase):
 
     def test_weighted_rand(self):
         """
-        Test ``rand.weighted_rand()``  by finding a large number of
-        points from a randomly built weight distribution and comparing the
-        distribution against the expectation using a crude histogram model.
+        Test ``rand.weighted_rand()``.
+
+        Find a large number of points from a randomly built weight distribution
+        and comparing the distribution against the expectation using a crude
+        histogram model.
         """
         MIN_X = -1000
         MIN_Y = 0

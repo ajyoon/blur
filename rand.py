@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+"""
+A collection of functions for performing non-uniform random operations.
+
+Many functions rely of weight tuples of the form ``(outcome, weight)``
+"""
+
 from __future__ import division
 import copy
 import random
@@ -12,7 +17,7 @@ from warnings import warn
 ###############################################################################
 def _linear_interp(curve, test_x, round_result=False):
     """
-    Take a series of points and interpolate between them at ``test_x``
+    Take a series of points and interpolate between them at ``test_x``.
 
     Args:
         curve (list[tuple]): A list of ``(x, y)`` points sorted in
@@ -43,7 +48,7 @@ def _linear_interp(curve, test_x, round_result=False):
 
 def _point_under_curve(curve, point):
     """
-    Determine if a point is under a piecewise curve defined by a list of points
+    Determine if a point is under a piecewise curve.
 
     Points within ``curve`` must be sorted in nondecreasing order by x value.
     If multiple points in ``curve`` have the same x value, all but the last
@@ -53,7 +58,7 @@ def _point_under_curve(curve, point):
         curve [(x, y)]:
         point (x, y):
 
-    Returns: Bool
+    Returns: bool
     """
     try:
         return _linear_interp(curve, point[0]) > point[1]
@@ -66,7 +71,7 @@ def _point_under_curve(curve, point):
 ###############################################################################
 def normal_distribution(mean, variance, weight_count=23):
     """
-    Return a list of weights approximating a normal distribution
+    Return a list of weights approximating a normal distribution.
 
     Args:
         mean (float): The mean of the distribution
@@ -96,7 +101,7 @@ def normal_distribution(mean, variance, weight_count=23):
 
 def prob_bool(probability):
     """
-    Return True or False depending on probability
+    Return True or False depending on probability.
 
     Args:
         probability (float): Probability (between 0 and 1) to return True
@@ -120,7 +125,7 @@ def percent_possible(percent):
 
 def pos_or_neg(value, prob_pos=None):
     """
-    Return either positive or negative ``value`` based on ``prob_pos``
+    Return either positive or negative ``value`` based on ``prob_pos``.
 
     A convenience function for ``abs(value) * pos_or_neg_1``
 
@@ -136,7 +141,7 @@ def pos_or_neg(value, prob_pos=None):
 
 def pos_or_neg_1(prob_pos=None):
     """
-    Return either 1 with probability of ``prob_pos``, otherwise -1
+    Return either 1 with probability of ``prob_pos``, otherwise -1.
 
     Args:
         prob_pos (Optional[float]): The probability to return (+)1.
@@ -154,7 +159,7 @@ def pos_or_neg_1(prob_pos=None):
 
 def weighted_rand(weights, round_result=False):
     """
-    Generate a non-uniform random value based on a list of tuple weights
+    Generate a non-uniform random value based on a list of tuple weights.
 
     Treats weights as coordinates for a probability distribution curve and
     rolls accordingly. Constructs a piece-wise linear curve according to
@@ -205,6 +210,7 @@ def weighted_rand(weights, round_result=False):
 def weighted_option(weights):
     """
     Generate a non-uniform random value based on a list of weight tuples.
+
     Treats each outcome as a discreet unit with a chance to occur.
 
     Constructs a line segment where each weight is outcome is allotted a
@@ -225,6 +231,10 @@ def weighted_option(weights):
     if len(weights) == 1:
         return weights[0][0]
 
+    # Construct a line segment where each weight outcome is
+    # allotted a length equal to the outcome's weight,
+    # pick a uniformally random point along the line, and take
+    # the outcome that point corrosponds to
     prob_sum = sum(w[1] for w in weights)
     sample = random.uniform(0, prob_sum)
     current_pos = 0
@@ -240,8 +250,9 @@ def weighted_option(weights):
             'Please submit a bug report at https://github.com/ajyoon/chance')
 
 
-def weighted_sort(weights):
+def weighted_shuffle(weights):
     """
+    Non-uniformally shuffle a list.
 
     Args:
         weights [(Any, float, float)]:

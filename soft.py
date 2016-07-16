@@ -1,6 +1,9 @@
-# A series of classes for soft numbers
-# whose values change every time they are retrieved
-# according to defined chance profiles
+"""A collection of soft objects.
+
+Every soft object has a value that changes every time it is retrieved
+according to defined chance profiles. This value can be retrieved
+with the ``SoftObject``'s``get()`` method.
+"""
 
 from warnings import warn
 
@@ -18,20 +21,35 @@ class SoftObject:
     Every SoftObject represents a stochastic blurry object whose value
     is determined with the ``get()`` method.
     """
+
     def __init__(self):
+        """
+        Create a new ``SoftObject``.
+
+        This is an abstract method and should not be called. Subclasses of
+        ``SoftObject`` must override and implement this.
+
+        Direct instances of ``SoftObject`` should not be created; instead, the
+        appropriate subclass should be used.
+        """
         raise NotImplementedError
 
     def get(self):
+        """
+        Retrieve a value of this ``SoftObject``.
+
+        This is an abstract method and should not be called. Subclasses of
+        ``SoftObject`` must override and implement this.
+        """
         raise NotImplementedError
 
 
 class SoftOptions(SoftObject):
-    """
-    One of many objects with corrosponding weights
-    """
+    """One of many objects with corrosponding weights."""
+
     def __init__(self, options):
         """
-        Initialize from a list of (value, weight) tuples
+        Initialize from a list of (value, weight) tuples.
 
         Args:
             list[(value, weight)] options:
@@ -41,7 +59,7 @@ class SoftOptions(SoftObject):
     @classmethod
     def with_uniform_weights(cls, options, weight=1):
         """
-        Initialize from a list of options, assigning uniform weights
+        Initialize from a list of options, assigning uniform weights.
 
         Args:
             options list[Any]: The list of options this object can return
@@ -60,8 +78,10 @@ class SoftOptions(SoftObject):
     @classmethod
     def with_random_weights(cls, options, weight_profile=None):
         """
-        Initialize from a list of options, assigning random weights which
-        can optionally be themselves controlled by a list of weights
+        Initialize from a list of options with random weights.
+
+        The randomly created weights can optionally be themselves
+        controlled by a list of weights
 
         Args:
             options list[Any]:
@@ -79,7 +99,7 @@ class SoftOptions(SoftObject):
 
     def get(self):
         """
-        Get one of the options within the probability space of the object
+        Get one of the options within the probability space of the object.
 
         Returns: Any
         """
@@ -87,11 +107,12 @@ class SoftOptions(SoftObject):
 
 
 class SoftBool(SoftObject):
-    """
-    A stochastic bool defined by a probability to be ``True``
-    """
+    """A stochastic ``bool`` defined by a probability to be ``True``."""
+
     def __init__(self, prob_true):
         """
+        Initialize from a probability to be ``True``.
+
         Args:
             prob_true (float): The probability that ``get()`` returns ``True``
                 where ``prob_true <= 0`` is always ``False`` and
@@ -101,7 +122,7 @@ class SoftBool(SoftObject):
 
     def get(self):
         """
-        Get either ``True`` or ``False`` depending on ``self.prob_true``
+        Get either ``True`` or ``False`` depending on ``self.prob_true``.
 
         Returns: bool
         """
@@ -109,17 +130,21 @@ class SoftBool(SoftObject):
 
 
 class SoftFloat(SoftObject):
-    """
-    A stochastic float value defined by a list of weights
-    """
+    """A stochastic float value defined by a list of weights."""
+
     def __init__(self, weights):
+        """
+        Initialize from a list of weights.
+
+        Args:
+            weights (list[tuple(float, float)])
+        """
         self.weights = weights
 
     @classmethod
     def bounded_uniform(cls, lowest, highest, weight_interval=None):
         """
-        Initialize with a uniform distribution between a lowest and highest
-        value.
+        Initialize with a uniform distribution between two values.
 
         If no ``weight_interval`` is passed, this weight distribution
         will just consist of ``[(lowest, 1), (highest, 1)]``. If specified,
@@ -147,7 +172,7 @@ class SoftFloat(SoftObject):
 
     def get(self):
         """
-        Get a ``float`` value in the probability space of the object
+        Get a ``float`` value in the probability space of the object.
 
         Returns: float
         """
@@ -156,12 +181,15 @@ class SoftFloat(SoftObject):
 
 class SoftInt(SoftFloat):
     """
-    A stochastic int value defined by a list of weights. Has the exact
-    same functionality as SoftFloat, except that ``get()`` returns int values
+    A stochastic int value defined by a list of weights.
+
+    Has the exact same functionality as SoftFloat,
+    except that ``get()``returns int values
     """
+
     def get(self):
         """
-        Get an ``int`` value in the probability space of the object
+        Get an ``int`` value in the probability space of the object.
 
         Returns: int
         """
@@ -170,7 +198,7 @@ class SoftInt(SoftFloat):
 
 class SoftColor(SoftObject):
     """
-    An RGB color whose individual channels are ``SoftInt`` objects
+    An RGB color whose individual channels are ``SoftInt`` objects.
 
     ``SoftColor.get()`` returns an ``(r, g, b) tuple``.
     To get a hexadecimal color value, use ``to_hex()``.
@@ -183,13 +211,17 @@ class SoftColor(SoftObject):
     >>> color.get().to_hex()  # Pretending color.get() output is the same
     '#ea7c20'
     """
+
     def __init__(self, red, green, blue):
         """
+        Initialize from soft values for rgb color channels.
+
         Args:
             red (SoftInt or tuple(args for SoftInt)):
             green (SoftInt or tuple(args for SoftInt)):
             blue (SoftInt or tuple(args for SoftInt)):
         """
+        # TODO: Allow any of these values to be fixed int's as well
         self.red = red
         if isinstance(red, tuple):
             self.red = SoftInt(*self.red)
@@ -203,7 +235,7 @@ class SoftColor(SoftObject):
     @staticmethod
     def _bound_color_value(color):
         """
-        Clamp a color value to be between ``0`` and ``255``
+        Clamp a color value to be between ``0`` and ``255``.
 
         Args:
             color (int):
@@ -220,7 +252,7 @@ class SoftColor(SoftObject):
     @staticmethod
     def to_hex(color):
         """
-        Convert a color tuple to a hexadecimal string
+        Convert a color tuple to a hexadecimal string.
 
         Args:
             color (tuple):
@@ -234,6 +266,8 @@ class SoftColor(SoftObject):
 
     def get(self):
         """
-        Get a color tuple
+        Get a color tuple.
+
+        Returns: tuple(int, int, int)
         """
         return (self.red.get(), self.green.get(), self.blue.get())

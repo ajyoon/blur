@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-A simple model I Ching
+A simple model I Ching.
 
 All data and probabilities taken from Wikipedia at:
     * https://en.wikipedia.org/wiki/I_Ching_divination and
@@ -159,7 +159,7 @@ _hexagram_dict = {
 
 def get_hexagram(method='THREE COIN'):
     """
-    Return one or two hexagrams using any of a variety of divination methods
+    Return one or two hexagrams using any of a variety of divination methods.
 
     The ``NAIVE`` method simply returns a uniformally random ``int`` between
     ``1`` and ``64``.

@@ -94,6 +94,50 @@ class TestRand(unittest.TestCase):
         self.assertTrue(rand._point_under_curve(
             curve, point_on_upper_x_bound))
 
+    def test__clamp_value(self):
+        # value between minimum and maximum returns value
+        self.assertEqual(rand._clamp_value(value=5, minimum=4, maximum=6), 5)
+        # value on minimum returns value
+        self.assertEqual(rand._clamp_value(value=5, minimum=5, maximum=6), 5)
+        # value on maximum returns value
+        self.assertEqual(rand._clamp_value(value=6, minimum=4, maximum=6), 6)
+        # value below minimum returns minimum
+        self.assertEqual(rand._clamp_value(value=3, minimum=4, maximum=6), 4)
+        # value above maximum returns maximum
+        self.assertEqual(rand._clamp_value(value=7, minimum=4, maximum=6), 6)
+        # maximum below minimum raises ValueError
+        with self.assertRaises(ValueError):
+            rand._clamp_value(value=5, minimum=3, maximum=2)
+
+    def test_bound_weights_with_bad_bounds_raises_ValueError(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        with self.assertRaises(ValueError):
+            rand.bound_weights(weights, 10, 5)
+
+    def test_bound_weights_doesnt_modify_input(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        original_weights = weights[:]
+        modified = rand.bound_weights(weights, 2, 4)
+        self.assertEqual(weights, original_weights)
+
+    def test_bound_weights_with_weights_already_inside_bounds(self):
+        # When all weights are already inside bounds,
+        # rand.bound_weights() should have no effect
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        modified = rand.bound_weights(weights, -2, 8)
+        self.assertEqual(weights, modified)
+
+    def test_bound_weights_clipping_on_existing_weights(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        self.assertEqual(rand.bound_weights(weights, 2, 4),
+                         [(2, 2), (4, 2)])
+
+    def _test_bound_weights_clipping_between_existing_weights(self):
+        weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
+        self.assertEqual(rand.bound_weights(weights, 1, 5),
+                         [(1, 1), (2, 2), (4, 2), (6, 1)])
+
+
     def test_normal_distribution(self):
         """
         Test the accuracy of ``rand.normal_distribution()``

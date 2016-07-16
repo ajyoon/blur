@@ -66,9 +66,77 @@ def _point_under_curve(curve, point):
         return False
 
 
+def _clamp_value(value, minimum, maximum):
+    """
+    Clamp a value to fit between a minimum and a maximum.
+
+    * If ``value`` is between ``minimum`` and ``maximum``, return ``value``
+    * If ``value`` is below ``minimum``, return ``minimum``
+    * If ``value is above ``maximum``, return ``maximum``
+
+    Args:
+        value (float or int): The number to clamp
+        minimum (float or int): The lowest allowed return value
+        maximum (float or int): The highest allowed return value
+
+    Returns:
+        float or int: the clamped value
+
+    Raises:
+        ValueError: if maximum < minimum
+    """
+    if maximum < minimum:
+        raise ValueError
+    if value < minimum:
+        return minimum
+    elif value > maximum:
+        return maximum
+    else:
+        return value
+
+
 ###############################################################################
 # Methods
 ###############################################################################
+def bound_weights(weights, minimum, maximum):
+    """
+    Bound a weight list so that all outcomes fit within specified bounds.
+
+    The probability distribution within the minimum and maximum values remains
+    the same. Weights in the list with outcomes outside of ``minimum`` and
+    ``maximum`` are removed. If weights are removed from either end, attach
+    weights at the modified edges at the same weight (y-axis) position they
+    had interpolated in the original list.
+
+    Args:
+        weights (list[(float or int, float or int)]): the list of weights
+            to be bounded. Must be sorted in increasing order of outcomes
+        minimum (float or int): Lowest allowed outcome for the weight list
+        maximum (float or int) Highest allowed outcome for the weight list
+
+    Returns:
+        list[(int or float, int or float)]: The bounded weight list
+
+    Raises:
+        ValueError: if maximum < minimum
+    """
+    if maximum < minimum:
+        raise ValueError
+    # Copy weights to avoid side-effects
+    bounded_weights = weights[:]
+    # Remove weights outside of minimum and maximum
+    bounded_weights = [bw for bw in bounded_weights
+                       if minimum <= bw[0] <= maximum]
+    # If weights were removed, attach new endpoints where they would have
+    # appeared in the original curve
+    if (bounded_weights[0][0] > weights[0][0] and
+            bounded_weights[0][0] != minimum):
+        bound_weights.insert(0, (minimum, _linear_interp(weights, minimum)))
+    if (bounded_weights[-1][0] > weights[-1][0] and
+            bounded_weights[-1][0] != maximum):
+        bounded_weights.append((maximum, _linear_interp(weights, maximum)))
+    return bounded_weights
+
 def normal_distribution(mean, variance, weight_count=23):
     """
     Return a list of weights approximating a normal distribution.
@@ -79,7 +147,7 @@ def normal_distribution(mean, variance, weight_count=23):
         weight_count (Optional[int]): The number of weights that will
             be used to approximate the distribution
 
-    Returns: list[tuple(float, float)]
+    Returns: list[(float, float)]
     """
     # Pin 0 to +- 5 sigma as bouds
     def _normal_function(x, mean, variance):

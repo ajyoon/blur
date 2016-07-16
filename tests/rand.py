@@ -162,7 +162,7 @@ class TestRand(unittest.TestCase):
         MEAN = -12
         VARIANCE = 2.5
         STANDARD_DEVIATION = math.sqrt(VARIANCE)
-        SAMPLE_COUNT = 200
+        SAMPLE_COUNT = 600
         curve = rand.normal_distribution(MEAN, VARIANCE)
         samples = [rand.weighted_rand(curve) for i in range(SAMPLE_COUNT)]
         samples_mean = sum(samples) / len(samples)
@@ -176,8 +176,13 @@ class TestRand(unittest.TestCase):
         self.assertLess(variance_diff, abs(VARIANCE / 5))
 
     def test_normal_distribution_with_bounds(self):
-        # TODO: build me!
-        pass
+        MEAN = -12
+        VARIANCE = 20
+        MIN_X = -15
+        MAX_X = 5
+        curve = rand.normal_distribution(MEAN, VARIANCE, MIN_X, MAX_X)
+        self.assertEqual(min(weight[0] for weight in curve), MIN_X)
+        self.assertEqual(max(weight[0] for weight in curve), MAX_X)
 
     def test_prob_bool(self):
         # Test guaranteed outcomes

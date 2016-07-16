@@ -322,7 +322,6 @@ def weighted_choice(weights):
 
     Returns: Any
     """
-    # TODO: Maybe rename weighted_choice() to match stdlib name
     # If there's only one choice, choose it
     if len(weights) == 1:
         return weights[0][0]

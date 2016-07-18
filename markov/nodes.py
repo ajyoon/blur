@@ -1,5 +1,9 @@
 """
-UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
+Classes for use in ``Graph``s.
+
+Besides initializing ``Node``s, you will rarely need
+to directly interract with these objects, as ``Graph`` provides
+much easier and more powerful interractions.
 """
 
 import random
@@ -9,22 +13,33 @@ from blur import rand
 
 class Link:
     """
-    A link that points to a ``Node`` object with a weight for use
-    in ``Graph`` models
+    A one-way link pointing to a ``Node`` with a weight.
+
+    For use in conjunction with the ``Node`` and ``Graph`` classes.
+    You will rarely need to deal with ``Link``s directly. The best
+    way to create a ``Link`` from one ``Node`` to another is
+    by calling ``some_node.add_link(another_node, 5)`` instead.
     """
+
     def __init__(self, target, weight):
         """
+        Initialize a link.
+
         Args:
-            target (Node):
-            weight (float or int):
+            target (Node): The ``Node`` this ``Link`` will point to
+            weight (float or int): The numerical weight for this ``Link``
         """
         self.target = target
         self.weight = weight
 
 
 class Node:
+    """A node to be used in a Markov graph."""
+
     def __init__(self, name=None, self_destruct=False):
         """
+        Initialize a ``Node``.
+
         Args:
             name (str or int): Name of the node
             self_destruct (bool): whether this note deletes itself after
@@ -81,11 +96,12 @@ class Node:
 
     def add_link_to_self(self, source, weight):
         """
-        Add a link from source node to self at given weight
+        Create and add a ``Link`` from a source node to ``self``.
 
         Args:
-            source (Node):
-            weight (Weight or tuple repr. of weight)
+            source (Node): The node that will own the new ``Link``
+                pointing to ``self``
+            weight (int or float): The weight of the newly created ``Link``
 
         Returns: None
         """
@@ -97,12 +113,15 @@ class Node:
 
     def add_reciprocal_link(self, target, weight):
         """
-        Add a link to self pointing to target,
-        and to target pointing to self of equal weight
+        Add links pointing in either direction from ``self`` to ``target``.
+
+        This creates a ``Link`` from ``self`` to ``target`` and a ``Link``
+        from ``target`` to ``self`` of equal weight. If ``target`` is a list
+        of ``Node``s, repeat this for each one.
 
         Args:
             target (Node or list[Node]):
-            weight (weight for new links):
+            weight (int or float): weight for new links
 
         Returns: None
         """
@@ -116,8 +135,24 @@ class Node:
             t.add_link(self, weight)
 
     def remove_links_to_self(self):
+        """
+        Remove any link in ``self.link_list`` whose ``target`` is ``self``.
+
+        Returns: None
+        """
         self.link_list = [link for link in self.link_list if
                           link.target != self]
 
     def get_value(self):
+        """
+        Get the value of this ``Node``.
+
+        For this class, this simply returns ``self.name``, but
+        for subclasses with more complex behavior, this could be
+        more powerful. For example, a ``Node`` might have a value
+        which is a ``SoftColor``, in which case this method could
+        return a ``SoftColor.get()`` value.
+
+        Returns: Any
+        """
         return self.name

@@ -72,16 +72,44 @@ class TestSoftBool(unittest.TestCase):
 
 class TestSoftFloat(unittest.TestCase):
     def test_init__(self):
-        # TODO: Build me!
-        pass
+        original_weights = [(-5, 2), (3, 1), (5, 6)]
+        weights = original_weights[:]
+        test_object = soft.SoftFloat(weights)
+        # Test that no side effects occured in passed list
+        self.assertEqual(weights, original_weights)
+        # Test that weights were passed correctly to the SoftFloat
+        self.assertEqual(test_object.weights, weights)
 
-    def test_bounded_uniform(self):
-        # TODO: Build me!
-        pass
+    def test_bounded_uniform_without_weight_interval(self):
+        lowest = -5
+        highest = 5
+        test_object = soft.SoftFloat.bounded_uniform(lowest, highest)
+        # Test that only two weights were added
+        self.assertEqual(len(test_object.weights), 2)
+        # Test that the weight value in each weight is the same
+        self.assertTrue(all(w[1] == test_object.weights[0][1]
+                            for w in test_object.weights))
+
+    def test_bounded_uniform_with_weight_interval(self):
+        lowest = -5
+        highest = 5
+        weight_interval = 1
+        test_object = soft.SoftFloat.bounded_uniform(
+            lowest, highest, weight_interval)
+        # Test that weights were added at specified interval
+        self.assertEqual(len(test_object.weights), 11)
+        # Test that the weight value in each weight is the same
+        self.assertTrue(all(w[1] == test_object.weights[0][1]
+                            for w in test_object.weights))
 
     def test_get(self):
-        # TODO: Build me!
-        pass
+        weights = [(-5, 2), (3, 1), (5, 6)]
+        min_value = -5
+        min_value = max_value = 5
+        test_object = soft.SoftFloat(weights)
+        for i in range(100):
+            self.assertTrue(
+                min_value <= test_object.get() <= max_value)
 
 
 class TestSoftInt(unittest.TestCase):

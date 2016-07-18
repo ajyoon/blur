@@ -76,12 +76,9 @@ class SoftOptions(SoftObject):
         return cls([(value, weight) for value in options])
 
     @classmethod
-    def with_random_weights(cls, options, weight_profile=None):
+    def with_random_weights(cls, options):
         """
         Initialize from a list of options with random weights.
-
-        The randomly created weights can optionally be themselves
-        controlled by a list of weights
 
         Args:
             options list[Any]:
@@ -90,12 +87,9 @@ class SoftOptions(SoftObject):
 
         Returns: SoftOptions
         """
-        if weight_profile is None:
-            return cls([((value, random.randint(1, 10)) for value in options)])
-        else:
-            return cls([(value,
-                         rand.weighted_rand(weight_profile, True))
-                       for value in options])
+        return cls(
+            [(value, random.randint(1, len(opions)))
+             for value in options])
 
     def get(self):
         """

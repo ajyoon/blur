@@ -32,8 +32,6 @@ class Node:
         """
         self.name = name
         self.self_destruct = self_destruct
-        # TODO: decide if use_weight is really necessary. If not, remove.
-        self.use_weight = 1
         self.link_list = []
 
     def find_link(self, target_node):

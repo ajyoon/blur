@@ -1,7 +1,4 @@
-
-"""
-UNDER RECONSTRUCTION - APOLOGIES FOR THE MESS
-"""
+"""A module containing a model Markov graph."""
 
 from __future__ import division
 import random
@@ -12,14 +9,40 @@ from . import nodes
 
 
 class Graph:
-    def __init__(self):
-        self.node_list = []
-        self.source = None
+    """
+    A Markov graph with a number of handy utilities.
+
+    The graph consists of a list of ``Node``s and keeps track of
+    which node was picked last.
+
+    Several utilities offer conveniences for managing the network.
+    """
+
+    def __init__(self, node_list=None):
+        """
+        Initialize a graph, optionally populating it with a list of ``Node``s.
+
+        Args:
+            node_list (Optional[list]): An optional list of nodes to
+                populate the network with. To populate the network after
+                initialization, use the ``Graph.add_nodes()`` method.
+
+        Notes:
+            The nodes passed here are not copied when placing into
+            the graph: the passed nodes are used in the object.
+            Side effects may occur if node-altering methods are called,
+            such as ``Graph.apply_noise()`` or ``Graph.feather_links()``.
+            Handle with care if using the same ``Node`` in multiple contexts.
+        """
         self.current_node = None
-        self.weight = None
+        self.node_list = []
+        if node_list:
+            self.add_nodes(node_list)
 
     def merge_nodes(self, keep_node, kill_node):
         """
+        Merge two nodes in the graph.
+
         Takes two nodes and merges them together, merging their links by
         combining the two link lists and summing the weights of links which
         point to the same node.
@@ -44,12 +67,25 @@ class Graph:
     def add_nodes(self, nodes, merge_existing_names=False):
         """
         Add a given node or list of nodes to self.node_list.
-        If a node already exists in the network, merge them
+
+        Optionally, if a ``Node`` being added shares a name with a ``Node``
+        that already exists in the ``Graph``, merge the two ``Nodes`` to
+        prevent duplicates.
 
         Args:
-            node (Node or list[node]):
+            node (Node or list[node]): ``Node``(s) to be added to the graph
+            merge_existing_names (Optional[bool]): Whether or not to merge
+                any nodes being added with ``Node``s already in the graph
+                with the same name (``Node.name``) as the ones being added.
 
-            Returns: None
+        Returns: None
+
+        Notes:
+            The nodes passed here are not copied when placing into
+            the graph: the passed nodes are used in the object.
+            Side effects may occur if node-altering methods are called,
+            such as ``Graph.apply_noise()`` or ``Graph.feather_links()``.
+            Handle with care if using the same ``Node`` in multiple contexts.
         """
         # Generalize nodes to a list
         if not isinstance(nodes, list):
@@ -133,7 +169,7 @@ class Graph:
 
     def find_node_by_name(self, name):
         """
-        Find and return a node in self.node_list with the name ``name``
+        Find and return a node in self.node_list with the name ``name``.
 
         If multiple nodes exist with the name ``name``,
         return the first one found.
@@ -150,7 +186,7 @@ class Graph:
 
     def remove_node(self, node):
         """
-        Remove a node from the graph, removing all links pointing to it
+        Remove a node from the graph, removing all links pointing to it.
 
         If ``node`` is not in the graph, do nothing.
 
@@ -169,10 +205,10 @@ class Graph:
 
     def remove_node_by_name(self, name):
         """
-        Delete all nodes in self.node_list with the name ``name``
+        Delete all nodes in self.node_list with the name ``name``.
 
         Args:
-            name (Any):
+            name (Any): The name to find and delete owners of.
 
         Returns: None
         """
@@ -184,12 +220,12 @@ class Graph:
 
     def has_node_with_name(self, name):
         """
-        Whether any node in self.node_list has name of ``name``
+        Whether any node in ``self.node_list`` has the name ``name``.
 
         Args:
-            name (str)
+            name (Any): The name to find in ``self.node_list``
 
-        Returns: Bool
+        Returns: bool
         """
         for node in self.node_list:
             if node.name == name:
@@ -227,7 +263,7 @@ class Graph:
 
     def print_nodes_and_links(self):
         """
-        Print a list of every node and what its links are
+        Print a list of every node in and what their links are.
 
         Returns: None
         """
@@ -249,7 +285,7 @@ class Graph:
                   allow_self_links=True,
                   merge_same_words=False):
         """
-        Read a string from a file and generate a Graph object based on it
+        Read a string from a file and generate a Graph object based on it.
 
         Words and punctuation marks are made into nodes.
         To use whitespace and punctuation marks within a word
@@ -288,7 +324,7 @@ class Graph:
                     allow_self_links=True,
                     merge_same_words=False):
         """
-        Read a string and generate a Graph object based on it
+        Read a string and generate a ``Graph`` object based on it.
 
         Words and punctuation marks are made into nodes.
         To use whitespace and punctuation marks within a word
@@ -305,6 +341,11 @@ class Graph:
                 A key of ``0`` refers to the weight words get
                 pointing to themselves. Keys pointing beyond the edge of the
                 word list will wrap around the list.
+
+                The default value for ``distance_weights`` is: ::
+                    {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
+                     6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
+                     11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
             allow_self_links (bool): if words can be linked to themselves
             merge_same_words (bool): if nodes which have the same value should
                 be merged or not.
@@ -315,7 +356,6 @@ class Graph:
             distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
                                 6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
                                 11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
-        graph = cls()
         # regex that matches:
         #   * Anything surrounded by angle bracks,
         #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
@@ -336,5 +376,6 @@ class Graph:
                     continue
                 node.add_link(temp_node_list[wrapped_index], weight)
 
+        graph = cls()
         graph.add_nodes(temp_node_list, merge_existing_names=merge_same_words)
         return graph

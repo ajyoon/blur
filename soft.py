@@ -22,7 +22,7 @@ class SoftObject:
 
     def __init__(self):
         """
-        Create a new ``SoftObject``.
+        Initialize a ``SoftObject``.
 
         This is an abstract method and should not be called. Subclasses of
         ``SoftObject`` must override and implement this.
@@ -245,10 +245,10 @@ class SoftColor(SoftObject):
     @staticmethod
     def to_hex(color):
         """
-        Convert a color tuple to a hexadecimal string.
+        Convert an ``(r, g, b)`` color tuple to a hexadecimal string.
 
         Args:
-            color (tuple):
+            color (tuple): An rgb color tuple of form: (int, int, int)
 
         Returns: string
         """

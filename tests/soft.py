@@ -58,12 +58,16 @@ class TestSoftOptions(unittest.TestCase):
 
 class TestSoftBool(unittest.TestCase):
     def test__init__(self):
-        # TODO: Build me!
-        pass
+        test_object = soft.SoftBool(0.9)
+        self.assertEqual(test_object.prob_true, 0.9)
 
     def test_get(self):
-        # TODO: Build me!
-        pass
+        test_object = soft.SoftBool(0.9)
+        true_count = 0
+        for i in range(100):
+            if test_object.get():
+                true_count += 1
+        self.assertGreater(true_count, 60)
 
 
 class TestSoftFloat(unittest.TestCase):

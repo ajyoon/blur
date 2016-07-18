@@ -22,35 +22,42 @@ class TestSoftOptions(unittest.TestCase):
     def test_init__(self):
         options_original = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
         options_input = options_original[:]
-        softoptions = soft.SoftOptions(options_input)
+        test_object = soft.SoftOptions(options_input)
         # Test that options were correctly passed to the object
         # and that no side effects transformed the input list
-        self.assertEqual(softoptions.options,
+        self.assertEqual(test_object.options,
                          options_original)
 
     def test_with_uniform_weights(self):
         options_original = ['Option 1', 'Option 2', 'Option 3']
         options_input = options_original[:]
-        softoptions = soft.SoftOptions.with_uniform_weights(options_input)
+        test_object = soft.SoftOptions.with_uniform_weights(options_input)
         # Test that no side effects transformed the input list
         self.assertEqual(options_input,
                          options_original)
         # Test that the weight of every object is the same
-        self.assertTrue(all(w[1] == softoptions.options[0][1]
-                            for w in softoptions.options))
-
+        self.assertTrue(all(w[1] == test_object.options[0][1]
+                            for w in test_object.options))
 
     def test_with_random_weights(self):
-        # TODO: Build me!
-        pass
+        original_options = ['Option 1', 'Option 2', 'Option 3']
+        test_object = soft.SoftOptions.with_random_weights(
+            original_options)
+        self.assertTrue(all(option[0] in original_options
+                            for option in test_object.options))
+        self.assertTrue(all(1 <= option[1] <= len(original_options)
+                            for option in test_object.options))
 
-    def test_get(self):
-        # TODO: Build me!
-        pass
+    def test_get_returns_valid_options(self):
+        options = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
+        test_object = soft.SoftOptions(options)
+        for i in range(10):
+            self.assertIn(test_object.get(),
+                          ['Option 1', 'Option 2', 'Option 3'])
 
 
 class TestSoftBool(unittest.TestCase):
-    def test___init__(self):
+    def test__init__(self):
         # TODO: Build me!
         pass
 

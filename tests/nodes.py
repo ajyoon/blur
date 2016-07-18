@@ -24,7 +24,6 @@ class Node(unittest.TestCase):
         # since setUp() already calls init, just verify that it worked
         self.assertEqual(self.main_node.name, 'Main Test Node')
         self.assertFalse(self.main_node.self_destruct)
-        self.assertEqual(self.main_node.use_weight, 1)
         self.assertEqual(self.main_node.link_list, [self.main_link])
 
     def test_find_link(self):

@@ -111,22 +111,9 @@ class TestGraph(unittest.TestCase):
         self.assertTrue(self.test_graph.has_node_with_name('Node 1'))
         self.assertFalse(self.test_graph.has_node_with_name('bogus name'))
 
-    def test_pick_by_use_weight(self):
-        self.node_1.use_weight = 10000
-        self.node_2.use_weight = 1
-        self.node_3.use_weight = 1
-        # Repeatedly test and verify probability within a margin of error
-        # This is not fool-proof.
-        trial_count = 100
-        node_1_count = 0
-        for i in range(trial_count):
-            if self.test_graph.pick_by_use_weight() == self.node_1:
-                node_1_count += 1
-        self.assertTrue(node_1_count > (trial_count * 0.6))
-
     def test_pick_with_no_starting_or_current_node(self):
         # Pick with starting_node=None and
-        # self.test_graph.current_node=None, should pick from use_weight
+        # self.test_graph.current_node=None, should pick a random node
         picked_node = self.test_graph.pick(starting_node=None)
         self.assertTrue(picked_node in self.test_graph.node_list)
         # Test that self.test_graph.current_node correctly updated

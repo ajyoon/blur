@@ -197,38 +197,27 @@ class Graph:
         else:
             return False
 
-    def pick_by_use_weight(self):
-        """
-        Pick a node in the graph based on node ``use_weight`` values.
-
-        Additionally, set ``self.current_node`` to the newly picked node.
-
-        Returns: Node
-        """
-        node = weighted_choice([(n.name, n.use_weight)
-                                     for n in self.node_list])
-        self.current_node = self.find_node_by_name(node)
-        return self.current_node
-
     def pick(self, starting_node=None):
         """
-        Pick a node on the graph based on the links in a starting node
+        Pick a node on the graph based on the links in a starting node.
 
         Additionally, set ``self.current_node`` to the newly picked node.
 
-        * if starting_node is specified, start from there
-        * if starting_node is None, start from self.current_node
-        * if starting_node is None and self.current_node is None,
-          pick from the network's nodes' use weights
+        * if ``starting_node`` is specified, start from there
+        * if ``starting_node`` is ``None``, start from ``self.current_node``
+        * if ``starting_node`` is ``None`` and ``self.current_node``
+            is ``None``, pick a uniformally random node in ``self.node_list``
 
         Args:
-            starting_node (Optional[Node]): Node to pick from.
+            starting_node (Optional[Node]): ``Node`` to pick from.
 
         Returns: Node
         """
         if starting_node is None:
             if self.current_node is None:
-                return self.pick_by_use_weight()
+                random_node = random.choice(self.node_list)
+                self.current_node = random_node
+                return random_node
             else:
                 starting_node = self.current_node
         # Use weighted_choice on start_node.link_list

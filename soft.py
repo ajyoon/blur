@@ -5,8 +5,6 @@ according to defined chance profiles. This value can be retrieved
 with the ``SoftObject``'s``get()`` method.
 """
 
-from warnings import warn
-
 import random
 from blur import rand
 

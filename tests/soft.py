@@ -155,20 +155,98 @@ class TestSoftInt(unittest.TestCase):
             self.assertIsInstance(got_value, int)
 
 
-
 class TestSoftColor(unittest.TestCase):
-    def test_init__(self):
-        # TODO: Build me!
-        pass
+    def test_init_from_int_values(self):
+        red = 50
+        green = 80
+        blue = 90
+        test_object = soft.SoftColor(red, green, blue)
+        # Test that types were not converted
+        self.assertIsInstance(test_object.red, int)
+        self.assertIsInstance(test_object.green, int)
+        self.assertIsInstance(test_object.blue, int)
+        # Test that attributes were assigned correctly
+        self.assertEqual(test_object.red, red)
+        self.assertEqual(test_object.green, green)
+        self.assertEqual(test_object.blue, blue)
+
+    def test_init_from_existing_softints(self):
+        red = soft.SoftInt.bounded_uniform(0, 255)
+        green = soft.SoftInt.bounded_uniform(0, 255)
+        blue = soft.SoftInt.bounded_uniform(0, 255)
+        test_object = soft.SoftColor(red, green, blue)
+        # Test that attributes were assigned correctly
+        self.assertEqual(test_object.red, red)
+        self.assertEqual(test_object.green, green)
+        self.assertEqual(test_object.blue, blue)
+
+    def test_init_from_tuples_of_args_for_softints(self):
+        red_args = ([(0, 1), (255, 10)],)
+        green_args = ([(0, 1), (255, 10)],)
+        blue_args = ([(0, 1), (255, 10)],)
+        test_object = soft.SoftColor(red_args, green_args, blue_args)
+        # Test that SoftInt's were initialized correctly from args
+        self.assertIsInstance(test_object.red, soft.SoftInt)
+        self.assertIsInstance(test_object.green, soft.SoftInt)
+        self.assertIsInstance(test_object.blue, soft.SoftInt)
+        # Test that attributes were assigned correctly
+        self.assertEqual(test_object.red.weights, [(0, 1), (255, 10)])
+        self.assertEqual(test_object.green.weights, [(0, 1), (255, 10)])
+        self.assertEqual(test_object.blue.weights, [(0, 1), (255, 10)])
 
     def test_bound_color_value(self):
-        # TODO: Build me!
-        pass
+        # Test that values below 0 return 0
+        self.assertEqual(soft.SoftColor._bound_color_value(-1), 0)
+        # Test that values between 0 and 255 return unchanged
+        self.assertEqual(soft.SoftColor._bound_color_value(50), 50)
+        # Test that values above 255 return 255
+        self.assertEqual(soft.SoftColor._bound_color_value(256), 255)
 
     def test_to_hex(self):
-        # TODO: Build me!
-        pass
+        self.assertEqual(soft.SoftColor.to_hex((128, 128, 128)),
+                         '#808080')
 
-    def test_get(self):
-        # TODO: Build me!
-        pass
+    def test_get_with_only_int_color_types(self):
+        red_input = 128
+        green_input = 200
+        blue_input = 255
+        test_object = soft.SoftColor(red_input, green_input, blue_input)
+        red, green, blue = test_object.get()
+        # Test that only int's were returned
+        self.assertIsInstance(red, int)
+        self.assertIsInstance(green, int)
+        self.assertIsInstance(blue, int)
+        # Test that return values are within expected ranges
+        self.assertEqual(red, red_input)
+        self.assertEqual(green, green_input)
+        self.assertEqual(blue, blue_input)
+
+    def test_get_with_only_softint_color_types(self):
+        red_input = soft.SoftInt.bounded_uniform(1, 2)
+        green_input = soft.SoftInt.bounded_uniform(3, 4)
+        blue_input = soft.SoftInt.bounded_uniform(5, 6)
+        test_object = soft.SoftColor(red_input, green_input, blue_input)
+        red, green, blue = test_object.get()
+        # Test that only int's were returned
+        self.assertIsInstance(red, int)
+        self.assertIsInstance(green, int)
+        self.assertIsInstance(blue, int)
+        # Test that return values are within expected ranges
+        self.assertTrue(1 <= red <= 2)
+        self.assertTrue(3 <= green <= 4)
+        self.assertTrue(5 <= blue <= 6)
+
+    def test_get_with_mixed_color_types(self):
+        red_input = soft.SoftInt.bounded_uniform(0, 2)
+        green_input = ([(200, 1), (255, 10)],)
+        blue_input = 255
+        test_object = soft.SoftColor(red_input, green_input, blue_input)
+        red, green, blue = test_object.get()
+        # Test that only int's were returned
+        self.assertIsInstance(red, int)
+        self.assertIsInstance(green, int)
+        self.assertIsInstance(blue, int)
+        # Test that return values are within expected ranges
+        self.assertTrue(0 <= red <= 2)
+        self.assertTrue(200 <= green <= 255)
+        self.assertEqual(blue, 255)

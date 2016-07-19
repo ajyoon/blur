@@ -255,8 +255,8 @@ class SoftColor(SoftObject):
         else:
             return color
 
-    @staticmethod
-    def to_hex(color):
+    @classmethod
+    def to_hex(cls, color):
         """
         Convert an ``(r, g, b)`` color tuple to a hexadecimal string.
 
@@ -266,9 +266,9 @@ class SoftColor(SoftObject):
         Returns: string
         """
         return '#{0:02x}{1:02x}{2:02x}'.format(
-            _bound_color_value(color[0]),
-            _bound_color_value(color[1]),
-            _bound_color_value(color[2]))
+            cls._bound_color_value(color[0]),
+            cls._bound_color_value(color[1]),
+            cls._bound_color_value(color[2]))
 
     def get(self):
         """
@@ -276,4 +276,17 @@ class SoftColor(SoftObject):
 
         Returns: tuple(int, int, int)
         """
-        return (self.red.get(), self.green.get(), self.blue.get())
+        if isinstance(self.red, SoftInt):
+            red = self.red.get()
+        else:
+            red = self.red
+        if isinstance(self.green, SoftInt):
+            green = self.green.get()
+        else:
+            green = self.green
+        if isinstance(self.blue, SoftInt):
+            blue = self.blue.get()
+        else:
+            blue = self.blue
+
+        return (red, green, blue)

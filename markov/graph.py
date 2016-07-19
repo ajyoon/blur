@@ -265,7 +265,6 @@ class Graph:
     def from_file(cls,
                   source,
                   distance_weights=None,
-                  allow_self_links=True,
                   merge_same_words=False):
         """
         Read a string from a file and generate a Graph object based on it.
@@ -288,7 +287,14 @@ class Graph:
                 A key of ``0`` refers to the weight words get
                 pointing to themselves. Keys pointing beyond the edge of the
                 word list will wrap around the list.
-            allow_self_links (bool): if words can be linked to themselves
+
+                The default value for ``distance_weights`` is: ::
+                    {1: 1}
+                This means that each word gets equal weight to whatever
+                word follows it. Consequently, if this default value is
+                used and ``merge_same_words`` is ``False``, the resulting
+                graph behavior will simply move linearly through the
+                source, wrapping at the end to the beginning.
             merge_same_words (bool): if nodes which have the same value should
                 be merged or not.
 
@@ -297,14 +303,12 @@ class Graph:
         source_string = open(source, 'r').read()
         return cls.from_string(source_string,
                                distance_weights,
-                               allow_self_links,
                                merge_same_words)
 
     @classmethod
     def from_string(cls,
                     source,
                     distance_weights=None,
-                    allow_self_links=True,
                     merge_same_words=False):
         """
         Read a string and generate a ``Graph`` object based on it.
@@ -326,19 +330,20 @@ class Graph:
                 word list will wrap around the list.
 
                 The default value for ``distance_weights`` is: ::
-                    {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
-                     6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
-                     11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
-            allow_self_links (bool): if words can be linked to themselves
+                    {1: 1}
+                This means that each word gets equal weight to whatever
+                word follows it. Consequently, if this default value is
+                used and ``merge_same_words`` is ``False``, the resulting
+                graph behavior will simply move linearly through the
+                source, wrapping at the end to the beginning.
+
             merge_same_words (bool): if nodes which have the same value should
                 be merged or not.
 
         Returns: Graph
         """
         if distance_weights is None:
-            distance_weights = {1: 1000, 2: 100, 3: 80, 4: 60, 5: 50,
-                                6: 40, 7: 30, 8: 17, 9: 14, 10: 10,
-                                11: 10, 12: 10, 13: 5, 14: 5, 15: 75}
+            distance_weights = {1: 1}
         # regex that matches:
         #   * Anything surrounded by angle bracks,
         #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
@@ -354,9 +359,6 @@ class Graph:
             for key, weight in distance_weights.items():
                 # Wrap the index of edge items
                 wrapped_index = (key + i) % len(temp_node_list)
-                if (not allow_self_links) and (
-                        temp_node_list[wrapped_index].name == node.name):
-                    continue
                 node.add_link(temp_node_list[wrapped_index], weight)
 
         graph = cls()

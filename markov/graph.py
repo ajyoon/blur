@@ -348,7 +348,7 @@ class Graph:
         #   * Anything surrounded by angle bracks,
         #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
         #   * Any continuous group of alphanumerical characters
-        expression = '<(.+)>|([,\.\;\!\?\:\\\/\'\"\(\)\[\])|([a-zA-z0-9]+)'
+        expression = '<(.+)>|([,.;!?:\\/\'"()[])|([a-zA-z0-9]+)'
         matches = re.findall(expression, source)
         # Un-tuple matches since we are only using groups to strip brackets
         # Is there a better way to do this?

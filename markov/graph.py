@@ -98,6 +98,8 @@ class Graph:
                     if currently_existing_node.name == add_node.name:
                         self.merge_nodes(currently_existing_node, add_node)
                         break
+                else:
+                    self.node_list.append(add_node)
         else:
             self.node_list.extend(add_list)
 
@@ -360,7 +362,6 @@ class Graph:
                 # Wrap the index of edge items
                 wrapped_index = (key + i) % len(temp_node_list)
                 node.add_link(temp_node_list[wrapped_index], weight)
-
         graph = cls()
         graph.add_nodes(temp_node_list, merge_existing_names=merge_same_words)
         return graph

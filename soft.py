@@ -174,10 +174,10 @@ class SoftFloat(SoftObject):
 
 class SoftInt(SoftFloat):
     """
-    A stochastic int value defined by a list of weights.
+    A stochastic ``int`` value defined by a list of weights.
 
-    Has the exact same functionality as SoftFloat,
-    except that ``get()``returns int values
+    Has the exact same functionality as ``SoftFloat``,
+    except that ``get()``returns ``int`` values
     """
 
     def get(self):
@@ -210,20 +210,33 @@ class SoftColor(SoftObject):
         Initialize from soft values for rgb color channels.
 
         Args:
-            red (SoftInt or tuple(args for SoftInt)):
-            green (SoftInt or tuple(args for SoftInt)):
-            blue (SoftInt or tuple(args for SoftInt)):
+            red (int or SoftInt or tuple(args for SoftInt)):
+            green (int or SoftInt or tuple(args for SoftInt)):
+            blue (int or SoftInt or tuple(args for SoftInt)):
+
+        Notes:
+            When initializing the soft color channels using the
+            convenience option to pass a tuple of args for
+            for ``SoftInt.__init__()``, keep in mind that when
+            creating 1-length tuples in Python you need to add a
+            comma after the first element. ::
+
+                color = soft.SoftColor(([(0, 1), (255, 10)],),
+                                       ([(0, 1), (255, 10)],),
+                                       ([(0, 1), (255, 10)],))
         """
-        # TODO: Allow any of these values to be fixed int's as well
-        self.red = red
-        if isinstance(red, tuple):
-            self.red = SoftInt(*self.red)
-        self.green = green
-        if isinstance(green, tuple):
-            self.green = SoftInt(*self.green)
-        self.blue = blue
-        if isinstance(blue, tuple):
-            self.blue = SoftInt(*self.blue)
+        if isinstance(red, int) or isinstance(red, SoftInt):
+            self.red = red
+        elif isinstance(red, tuple):
+            self.red = SoftInt(*red)
+        if isinstance(green, int) or isinstance(green, SoftInt):
+            self.green = green
+        elif isinstance(green, tuple):
+            self.green = SoftInt(*green)
+        if isinstance(blue, int) or isinstance(blue, SoftInt):
+            self.blue = blue
+        elif isinstance(blue, tuple):
+            self.blue = SoftInt(*blue)
 
     @staticmethod
     def _bound_color_value(color):

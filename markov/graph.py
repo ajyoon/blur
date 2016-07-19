@@ -39,7 +39,8 @@ class Graph:
         if node_list:
             self.add_nodes(node_list)
 
-    def merge_nodes(self, keep_node, kill_node):
+    def merge_nodes(self, keep_node, kill_node,
+                    merge_links_by_target_name=False):
         """
         Merge two nodes in the graph.
 
@@ -50,15 +51,24 @@ class Graph:
         Args:
             keep_node (Node): node to be kept
             kill_node (Node): node to be deleted
+            merge_links_by_target_name (bool): Whether or not to merge links
+                from ``kill_node`` to ``keep_node`` when the links point to
+                nodes with the same ``name``
+            TODO: Add test for merge_links_by_target_name
 
         Returns: None
         """
         # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
-            for i, existing_link in enumerate(keep_node.link_list):
-                if kill_link.target == existing_link.target:
-                    existing_link.weight += kill_link.weight
-                    break
+            for existing_link in keep_node.link_list:
+                if merge_links_by_target_name:
+                    if kill_link.target.name == existing_link.target.name:
+                        existing_link.weight += kill_link.weight
+                        break
+                else:
+                    if kill_link.target == existing_link.target:
+                        existing_link.weight += kill_link.weight
+                        break
             else:
                 keep_node.add_link(kill_link.target, kill_link.weight)
         # Remove kill_node from the graph
@@ -77,6 +87,9 @@ class Graph:
             merge_existing_names (Optional[bool]): Whether or not to merge
                 any nodes being added with ``Node``s already in the graph
                 with the same name (``Node.name``) as the ones being added.
+                If ``node`` is a list of ``Node``s, this will also merge
+                any nodes in that list which have the same name.
+
 
         Returns: None
 
@@ -96,7 +109,8 @@ class Graph:
             for add_node in add_list:
                 for currently_existing_node in self.node_list:
                     if currently_existing_node.name == add_node.name:
-                        self.merge_nodes(currently_existing_node, add_node)
+                        self.merge_nodes(currently_existing_node, add_node,
+                                         True)
                         break
                 else:
                     self.node_list.append(add_node)

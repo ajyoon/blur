@@ -261,23 +261,6 @@ class Graph:
             [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
 
-    def print_nodes_and_links(self):
-        """
-        Print a list of every node in and what their links are.
-
-        Returns: None
-        """
-        print('Graph object:')
-        for node in self.node_list:
-            print('Node: {0}\n'
-                  'Links:\n'
-                  '--------'.format(node.name))
-            for link in node.link_list:
-                print('    target: {0}, target name: {1}|| weight: {2}\n'
-                      '    .....................................'.format(
-                          link.target, link.target.name, link.weight))
-        print('=========================================================')
-
     @classmethod
     def from_file(cls,
                   source,

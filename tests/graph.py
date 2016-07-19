@@ -19,6 +19,14 @@ class TestGraph(unittest.TestCase):
         self.node_3.link_list.append(nodes.Link(self.node_1, 123))
         self.node_3.link_list.append(nodes.Link(self.node_2, 234))
 
+    def test_init_with_existing_list_of_nodes(self):
+        other_test_graph = graph.Graph([self.node_1,
+                                        self.node_2,
+                                        self.node_3])
+        self.assertTrue(self.node_1 in other_test_graph.node_list)
+        self.assertTrue(self.node_2 in other_test_graph.node_list)
+        self.assertTrue(self.node_3 in other_test_graph.node_list)
+
     def test_merge_nodes(self):
         self.test_graph.merge_nodes(self.node_1, self.node_2)
         self.assertEqual([(l.target, l.weight) for l in self.node_1.link_list],

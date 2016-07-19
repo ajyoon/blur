@@ -346,6 +346,10 @@ class Graph:
         """
         if distance_weights is None:
             distance_weights = {1: 1}
+        # Convert distance_weights to a sorted list of tuples
+        # To make output node list order more predictable
+        sorted_weights_list = sorted(distance_weights.items(),
+                                     key=lambda i: i[0])
         # regex that matches:
         #   * Anything surrounded by angle bracks,
         #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
@@ -358,7 +362,7 @@ class Graph:
         temp_node_list = [nodes.Node(w) for w in words]
 
         for i, node in enumerate(temp_node_list):
-            for key, weight in distance_weights.items():
+            for key, weight in sorted_weights_list:
                 # Wrap the index of edge items
                 wrapped_index = (key + i) % len(temp_node_list)
                 node.add_link(temp_node_list[wrapped_index], weight)

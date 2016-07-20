@@ -26,6 +26,38 @@ class Node(unittest.TestCase):
         self.assertFalse(self.main_node.self_destruct)
         self.assertEqual(self.main_node.link_list, [self.main_link])
 
+    def test_merge_links_from(self):
+        extra_test_link = nodes.Link(self.other_node, 5)
+        self.other_node.link_list.append(extra_test_link)
+
+        self.main_node.merge_links_from(self.other_node)
+        # Test that only one link was added to self.main_node
+        self.assertEqual(len(self.main_node.link_list), 2)
+        # Test that the weight of extra_test_link was added to self.main_link
+        self.assertEqual(self.main_node.link_list[0], self.main_link)
+        self.assertEqual(self.main_link.weight, 6)
+        # Test that the added link is a new link, not the old link
+        self.assertNotEqual(self.main_node.link_list[1], self.other_link)
+        self.assertEqual(self.main_node.link_list[1].target, self.main_node)
+        self.assertEqual(self.main_node.link_list[1].weight, 1)
+
+    def test_merge_links_from_with_merge_same_name_targets(self):
+        new_node_with_existing_name = nodes.Node('Other Test Node')
+        extra_test_link = nodes.Link(new_node_with_existing_name, 5)
+        self.other_node.link_list.append(extra_test_link)
+
+        self.main_node.merge_links_from(self.other_node,
+                                        merge_same_name_targets=True)
+        # Test that only one link was added to self.main_node
+        self.assertEqual(len(self.main_node.link_list), 2)
+        # Test that the weight of extra_test_link was added to self.main_link
+        self.assertEqual(self.main_node.link_list[0], self.main_link)
+        self.assertEqual(self.main_link.weight, 6)
+        # Test that the added link is a new link, not the old link
+        self.assertNotEqual(self.main_node.link_list[1], self.other_link)
+        self.assertEqual(self.main_node.link_list[1].target, self.main_node)
+        self.assertEqual(self.main_node.link_list[1].weight, 1)
+
     def test_find_link(self):
         found_link = self.main_node.find_link(self.other_node)
         self.assertEqual(found_link, self.main_link)

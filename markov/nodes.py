@@ -49,6 +49,37 @@ class Node:
         self.self_destruct = self_destruct
         self.link_list = []
 
+    def merge_links_from(self, other_node, merge_same_name_targets=False):
+        """
+        Merge links from another node with ``self.link_list``.
+
+        Copy links from another node, merging when copied links point to a
+        node which this already links to.
+
+        Args:
+            other_node (Node): The node to merge links from
+            merge_same_name_targets (bool): Whether or not to merge links
+                whose targets have the same name (but are not necessarily
+                the same ``Node``). If False, links will only be merged
+                when ``link_in_other.target == link_in_self.target``. If True,
+                links will be merged when
+                ``link_in_other.target.name == link_in_self.target.name``
+
+        Returns: None
+        """
+        for other_link in other_node.link_list:
+            for existing_link in self.link_list:
+                if merge_same_name_targets:
+                    if other_link.target.name == existing_link.target.name:
+                        existing_link.weight += other_link.weight
+                        break
+                else:
+                    if other_link.target == existing_link.target:
+                        existing_link.weight += other_link.weight
+                        break
+            else:
+                self.add_link(other_link.target, other_link.weight)
+
     def find_link(self, target_node):
         """
         Find the link that points to ``target_node`` if it exists.

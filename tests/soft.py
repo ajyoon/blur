@@ -202,8 +202,8 @@ class TestSoftColor(unittest.TestCase):
         # Test that values above 255 return 255
         self.assertEqual(soft.SoftColor._bound_color_value(256), 255)
 
-    def test_to_hex(self):
-        self.assertEqual(soft.SoftColor.to_hex((128, 128, 128)),
+    def test_rgb_to_hex(self):
+        self.assertEqual(soft.SoftColor.rgb_to_hex((128, 128, 128)),
                          '#808080')
 
     def test_get_with_only_int_color_types(self):
@@ -250,3 +250,11 @@ class TestSoftColor(unittest.TestCase):
         self.assertTrue(0 <= red <= 2)
         self.assertTrue(200 <= green <= 255)
         self.assertEqual(blue, 255)
+
+    def test_get_as_hex(self):
+        red_input = 128
+        green_input = 200
+        blue_input = 255
+        test_object = soft.SoftColor(red_input, green_input, blue_input)
+        hex_color = test_object.get_as_hex()
+        self.assertEqual(hex_color, '#80C8FF')

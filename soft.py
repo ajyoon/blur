@@ -196,12 +196,12 @@ class SoftColor(SoftObject):
     ``SoftColor.get()`` returns an ``(r, g, b) tuple``.
     To get a hexadecimal color value, use ``to_hex()``.
 
-    >>> rgb = color.get()
+    >>> rgb = some_soft_color.get()
     >>> rgb
     (234, 124, 32)
-    >>> rgb.to_hex()
+    >>> SoftColor.rgb_to_hex(rgb)
     '#ea7c20'
-    >>> color.get().to_hex()  # Pretending color.get() output is the same
+    >>> some_soft_color.get_as_hex()  # Pretending output is the same rgb color
     '#ea7c20'
     """
 
@@ -256,9 +256,11 @@ class SoftColor(SoftObject):
             return color
 
     @classmethod
-    def to_hex(cls, color):
+    def rgb_to_hex(cls, color):
         """
         Convert an ``(r, g, b)`` color tuple to a hexadecimal string.
+
+        Alphabetical characters in the output will be capitalized.
 
         Args:
             color (tuple): An rgb color tuple of form: (int, int, int)
@@ -268,7 +270,7 @@ class SoftColor(SoftObject):
         return '#{0:02x}{1:02x}{2:02x}'.format(
             cls._bound_color_value(color[0]),
             cls._bound_color_value(color[1]),
-            cls._bound_color_value(color[2]))
+            cls._bound_color_value(color[2])).upper()
 
     def get(self):
         """
@@ -290,3 +292,6 @@ class SoftColor(SoftObject):
             blue = self.blue
 
         return (red, green, blue)
+
+    def get_as_hex(self):
+        return self.rgb_to_hex(self.get())

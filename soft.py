@@ -200,9 +200,9 @@ class SoftColor(SoftObject):
     >>> rgb
     (234, 124, 32)
     >>> SoftColor.rgb_to_hex(rgb)
-    '#ea7c20'
+    '#EA7C20'
     >>> some_soft_color.get_as_hex()  # Pretending output is the same rgb color
-    '#ea7c20'
+    '#EA7C20'
     """
 
     def __init__(self, red, green, blue):

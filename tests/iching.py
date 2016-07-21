@@ -26,6 +26,3 @@ class IChing(unittest.TestCase):
     def test_get_hexagram_with_invalid_method(self):
         with self.assertRaises(ValueError):
             gram = iching.get_hexagram(method='invalid method name')
-
-    def test_long_description_dict_length(self):
-        self.assertEqual(len(iching.descriptions), 64)

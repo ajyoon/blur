@@ -39,8 +39,7 @@ class Graph:
         if node_list:
             self.add_nodes(node_list)
 
-    def merge_nodes(self, keep_node, kill_node,
-                    merge_links_by_target_name=False):
+    def merge_nodes(self, keep_node, kill_node):
         """
         Merge two nodes in the graph.
 
@@ -48,48 +47,33 @@ class Graph:
         combining the two link lists and summing the weights of links which
         point to the same node.
 
+        Links belonging to ``kill_node`` which point to targets not in
+        ``self.node_list`` will not be merged into ``keep_node``
+
         Args:
             keep_node (Node): node to be kept
             kill_node (Node): node to be deleted
-            merge_links_by_target_name (bool): Whether or not to merge links
-                from ``kill_node`` to ``keep_node`` when the links point to
-                nodes with the same ``name``
-            TODO: Add test for merge_links_by_target_name
 
         Returns: None
         """
         # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
             for existing_link in keep_node.link_list:
-                if merge_links_by_target_name:
-                    if kill_link.target.name == existing_link.target.name:
-                        existing_link.weight += kill_link.weight
-                        break
-                else:
-                    if kill_link.target == existing_link.target:
-                        existing_link.weight += kill_link.weight
-                        break
+                if kill_link.target == existing_link.target:
+                    existing_link.weight += kill_link.weight
+                    break
             else:
-                keep_node.add_link(kill_link.target, kill_link.weight)
+                if kill_link.target in self.node_list:
+                    keep_node.add_link(kill_link.target, kill_link.weight)
         # Remove kill_node from the graph
         self.remove_node(kill_node)
 
-    def add_nodes(self, nodes, merge_existing_names=False):
+    def add_nodes(self, nodes):
         """
         Add a given node or list of nodes to self.node_list.
 
-        Optionally, if a ``Node`` being added shares a name with a ``Node``
-        that already exists in the ``Graph``, merge the two ``Nodes`` to
-        prevent duplicates.
-
         Args:
             node (Node or list[node]): ``Node``(s) to be added to the graph
-            merge_existing_names (Optional[bool]): Whether or not to merge
-                any nodes being added with ``Node``s already in the graph
-                with the same name (``Node.name``) as the ones being added.
-                If ``node`` is a list of ``Node``s, this will also merge
-                any nodes in that list which have the same name.
-
 
         Returns: None
 
@@ -105,17 +89,7 @@ class Graph:
             add_list = [nodes]
         else:
             add_list = nodes
-        if merge_existing_names:
-            for add_node in add_list:
-                for currently_existing_node in self.node_list:
-                    if currently_existing_node.name == add_node.name:
-                        self.merge_nodes(currently_existing_node, add_node,
-                                         True)
-                        break
-                else:
-                    self.node_list.append(add_node)
-        else:
-            self.node_list.extend(add_list)
+        self.node_list.extend(add_list)
 
     def feather_links(self, factor=0.01, include_self=False):
         """
@@ -373,13 +347,39 @@ class Graph:
         # Un-tuple matches since we are only using groups to strip brackets
         # Is there a better way to do this?
         words = [next(t for t in match if t) for match in matches]
-        temp_node_list = [nodes.Node(w) for w in words]
 
-        for i, node in enumerate(temp_node_list):
-            for key, weight in sorted_weights_list:
-                # Wrap the index of edge items
-                wrapped_index = (key + i) % len(temp_node_list)
-                node.add_link(temp_node_list[wrapped_index], weight)
+        if merge_same_words:
+            # Ensure a 1:1 correspondence between words and nodes,
+            # and that all links point to these nodes as well
+
+            # Create nodes for every unique word
+            temp_node_list = []
+            for word in words:
+                if word not in (node.name for node in temp_node_list):
+                    temp_node_list.append(nodes.Node(word))
+            # Loop through words, attaching links to nodes which correspond
+            # to the current word. Ensure links also point to valid
+            # corresponding nodes in the node list.
+            for i, word in enumerate(words):
+                matching_node = next(
+                    (node for node in temp_node_list if node.name == word))
+                for key, weight in sorted_weights_list:
+                    # Wrap the index of edge items
+                    wrapped_index = (key + i) % len(words)
+                    target_word = words[wrapped_index]
+                    matching_target_node = next(
+                        (node for node in temp_node_list
+                         if node.name == target_word))
+                    matching_node.add_link(matching_target_node, weight)
+        else:
+            # Create one node for every (not necessarily unique) word.
+            temp_node_list = [nodes.Node(word) for word in words]
+            for i, node in enumerate(temp_node_list):
+                for key, weight in sorted_weights_list:
+                    # Wrap the index of edge items
+                    wrapped_index = (key + i) % len(temp_node_list)
+                    node.add_link(temp_node_list[wrapped_index], weight)
+
         graph = cls()
-        graph.add_nodes(temp_node_list, merge_existing_names=merge_same_words)
+        graph.add_nodes(temp_node_list)
         return graph

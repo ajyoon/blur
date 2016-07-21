@@ -34,16 +34,6 @@ class TestGraph(unittest.TestCase):
         self.assertEqual([(l.target, l.weight) for l in self.node_3.link_list],
                          [(self.node_1, 123)])
 
-    def test_merge_nodes_with_merge_links_by_target_name(self):
-        self.test_graph.merge_nodes(self.node_1, self.node_2, True)
-        self.assertEqual([(l.target, l.weight) for l in self.node_1.link_list],
-                         [(sel./f.node_3, 375 + 247), (self.node_1, 124)])
-        self.assertEqual([(l.target, l.weight) for l in self.node_3.link_list],
-                         [(self.node_1, 123)])
-
-    # TODO: Create test for merging nodes where the kill node has a link
-    # to a node with the same name as a node the keep node links to
-
     def test_add_nodes_with_one_node(self):
         self.test_graph.add_nodes(nodes.Node('Node 4'))
         self.assertEqual(len(self.test_graph.node_list), 4)
@@ -52,13 +42,6 @@ class TestGraph(unittest.TestCase):
         self.test_graph.add_nodes([nodes.Node('Node 4'),
                                    nodes.Node('Node 5')])
         self.assertEqual(len(self.test_graph.node_list), 5)
-
-    def test_add_nodes_with_merge_existing_names(self):
-        # Nodes with these names already exist in the setUp() graph,
-        # so adding them should not increase the length of the node list
-        nodes_to_add = [nodes.Node('Node 2'), nodes.Node('Node 3')]
-        self.test_graph.add_nodes(nodes_to_add, merge_existing_names=True)
-        self.assertEqual(len(self.test_graph.node_list), 3)
 
     def test_feather_links_allowing_self_links(self):
         self.test_graph.feather_links(1, include_self=True)
@@ -161,7 +144,7 @@ class TestGraph(unittest.TestCase):
         source = ('I have <nothing to say,.;!?:\\/\'"()[>'
                   'and I am saying it and that is poetry.')
         # Defaults:
-        # distance_weights = None
+        # distance_weights = {1: 1}
         # merge_same_words = False
         built_graph = graph.Graph.from_string(source)
         # Should result in a graph with one node per word in the source string,
@@ -220,13 +203,18 @@ class TestGraph(unittest.TestCase):
     def test_from_string_with_default_weights_and_merge_same_words(self):
         source = ('I have <nothing to say,.;!?:\\/\'"()[>'
                   'and I am saying it and that is poetry.')
-        # Defaults:
-        # distance_weights = {1: 1}
+        # Default distance_weights = {1: 1}
         built_graph = graph.Graph.from_string(source, merge_same_words=True)
         # Should result in a graph with one node per word in the source string,
         # each with exactly one link pointing to the following word
         # (last word wrapping to the first)
         self.assertEqual(len(built_graph.node_list), 11)
+        # Test that no two nodes have the same name
+        for index, node in enumerate(built_graph.node_list):
+            for other_index, other_node in enumerate(built_graph.node_list):
+                if other_index == index:
+                    continue
+                self.assertTrue(other_node.name != node.name)
         # Node for 'I' should have two links, one pointing to 'have' and
         # one pointing to 'am'
         self.assertEqual(len(built_graph.node_list[0].link_list), 2)
@@ -235,14 +223,9 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(built_graph.node_list[0].link_list[1].target.name,
                          'am')
 
-# TODO: Fix me!!! Behavior in tested function is not as expected.
-"""
     def test_from_string_with_custom_weights_and_merging_same_words(self):
         source = ('I have <nothing to say,.;!?:\\/\'"()[>'
                   'and I am saying it and that is poetry.')
-        # Defaults:
-        # distance_weights = None
-        # merge_same_words = False
         weights = {-5: 1, 0: 2, 1: 3, 4: 5}
         built_graph = graph.Graph.from_string(source,
                                               distance_weights=weights,
@@ -251,18 +234,39 @@ class TestGraph(unittest.TestCase):
         # each with exactly one link pointing to the following word
         # (last word wrapping to the first)
         self.assertEqual(len(built_graph.node_list), 11)
-        # Test relevant specifics in the graph --------------------------------
-        # Test that there is only one node with name 'I'
-        self.assertEqual(len(
-            [n for n in built_graph.node_list if n.name == 'I']), 1)
+        # Test that no two nodes have the same name
+        for index, node in enumerate(built_graph.node_list):
+            for other_index, other_node in enumerate(built_graph.node_list):
+                if other_index == index:
+                    continue
+                self.assertTrue(other_node.name != node.name)
+
+        # Test the order in which nodes were added is as expected
+        self.assertEqual(built_graph.node_list[0].name,  'I')
+        self.assertEqual(built_graph.node_list[1].name,  'have')
+        self.assertEqual(built_graph.node_list[2].name,
+                         'nothing to say,.;!?:\\/\'"()[')
+        self.assertEqual(built_graph.node_list[3].name,  'and')
+        self.assertEqual(built_graph.node_list[4].name,  'am')
+        self.assertEqual(built_graph.node_list[5].name,  'saying')
+        self.assertEqual(built_graph.node_list[6].name,  'it')
+        self.assertEqual(built_graph.node_list[7].name,  'that')
+        self.assertEqual(built_graph.node_list[8].name,  'is')
+        self.assertEqual(built_graph.node_list[9].name,  'poetry')
+        self.assertEqual(built_graph.node_list[10].name, '.')
+
+        # Exhaustively test the node with the name 'I'
         # Find the node with the name 'I' (do this manually)
         i_node = next(n for n in built_graph.node_list if n.name == 'I')
-        for l in i_node.link_list:
-            print(l.target.name, l.target, l.weight)
-        #self.assertEqual(i_node.link_list[0].target.name, 'and')
-        #self.assertEqual(i_node.link_list[0].weight, 1 + 1)
+        # Compare link contents of 'I' against expected values
+        self.assertEqual(len(i_node.link_list), 5)
+        self.assertEqual(i_node.link_list[0].target.name, 'and')
+        self.assertEqual(i_node.link_list[0].weight, 1 + 5)
         self.assertEqual(i_node.link_list[1].target.name, 'I')
         self.assertEqual(i_node.link_list[1].weight, 2 + 5 + 2)
         self.assertEqual(i_node.link_list[2].target.name, 'have')
         self.assertEqual(i_node.link_list[2].weight, 3)
-"""
+        self.assertEqual(i_node.link_list[3].target.name, '.')
+        self.assertEqual(i_node.link_list[3].weight, 1)
+        self.assertEqual(i_node.link_list[4].target.name, 'am')
+        self.assertEqual(i_node.link_list[4].weight, 3)

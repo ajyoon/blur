@@ -176,7 +176,7 @@ class Graph:
 
     def remove_node(self, node):
         """
-        Remove a node from the graph, removing all links pointing to it.
+        Remove a node from ``self.node_list`` and links pointing to it.
 
         If ``node`` is not in the graph, do nothing.
 
@@ -195,7 +195,7 @@ class Graph:
 
     def remove_node_by_name(self, name):
         """
-        Delete all nodes in self.node_list with the name ``name``.
+        Delete all nodes in ``self.node_list`` with the name ``name``.
 
         Args:
             name (Any): The name to find and delete owners of.
@@ -250,50 +250,6 @@ class Graph:
         self.current_node = weighted_choice(
             [(link.target, link.weight) for link in starting_node.link_list])
         return self.current_node
-
-    @classmethod
-    def from_file(cls,
-                  source,
-                  distance_weights=None,
-                  merge_same_words=False):
-        """
-        Read a string from a file and generate a Graph object based on it.
-
-        Words and punctuation marks are made into nodes.
-        To use whitespace and punctuation marks within a word
-        (e.g. to make ``'hello, world!'``) into a single node, surround the
-        text in question with angle brackets ``'<hello, world!>'``.
-
-        This is a convenience function for opening a file and passing its
-        contents to Graph.from_string()
-
-        Args:
-            source (str): the string to derive the graph from
-            distance_weights (dict): dict of relative indices corresponding
-                with word weights. For example, if a dict entry is ``1: 1000``
-                this means that every word is linked to the word which follows
-                it with a weight of 1000. ``-4: 350`` would mean that every
-                word is linked to the 4th word behind it with a weight of 350.
-                A key of ``0`` refers to the weight words get
-                pointing to themselves. Keys pointing beyond the edge of the
-                word list will wrap around the list.
-
-                The default value for ``distance_weights`` is: ::
-                    {1: 1}
-                This means that each word gets equal weight to whatever
-                word follows it. Consequently, if this default value is
-                used and ``merge_same_words`` is ``False``, the resulting
-                graph behavior will simply move linearly through the
-                source, wrapping at the end to the beginning.
-            merge_same_words (bool): if nodes which have the same value should
-                be merged or not.
-
-        Returns: Graph
-        """
-        source_string = open(source, 'r').read()
-        return cls.from_string(source_string,
-                               distance_weights,
-                               merge_same_words)
 
     @classmethod
     def from_string(cls,
@@ -383,3 +339,47 @@ class Graph:
         graph = cls()
         graph.add_nodes(temp_node_list)
         return graph
+
+    @classmethod
+    def from_file(cls,
+                  source,
+                  distance_weights=None,
+                  merge_same_words=False):
+        """
+        Read a string from a file and generate a Graph object based on it.
+
+        Words and punctuation marks are made into nodes.
+        To use whitespace and punctuation marks within a word
+        (e.g. to make ``'hello, world!'``) into a single node, surround the
+        text in question with angle brackets ``'<hello, world!>'``.
+
+        This is a convenience function for opening a file and passing its
+        contents to Graph.from_string()
+
+        Args:
+            source (str): the string to derive the graph from
+            distance_weights (dict): dict of relative indices corresponding
+                with word weights. For example, if a dict entry is ``1: 1000``
+                this means that every word is linked to the word which follows
+                it with a weight of 1000. ``-4: 350`` would mean that every
+                word is linked to the 4th word behind it with a weight of 350.
+                A key of ``0`` refers to the weight words get
+                pointing to themselves. Keys pointing beyond the edge of the
+                word list will wrap around the list.
+
+                The default value for ``distance_weights`` is: ::
+                    {1: 1}
+                This means that each word gets equal weight to whatever
+                word follows it. Consequently, if this default value is
+                used and ``merge_same_words`` is ``False``, the resulting
+                graph behavior will simply move linearly through the
+                source, wrapping at the end to the beginning.
+            merge_same_words (bool): if nodes which have the same value should
+                be merged or not.
+
+        Returns: Graph
+        """
+        source_string = open(source, 'r').read()
+        return cls.from_string(source_string,
+                               distance_weights,
+                               merge_same_words)

@@ -276,3 +276,24 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(i_node.link_list[3].weight, 1)
         self.assertEqual(i_node.link_list[4].target.name, 'am')
         self.assertEqual(i_node.link_list[4].weight, 3)
+
+
+    def test_from_file_is_same_as_from_string_of_file_contents(self):
+        # Defaults:
+        # distance_weights = {1: 1}
+        # merge_same_words = False
+        # test_source_text contents are the exact same as "source_as_string",
+        # but with Python escape characters removed
+        source_as_file_path = 'tests/test_source_text.txt'
+        graph_from_file = graph.Graph.from_file(source_as_file_path)
+        source_as_string = ('I have <nothing to say,.;!?:\\/\'"()[>'
+                            'and I am saying it and that is poetry.')
+        graph_from_string = graph.Graph.from_string(source_as_string)
+        for file_node, string_node in zip(graph_from_file.node_list,
+                                          graph_from_string.node_list):
+            self.assertEqual(file_node.name, string_node.name)
+            for file_link, string_link in zip(file_node.link_list,
+                                              string_node.link_list):
+                self.assertEqual(file_link.target.name,
+                                 string_link.target.name)
+                self.assertEqual(file_link.weight, string_link.weight)

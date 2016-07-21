@@ -274,7 +274,23 @@ class TestRand(unittest.TestCase):
         self.assertTrue(50 <= five_count <= 600)
         self.assertTrue(300 <= ten_count <= 900)
 
-    def test_weighted_rand(self):
+    def test_weighted_choice_with_all_zero_weights(self):
+        options = [(1, 0), (5, 0), (10, 0)]
+        self.assertIn(rand.weighted_choice(options),
+                      [1, 5, 10])
+
+    def test_weighted_choice_with_mixed_pos_neg_weights(self):
+        options = [(1, 0), (5, -1), (10, 5), (19, 1)]
+        for i in range(25):
+            self.assertIn(rand.weighted_choice(options),
+                          [10, 19])
+
+    def test_weighted_rand_with_one_weight_returns_it(self):
+        weight_list = [('The Only Weight', 2)]
+        expected_result = weight_list[0][0]
+        self.assertEqual(rand.weighted_rand(weight_list), expected_result)
+
+    def test_weighted_rand_with_arbitrary_curve(self):
         """
         Test ``rand.weighted_rand()``.
 
@@ -358,3 +374,12 @@ class TestRand(unittest.TestCase):
             if shuffled.index('Mostly Stay') == 3:
                 mostly_stay_success_count += 1
         self.assertGreater(mostly_stay_success_count, 300)
+
+    def test_weighted_shuffle_raises_TypeError_with_invalid_position(self):
+        original_list = [('Something',   50,     10),
+                         ('Another',     20,     5),
+                         ('Again',       90,     1),
+                         ('Mostly Stay', 'BAD PLACE', 7000),
+                         ('More',        0,      5)]
+        with self.assertRaises(ValueError):
+            output_list = rand.weighted_shuffle(original_list)

@@ -326,23 +326,23 @@ def weighted_choice(weights):
     # If there's only one choice, choose it
     if len(weights) == 1:
         return weights[0][0]
-
+    # Remove all weights with weight 0 or less
+    working_weights = [w for w in weights if w[1] > 0]
+    # If no weights remain after trimming, choose a random option
+    if not working_weights:
+        return random.choice([w[0] for w in weights])
     # Construct a line segment where each weight outcome is
     # allotted a length equal to the outcome's weight,
     # pick a uniformally random point along the line, and take
     # the outcome that point corrosponds to
-    prob_sum = sum(w[1] for w in weights)
-    if prob_sum == 0:
-        # If probabilities add up to 0, assume everything is 0 and return
-        # a uniformally random choice
-        return random.choice([opt[0] for opt in options])
+    prob_sum = sum(w[1] for w in working_weights)
     sample = random.uniform(0, prob_sum)
     current_pos = 0
     i = 0
-    while i < len(weights):
-        if current_pos <= sample <= (current_pos + weights[i][1]):
-            return weights[i][0]
-        current_pos += weights[i][1]
+    while i < len(working_weights):
+        if current_pos <= sample <= (current_pos + working_weights[i][1]):
+            return working_weights[i][0]
+        current_pos += working_weights[i][1]
         i += 1
     else:
         warn("Option couldn't be found in weighted_choice(). "
@@ -377,7 +377,7 @@ def weighted_shuffle(weights):
         list: The shuffled list
 
     Raises:
-        TypeError: If passed ``weights`` is not formed correctly
+        ValueError: If passed ``weights`` is not formed correctly
     """
     working_list = weights[:]
     # list of tuples [list_item, target_index]
@@ -403,7 +403,7 @@ def weighted_shuffle(weights):
                 # Place in the index closest to where the item appears already
                 target_position = closest_available(move_index)
             else:
-                raise TypeError
+                raise ValueError
         else:
             # Place in the index closest to working_list[][1] percent along
             requested_index = int((working_list[move_index][1] / 100) *

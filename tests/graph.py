@@ -99,6 +99,12 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(len(self.test_graph.node_list[0].link_list), 1)
         self.assertEqual(len(self.test_graph.node_list[1].link_list), 1)
 
+    def test_remove_node_with_node_not_in_graph_does_nothing(self):
+        node_not_in_graph = nodes.Node('Node not in the graph')
+        self.test_graph.remove_node(node_not_in_graph)
+        self.assertEqual(self.test_graph.node_list,
+                         [self.node_1, self.node_2, self.node_3])
+
     def test_remove_node_by_name(self):
         self.test_graph.remove_node_by_name('Node 1')
         self.assertEqual(self.test_graph.node_list,

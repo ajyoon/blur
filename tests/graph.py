@@ -45,19 +45,19 @@ class TestGraph(unittest.TestCase):
 
     def test_feather_links_allowing_self_links(self):
         self.test_graph.feather_links(1, include_self=True)
-        # Python floating point rounding causes strange weights
-        self.assertEqual(
-            [(l.target, l.weight) for l in self.node_1.link_list],
-            [(self.node_2, 234.4),
-             (self.node_3, 375.26),
-             (self.node_1, 0.33999999999999997)])
+        self.assertEqual(self.node_1.link_list[0].target, self.node_2)
+        self.assertAlmostEqual(self.node_1.link_list[0].weight, 234.4)
+        self.assertEqual(self.node_1.link_list[1].target, self.node_3)
+        self.assertAlmostEqual(self.node_1.link_list[1].weight, 375.26)
+        self.assertEqual(self.node_1.link_list[2].target, self.node_1)
+        self.assertAlmostEqual(self.node_1.link_list[2].weight, 0.34)
 
     def test_feather_links_not_allowing_self_links(self):
         self.test_graph.feather_links(1, include_self=False)
-        self.assertEqual(
-            [(l.target, l.weight) for l in self.node_1.link_list],
-            [(self.node_2, 234.4),
-             (self.node_3, 375.26)])
+        self.assertEqual(self.node_1.link_list[0].target, self.node_2)
+        self.assertAlmostEqual(self.node_1.link_list[0].weight, 234.4)
+        self.assertEqual(self.node_1.link_list[1].target, self.node_3)
+        self.assertAlmostEqual(self.node_1.link_list[1].weight, 375.26)
 
     def test_apply_noise_with_uniform_amount(self):
         UNIFORM_NOISE_AMOUNT = 0.1

@@ -1,7 +1,9 @@
 """
 A collection of functions for performing non-uniform random operations.
 
-Many functions rely of weight tuples of the form ``(outcome, weight)``
+Many functions rely of weight ``tuple`` 's of the form ``(outcome, weight)``
+where ``weight`` is a number and ``outcome`` is either a number
+or any type depending on the function.
 """
 
 from __future__ import division
@@ -112,13 +114,16 @@ def bound_weights(weights, minimum=None, maximum=None):
     or else this raises TypeError
 
     Args:
-        weights (list[(float or int, float or int)]): the list of weights
-            to be bounded. Must be sorted in increasing order of outcomes
-        minimum (float or int): Lowest allowed outcome for the weight list
-        maximum (float or int) Highest allowed outcome for the weight list
+        weights (List[(float, float)]): the list of weights where each weight
+            is a ``tuple`` of form ``(float, float)`` corresponding to
+            ``(outcome, weight)``. Must be sorted in increasing order
+            of outcomes
+        minimum (float): Lowest allowed outcome for the weight list
+        maximum (float): Highest allowed outcome for the weight list
 
     Returns:
-        list[(int or float, int or float)]: The bounded weight list
+        List: A ``list`` of ``tuple`` 's of form ``(float, float)``,
+        the bounded weight list.
 
     Raises:
         ValueError: if ``maximum < minimum``
@@ -170,7 +175,7 @@ def normal_distribution(mean, variance,
     Returns: list[(float, float)]
 
     Raises:
-        ValueError: if ``maximum < minimum``
+        ValueError: ``if maximum < minimum``
         TypeError: if both ``minimum`` and ``maximum`` are ``None``
     """
     def _normal_function(x, mean, variance):
@@ -196,12 +201,14 @@ def normal_distribution(mean, variance,
 
 def prob_bool(probability):
     """
-    Return True or False depending on probability.
+    Return ``True`` or ``False`` depending on ``probability``.
 
     Args:
-        probability (float): Probability (between 0 and 1) to return True
+        probability (float): Probability between ``0`` and ``1``
+            to return ``True`` where ``0`` is guaranteed to return
+            ``False`` and ``1`` is guaranteed to return ``True``.
 
-    Returns: Bool
+    Returns: bool
     """
     return random.uniform(0, 1) < probability
 
@@ -218,34 +225,37 @@ def percent_possible(percent):
     return random.uniform(0, 100) < percent
 
 
-def pos_or_neg(value, prob_pos=None):
+def pos_or_neg(value, prob_pos=0.5):
     """
     Return either positive or negative ``value`` based on ``prob_pos``.
 
-    A convenience function for ``abs(value) * pos_or_neg_1``
+    This is equivalent to ``abs(value) * pos_or_neg_1(prob_pos)``.
 
     Args:
         value (int or float): the value to operate on
         prob_pos (Optional[float]): The probability to return positive.
-            Should be between 0 and 1. If not specified, assume 0.5
+            where ``prob_pos = 0`` is guaranteed to return negative and
+            ``prob_pos = 1`` is guaranteed to return positive.
+            Default value is ``0.5``.
 
     Returns: int or float
     """
     return abs(value) * pos_or_neg_1(prob_pos)
 
 
-def pos_or_neg_1(prob_pos=None):
+def pos_or_neg_1(prob_pos=0.5):
     """
-    Return either 1 with probability of ``prob_pos``, otherwise -1.
+    Return either ``1`` with probability of ``prob_pos``, otherwise ``-1``.
 
     Args:
-        prob_pos (Optional[float]): The probability to return (+)1.
-            Should be between 0 and 1. If not specified, assume 0.5
+        prob_pos (Optional[float]): The probability to return positive ``1``
+            where ``prob_pos = 0`` is guaranteed to return negative and
+            ``prob_pos = 1`` is guaranteed to return positive.
+            Default value is ``0.5``.
 
-    Returns: int, either 1 or -1
+    Returns:
+        int: either ``1`` or ``-1``
     """
-    if prob_pos is None:
-        prob_pos = 0.5
     if random.uniform(0, 1) < prob_pos:
         return 1
     else:
@@ -261,12 +271,14 @@ def weighted_rand(weights, round_result=False):
     coordinates given in input_weights and rolls random values in the
     curve's bounding box until a value is found under the curve
 
-    Weight tuples should be of the form: (outcome, weight). All weights
-    outcome values must be numbers. Weights with weight 0 or less will have
-    no chance to be rolled
+    Weight tuples should be of the form: (outcome, weight).
 
     Args:
-        weights (list[(outcome, weight)]):
+        weights: (List[(float, float)]): the list of weights where each weight
+            is a ``tuple`` of form ``(float, float)`` corresponding to
+            ``(outcome, weight)``. All weights outcome values must be numbers.
+            Weights with weight ``0`` or less will have no chance to be
+            rolled. Must be sorted in increasing order of outcomes.
         round_result (Optional[Bool])):
 
     Returns: float or int
@@ -313,13 +325,13 @@ def weighted_choice(weights):
     Constructs a line segment where each weight is outcome is allotted a
     length and rolls a random point.
 
-    Weight tuples should be of the form: (outcome, weight). Weight
-    outcome values may be of any type. Weights with weight 0 or less will have
-    no chance to be rolled, unless all weights are 0, in which case a
-    uniformally random choice will be returned.
-
     Args:
-        weights (list[(outcome, weight)]):
+        weights: (List[(float, float)]): the list of weights where each weight
+            is a ``tuple`` of form ``(Any, float)`` corresponding to
+            ``(outcome, weight)``. Weight outcome values may be of any type.
+            Weights with weight ``0`` or less will have no chance to be
+            rolled, unless all weights are ``0``, in which case a uniformally
+            random choice will be returned.
 
     Returns: Any
     """
@@ -357,10 +369,10 @@ def weighted_shuffle(weights):
 
     ``weights`` is a list of the form: [(list_item, place, weight)].
     ``list_item`` is the item to place in the final list. ``place`` is either a
-    ``float`` between 0 and 100 representing the percent along the list it will
-    end up, or the ``str`` 'STAY' meaning the item will stay where it appears
-    in ``weights``. ``weight`` is the weight given to the chance that the item
-    appears in the specified ``place``.
+    ``float`` between ``0`` and ``100`` representing the percent along the list
+    it will end up, or the ``str`` ``'STAY'`` meaning the item will stay where
+    it appears in ``weights``. ``weight`` is the weight given to the chance
+    that the item appears in the specified ``place``.
 
     The algorithm works by choosing an item from ``weights`` according to the
     ``weight`` element and placing its ``list_item`` its the specified

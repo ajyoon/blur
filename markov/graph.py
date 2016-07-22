@@ -12,7 +12,7 @@ class Graph:
     """
     A Markov graph with a number of handy utilities.
 
-    The graph consists of a list of ``Node``s and keeps track of
+    The graph consists of a list of ``Node`` 'sand keeps track of
     which node was picked last.
 
     Several utilities offer conveniences for managing the network.

@@ -16,7 +16,7 @@ class Link:
     A one-way link pointing to a ``Node`` with a weight.
 
     For use in conjunction with the ``Node`` and ``Graph`` classes.
-    You will rarely need to deal with ``Link``s directly. The best
+    You will rarely need to deal with ``Link`` 'sdirectly. The best
     way to create a ``Link`` from one ``Node`` to another is
     by calling ``some_node.add_link(another_node, 5)`` instead.
     """

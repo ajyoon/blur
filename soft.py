@@ -2,7 +2,7 @@
 
 Every soft object has a value that changes every time it is retrieved
 according to defined chance profiles. This value can be retrieved
-with the ``SoftObject``'s``get()`` method.
+with the ``SoftObject`` 's ``get()`` method.
 """
 
 import random
@@ -11,7 +11,7 @@ from blur import rand
 
 class SoftObject:
     """
-    An abstract base class for ``SoftObject``s.
+    An abstract base class for ``SoftObject`` 's.
 
     Direct instances of ``SoftObject`` should not be created; instead, the
     appropriate subclass should be used.
@@ -193,8 +193,8 @@ class SoftColor(SoftObject):
     """
     An RGB color whose individual channels are ``SoftInt`` objects.
 
-    ``SoftColor.get()`` returns an ``(r, g, b) tuple``.
-    To get a hexadecimal color value, use ``to_hex()``.
+    ``SoftColor.get()`` returns an ``(r, g, b)`` ``tuple``.
+    To get a hexadecimal color value, use ``get_as_hex()``.
 
     >>> rgb = some_soft_color.get()
     >>> rgb
@@ -274,7 +274,7 @@ class SoftColor(SoftObject):
 
     def get(self):
         """
-        Get a color tuple.
+        Get an rgb color tuple according to the probability distribution.
 
         Returns: tuple(int, int, int)
         """
@@ -294,4 +294,11 @@ class SoftColor(SoftObject):
         return (red, green, blue)
 
     def get_as_hex(self):
-        return self.rgb_to_hex(self.get())
+        """
+        Get a hexademical color according to the probability distribution.
+
+        Equivalent to ``SoftColor.rgb_to_hex(self.get())``
+
+        Returns: str
+        """
+        return SoftColor.rgb_to_hex(self.get())

@@ -3,6 +3,14 @@
 Every soft object has a value that changes every time it is retrieved
 according to defined chance profiles. This value can be retrieved
 with the ``SoftObject`` 's ``get()`` method.
+
+>>> blurry_float = SoftFloat([(-1, 2), (3, 5)])
+>>> blurry_float.get()
+1.925674784815838
+>>> blurry_float.get()
+1.120389067727415
+>>> blurry_float.get()
+1.30418962132812
 """
 
 import random
@@ -43,14 +51,27 @@ class SoftObject:
 
 
 class SoftOptions(SoftObject):
-    """One of many objects with corrosponding weights."""
+    """
+    One of many objects with corrosponding weights.
+
+    Attributes:
+        options (list): a list of options where each option
+            is a ``tuple`` of form ``(Any, float)`` corresponding to
+            ``(outcome, weight)``. Outcome values may be of any type.
+            Weights ``0`` or less will have no chance
+            to be retrieved by ``get()``
+    """
 
     def __init__(self, options):
         """
-        Initialize from a list of (value, weight) tuples.
+        Initialize from a list of (outcome, weight) tuples.
 
         Args:
-            list[(value, weight)] options:
+            options (list[tuple]): a list of options where each option
+                is a ``tuple`` of form ``(Any, float)`` corresponding to
+                ``(outcome, weight)``. Outcome values may be of any
+                type. Weights ``0`` or less will have no chance
+                to be retrieved by ``get()``
         """
         self.options = options
 
@@ -60,7 +81,7 @@ class SoftOptions(SoftObject):
         Initialize from a list of options, assigning uniform weights.
 
         Args:
-            options list[Any]: The list of options this object can return
+            options (List[Any]): The list of options this object can return
                 with the ``get()`` method.
             weight (Optional[float or int]): The weight to be assigned to
                 every option. Regardless of what this is, the probability
@@ -82,7 +103,7 @@ class SoftOptions(SoftObject):
         integers between ``1`` and ``len(options)``
 
         Args:
-            options list[Any]:
+            options (list[Any]):
 
         Returns: SoftOptions
         """
@@ -100,7 +121,14 @@ class SoftOptions(SoftObject):
 
 
 class SoftBool(SoftObject):
-    """A stochastic ``bool`` defined by a probability to be ``True``."""
+    """
+    A stochastic ``bool`` defined by a probability to be ``True``.
+
+    Attributes:
+        prob_true (float): The probability that ``get()`` returns ``True``
+            where ``prob_true <= 0`` is always ``False`` and
+            ``prob_true >= 1`` is always ``True``.
+    """
 
     def __init__(self, prob_true):
         """
@@ -219,7 +247,8 @@ class SoftColor(SoftObject):
             convenience option to pass a tuple of args for
             for ``SoftInt.__init__()``, keep in mind that when
             creating 1-length tuples in Python you need to add a
-            comma after the first element. ::
+            comma after the first element, or Python will ignore
+            the parentheses. ::
 
                 color = soft.SoftColor(([(0, 1), (255, 10)],),
                                        ([(0, 1), (255, 10)],),

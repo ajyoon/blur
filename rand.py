@@ -318,18 +318,15 @@ def weighted_rand(weights, round_result=False):
 
 def weighted_choice(weights):
     """
-    Generate a non-uniform random value based on a list of weight tuples.
+    Generate a non-uniform random choice based on a list of option tuples.
 
     Treats each outcome as a discreet unit with a chance to occur.
 
-    Constructs a line segment where each weight is outcome is allotted a
-    length and rolls a random point.
-
     Args:
-        weights: (List[(float, float)]): the list of weights where each weight
+        weights: (List[(Any, float)]): a list of options where each option
             is a ``tuple`` of form ``(Any, float)`` corresponding to
-            ``(outcome, weight)``. Weight outcome values may be of any type.
-            Weights with weight ``0`` or less will have no chance to be
+            ``(outcome, weight)``. Outcome values may be of any type.
+            Options with weight ``0`` or less will have no chance to be
             rolled, unless all weights are ``0``, in which case a uniformally
             random choice will be returned.
 
@@ -367,7 +364,8 @@ def weighted_shuffle(weights):
     """
     Non-uniformally shuffle a list.
 
-    ``weights`` is a list of the form: [(list_item, place, weight)].
+    ``weights`` is a list of tuples of the form: ``(Any, float or str, float)``
+    corresponding to ``(list_item, place, weight)``.
     ``list_item`` is the item to place in the final list. ``place`` is either a
     ``float`` between ``0`` and ``100`` representing the percent along the list
     it will end up, or the ``str`` ``'STAY'`` meaning the item will stay where
@@ -383,7 +381,7 @@ def weighted_shuffle(weights):
     placed.
 
     Args:
-        weights [(Any, float or str, float)]:
+        weights (list[(Any, float or str, float)]):
 
     Returns:
         list: The shuffled list

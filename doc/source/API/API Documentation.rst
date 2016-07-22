@@ -8,6 +8,6 @@ Contents:
 
     rand
     soft
-    markov
+    markov/markov
     iching
     tests

@@ -41,8 +41,12 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinxcontrib.fulltoc'
 ]
+
+# Note that to build properly, sphinxcontrib.fulltoc must be installed.
+# use `pip install sphinxcontrib-fulltoc` to satisfy this dependency
 
 # Autoclass settings
 autoclass_content = 'both'

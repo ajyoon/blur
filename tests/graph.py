@@ -1,4 +1,6 @@
+import os
 import unittest
+
 from blur.markov import graph, nodes
 
 
@@ -283,8 +285,14 @@ class TestGraph(unittest.TestCase):
         # merge_same_words = False
         # test_source_text contents are the exact same as "source_as_string",
         # but with Python escape characters removed
-        source_as_file_path = 'tests/test_source_text.txt'
-        graph_from_file = graph.Graph.from_file(source_as_file_path)
+        try:
+            file_name = 'tests/test_source_text.txt'
+            graph_from_file = graph.Graph.from_file(file_name)
+        except FileNotFoundError:
+            # Maybe we're testing from within the tests folder...
+            file_name = 'test_source_text.txt'
+            graph_from_file = graph.Graph.from_file(file_name)
+
         source_as_string = ('I have <nothing to say,.;!?:\\/\'"()[>'
                             'and I am saying it and that is poetry.')
         graph_from_string = graph.Graph.from_string(source_as_string)

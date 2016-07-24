@@ -2,7 +2,6 @@ from distutils.core import setup
 
 setup(
     name='blur',
-    packages=['blur'],
     version='0.1',
     description='A chance art toolkit.',
     author='Andrew Yoon',

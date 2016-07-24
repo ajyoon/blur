@@ -110,7 +110,7 @@ or alternatively:
 To get the requirements to build the documentation, navigate to
 the docs folder and install from doc_requirements.txt
 
-    cd doc
+    cd blur/doc
     pip install -r doc_requirements.txt
 
 To build, simply navigate to the ``doc`` folder and call ``make html``

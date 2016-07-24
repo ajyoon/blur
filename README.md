@@ -1,8 +1,10 @@
 # blur
-###### 0.1
-A chance art toolkit
+#### 0.1
 
 [![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=master)](https://travis-ci.org/ajyoon/blur)
+
+blur is a suite of tools for Python to help make using chance operations in
+algorithmic art easier.
 
 ```python
 >>> from blur.markov.graph import Graph
@@ -79,12 +81,12 @@ To install *blur* use pip from the command line:
 
 ***
 
-###### Contributing
+#### Contributing
 Feature requests, bug reports, and pull requests are all welcomed!
 Head on over to https://github.com/ajyoon/blur and get in touch.
 
 
-###### Testing
+#### Testing
 The test suite is located in the `tests` directory. Travis has been
 configured to automatically run these tests on any changes in the
 git repository, but you can run these tests yourself as well.
@@ -104,7 +106,7 @@ or alternatively:
     cd blur
     nosetests tests/*.py
 
-###### Building the documentation
+#### Building the documentation
 To build the documentation you must have ``Sphinx`` and
 ``sphinxcontrib-fulltoc`` installed:
 

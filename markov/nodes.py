@@ -1,9 +1,9 @@
 """
-Classes for use in ``Graph``s.
+Classes for use in ``Graph`` 's.
 
-Besides initializing ``Node``s, you will rarely need
-to directly interract with these objects, as ``Graph`` provides
-much easier and more powerful interractions.
+Besides initializing ``Node`` 's, you will rarely need
+to directly interact with these objects, as ``Graph`` provides
+much easier and more powerful interactions.
 """
 
 import random
@@ -16,7 +16,7 @@ class Link:
     A one-way link pointing to a ``Node`` with a weight.
 
     For use in conjunction with the ``Node`` and ``Graph`` classes.
-    You will rarely need to deal with ``Link`` 'sdirectly. The best
+    You will rarely need to deal with ``Link`` 's directly. The best
     way to create a ``Link`` from one ``Node`` to another is
     by calling ``some_node.add_link(another_node, 5)`` instead.
     """
@@ -89,12 +89,13 @@ class Node:
         Args:
             target_node (Node): The node to look for in ``self.link_list``
 
-        Returns: Node or None
+        Returns:
+            Link: An existing link pointing to ``target_node`` if found
+            None: If no such link exists
         """
-        for link in self.link_list:
-            if link.target == target_node:
-                return link
-        else:
+        try:
+            return next(l for l in self.link_list if l.target == target_node)
+        except StopIteration:
             return None
 
     def add_link(self, targets, weight):
@@ -144,15 +145,15 @@ class Node:
 
     def add_reciprocal_link(self, target, weight):
         """
-        Add links pointing in either direction from ``self`` to ``target``.
+        Add links pointing in either direction between ``self`` and ``target``.
 
         This creates a ``Link`` from ``self`` to ``target`` and a ``Link``
         from ``target`` to ``self`` of equal weight. If ``target`` is a list
-        of ``Node``s, repeat this for each one.
+        of ``Node`` 's, repeat this for each one.
 
         Args:
             target (Node or list[Node]):
-            weight (int or float): weight for new links
+            weight (int or float):
 
         Returns: None
         """

@@ -279,8 +279,7 @@ class Graph:
                 pointing to themselves. Keys pointing beyond the edge of the
                 word list will wrap around the list.
 
-                The default value for ``distance_weights`` is: ::
-                    {1: 1}
+                The default value for ``distance_weights`` is ``{1: 1}``.
                 This means that each word gets equal weight to whatever
                 word follows it. Consequently, if this default value is
                 used and ``merge_same_words`` is ``False``, the resulting
@@ -371,15 +370,15 @@ class Graph:
                 pointing to themselves. Keys pointing beyond the edge of the
                 word list will wrap around the list.
 
-                The default value for ``distance_weights`` is: ::
-                    {1: 1}
+                The default value for ``distance_weights`` is ``{1: 1}``.
                 This means that each word gets equal weight to whatever
                 word follows it. Consequently, if this default value is
                 used and ``merge_same_words`` is ``False``, the resulting
                 graph behavior will simply move linearly through the
                 source, wrapping at the end to the beginning.
-            merge_same_words (bool): if nodes which have the same value should
-                be merged or not.
+
+            merge_same_words (bool): whether nodes which have the same value
+                should be merged or not.
 
         Returns: Graph
         """

@@ -27,6 +27,9 @@ def _linear_interp(curve, test_x, round_result=False):
             ``x`` value, all but the last occuring will be ignored.
         test_x (float): The ``x`` value to find the ``y`` value of
 
+    Returns:
+        float: The ``y`` value of the curve at ``test_x``
+
     Raises:
         ValueError if ``test_x`` is out of the domain of ``curve``
     """
@@ -60,7 +63,8 @@ def _point_under_curve(curve, point):
         curve [(x, y)]:
         point (x, y):
 
-    Returns: bool
+    Returns:
+        bool: Whether the point is under the curve
     """
     try:
         return _linear_interp(curve, point[0]) > point[1]
@@ -97,6 +101,21 @@ def _clamp_value(value, minimum, maximum):
         return value
 
 
+def _normal_function(x, mean, variance):
+    """
+    Find a value in the cumulative distribution function of a normal curve.
+
+    See https://en.wikipedia.org/wiki/Normal_distribution
+
+    Args:
+        x (float):
+        mean (float):
+        variance (float):
+    """
+    e_power = -1 * (((x - mean) ** 2) / (2 * variance))
+    return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
+
+
 ###############################################################################
 # Methods
 ###############################################################################
@@ -110,8 +129,8 @@ def bound_weights(weights, minimum=None, maximum=None):
     weights at the modified edges at the same weight (y-axis) position they
     had interpolated in the original list.
 
-    At least one of ``minimum`` and ``maximum`` must be set,
-    or else this raises TypeError
+    At least one of ``minimum`` and ``maximum`` must be set.
+    If both are set, minimum must be less than maximum.
 
     Args:
         weights (List[(float, float)]): the list of weights where each weight
@@ -126,8 +145,8 @@ def bound_weights(weights, minimum=None, maximum=None):
         the bounded weight list.
 
     Raises:
-        ValueError: if ``maximum < minimum``
         TypeError: if both ``minimum`` and ``maximum`` are ``None``
+        ValueError: if ``maximum < minimum``
     """
     # Copy weights to avoid side-effects
     bounded_weights = weights[:]
@@ -172,15 +191,14 @@ def normal_distribution(mean, variance,
         weight_count (Optional[int]): The number of weights that will
             be used to approximate the distribution
 
-    Returns: list[(float, float)]
+    Returns:
+        list[(float, float)]: a list of weights approximating
+            a normal distribution.
 
     Raises:
         ValueError: ``if maximum < minimum``
         TypeError: if both ``minimum`` and ``maximum`` are ``None``
     """
-    def _normal_function(x, mean, variance):
-        e_power = -1 * (((x - mean) ** 2) / (2 * variance))
-        return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
     # Pin 0 to +- 5 sigma as bounds, or minimum and maximum
     # if they cross +/- sigma
     standard_deviation = math.sqrt(variance)
@@ -208,7 +226,8 @@ def prob_bool(probability):
             to return ``True`` where ``0`` is guaranteed to return
             ``False`` and ``1`` is guaranteed to return ``True``.
 
-    Returns: bool
+    Returns:
+        bool: ``True`` or ``False`` depending on ``probability``.
     """
     return random.uniform(0, 1) < probability
 
@@ -220,7 +239,8 @@ def percent_possible(percent):
     Args:
         percent (int or float): percent possibility to return True
 
-    Returns: Bool
+    Returns:
+        bool: Either ``True`` or ``False`` depending on ``percent``
     """
     return random.uniform(0, 100) < percent
 
@@ -238,7 +258,8 @@ def pos_or_neg(value, prob_pos=0.5):
             ``prob_pos = 1`` is guaranteed to return positive.
             Default value is ``0.5``.
 
-    Returns: int or float
+    Returns:
+        int or float: ``value`` either positive or negative
     """
     return abs(value) * pos_or_neg_1(prob_pos)
 
@@ -281,7 +302,9 @@ def weighted_rand(weights, round_result=False):
             rolled. Must be sorted in increasing order of outcomes.
         round_result (Optional[Bool])):
 
-    Returns: float or int
+    Returns:
+        float or int: A number between the smallest and largest outcomes
+            in ``weights``
     """
     # If just one weight is passed, simply return the weight's name
     if len(weights) == 1:
@@ -330,7 +353,8 @@ def weighted_choice(weights):
             rolled, unless all weights are ``0``, in which case a uniformally
             random choice will be returned.
 
-    Returns: Any
+    Returns:
+        Any: Any one of the items in the outcomes of ``weights``
     """
     # If there's only one choice, choose it
     if len(weights) == 1:

@@ -89,8 +89,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(found_node, self.node_2)
 
     def test_find_node_by_name_with_invalid_name(self):
-        with self.assertRaises(ValueError):
-            self.test_graph.find_node_by_name('bogus name')
+        self.assertIsNone(self.test_graph.find_node_by_name('bogus name'))
 
     def test_remove_node(self):
         self.test_graph.remove_node(self.node_2)

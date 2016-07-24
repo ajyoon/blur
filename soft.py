@@ -90,7 +90,8 @@ class SoftOptions(SoftObject):
                 you need to modify the weights after creation
                 with specific requirements.
 
-        Returns: SoftOptions
+        Returns:
+            SoftOptions: A newly constructed instance
         """
         return cls([(value, weight) for value in options])
 
@@ -105,17 +106,18 @@ class SoftOptions(SoftObject):
         Args:
             options (list[Any]):
 
-        Returns: SoftOptions
+        Returns:
+            SoftOptions: A newly constructed instance
         """
-        return cls(
-            [(value, random.randint(1, len(options)))
-             for value in options])
+        return cls([(value, random.randint(1, len(options)))
+                    for value in options])
 
     def get(self):
         """
         Get one of the options within the probability space of the object.
 
-        Returns: Any
+        Returns:
+            Any: An item from ``self.options``.
         """
         return rand.weighted_choice(self.options)
 
@@ -145,7 +147,8 @@ class SoftBool(SoftObject):
         """
         Get either ``True`` or ``False`` depending on ``self.prob_true``.
 
-        Returns: bool
+        Returns:
+            bool: ``True`` or ``False`` depending on ``self.prob_true``.
         """
         return random.uniform(0, 1) <= self.prob_true
 
@@ -178,7 +181,8 @@ class SoftFloat(SoftObject):
             highest (float or int):
             weight_interval (int):
 
-        Returns: SoftFloat
+        Returns:
+            SoftFloat: A newly constructed instance.
         """
         if weight_interval is None:
             weights = [(lowest, 1), (highest, 1)]
@@ -195,7 +199,9 @@ class SoftFloat(SoftObject):
         """
         Get a ``float`` value in the probability space of the object.
 
-        Returns: float
+        Returns:
+            float: A value between the lowest and highest outcomes
+                in ``self.weights``
         """
         return rand.weighted_rand(self.weights, round_result=False)
 
@@ -205,7 +211,7 @@ class SoftInt(SoftFloat):
     A stochastic ``int`` value defined by a list of weights.
 
     Has the exact same functionality as ``SoftFloat``,
-    except that ``get()``returns ``int`` values
+    except that ``get()`` returns ``int`` values
     """
 
     def get(self):
@@ -305,7 +311,8 @@ class SoftColor(SoftObject):
         """
         Get an rgb color tuple according to the probability distribution.
 
-        Returns: tuple(int, int, int)
+        Returns:
+            tuple(int, int, int): A ``(red, green, blue)`` tuple.
         """
         if isinstance(self.red, SoftInt):
             red = self.red.get()
@@ -328,6 +335,7 @@ class SoftColor(SoftObject):
 
         Equivalent to ``SoftColor.rgb_to_hex(self.get())``
 
-        Returns: str
+        Returns:
+            str: A hexademical color string
         """
         return SoftColor.rgb_to_hex(self.get())

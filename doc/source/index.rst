@@ -13,9 +13,6 @@ Contents:
    :maxdepth: 2
 
    Introduction
-   Installation
-   Getting Started
-   A Guided Tour of the Examples
    API/API Documentation
 
 Indices and tables

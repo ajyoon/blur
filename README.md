@@ -107,11 +107,11 @@ or alternatively:
     nosetests tests/*.py
 
 #### Building the documentation
-To build the documentation you must have ``Sphinx`` and
-``sphinxcontrib-fulltoc`` installed:
+To get the requirements to build the documentation, navigate to
+the docs folder and install from doc_requirements.txt
 
-    pip install sphinx
-    pip install sphinxcontrib-fulltoc
+    cd doc
+    pip install -r doc_requirements.txt
 
 To build, simply navigate to the ``doc`` folder and call ``make html``
 

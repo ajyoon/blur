@@ -12,7 +12,7 @@ class Graph:
     """
     A Markov graph with a number of handy utilities.
 
-    The graph consists of a list of ``Node`` 'sand keeps track of
+    The graph consists of a list of ``Node`` 's and keeps track of
     which node was picked last.
 
     Several utilities offer conveniences for managing the network.
@@ -20,7 +20,7 @@ class Graph:
 
     def __init__(self, node_list=None):
         """
-        Initialize a graph, optionally populating it with a list of ``Node``s.
+        Initialize a graph, optionally with an initial list of ``Node`` 's.
 
         Args:
             node_list (Optional[list]): An optional list of nodes to
@@ -164,15 +164,19 @@ class Graph:
         If multiple nodes exist with the name ``name``,
         return the first one found.
 
-        Returns: Node
+        If no such node exists, this returns ``None``.
 
-        Raises: ValueError if no node with
+        Args:
+            name (Any): The name of the node to find
+
+        Returns:
+            Node: A node with name ``name`` if it was found
+            None: If no node exists with name ``name``
         """
-        for node in self.node_list:
-            if node.name == name:
-                return node
-        else:
-            raise ValueError('Could not find node by name ' + str(name))
+        try:
+            return next(n for n in self.node_list if n.name == name)
+        except StopIteration:
+            return None
 
     def remove_node(self, node):
         """

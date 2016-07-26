@@ -164,8 +164,8 @@ class TestRand(unittest.TestCase):
         MEAN = -12
         VARIANCE = 2.5
         STANDARD_DEVIATION = math.sqrt(VARIANCE)
-        SAMPLE_COUNT = 600
-        curve = rand.normal_distribution(MEAN, VARIANCE)
+        SAMPLE_COUNT = 1000
+        curve = rand.normal_distribution(MEAN, VARIANCE, weight_count=30)
         samples = [rand.weighted_rand(curve) for i in range(SAMPLE_COUNT)]
         samples_mean = sum(samples) / len(samples)
         samples_variance = (
@@ -174,8 +174,8 @@ class TestRand(unittest.TestCase):
         )
         mean_diff = abs(MEAN - samples_mean)
         variance_diff = abs(VARIANCE - samples_variance)
-        self.assertLess(mean_diff, abs(MEAN / 5))
-        self.assertLess(variance_diff, abs(VARIANCE / 5))
+        self.assertLess(mean_diff, abs(MEAN / 4))
+        self.assertLess(variance_diff, abs(VARIANCE / 4))
 
     def test_normal_distribution_with_bounds(self):
         MEAN = -12

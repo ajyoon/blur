@@ -80,7 +80,7 @@ To install *blur* use pip from the command line:
     pip install blur
 
 You can read the latest official documentation for *blur* online
-[here](blur.readthedocs.io/en/latest/).
+[here](http://blur.readthedocs.io/en/latest/).
 
 ***
 

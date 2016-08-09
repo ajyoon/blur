@@ -10,7 +10,6 @@ except ImportError:
     import Tkinter as tk
 
 from blur import soft
-from blur import rand
 
 tk_host = tk.Tk()
 
@@ -44,35 +43,46 @@ class SoftCell:
 
 # Fill the world
 CELLS_PER_ROW = 80
-allow_change_weights = soft.SoftBool(0.4)
+allow_change_weight = soft.SoftBool(0.4)
 starting_value = soft.SoftBool(0)
 world = [[None] * CELLS_PER_ROW for _ in range(CELLS_PER_ROW)]
 for x in range(CELLS_PER_ROW):
     for y in range(CELLS_PER_ROW):
         world[x][y] = SoftCell(starting_value.get(),
-                               allow_change_weights)
+                               allow_change_weight)
+
 
 def update_state(world):
+    """
+    Increment the world state, determining which cells live, die, or appear.
+
+    Args:
+        world (list[list]): A square matrix of cells
+
+    Returns: None
+    """
+
     world_size = len(world)
 
     def wrap(index):
-        # Wrap an index around the other end of the array
+        """Wrap an index around the other end of the array"""
         return index % world_size
+
     for x in range(world_size):
         for y in range(world_size):
             # Decide if this node cares about the rules right now
             if not world[x][y].allow_change.get():
                 continue
-            live_neighbor_count = (
-                int(world[wrap(x)][wrap(y+1)].value) +
-                int(world[wrap(x+1)][wrap(y+1)].value) +
-                int(world[wrap(x+1)][wrap(y)].value) +
-                int(world[wrap(x+1)][wrap(y-1)].value) +
-                int(world[wrap(x)][wrap(y-1)].value) +
-                int(world[wrap(x-1)][wrap(y-1)].value) +
-                int(world[wrap(x-1)][wrap(y)].value) +
-                int(world[wrap(x-1)][wrap(y+1)].value)
-            )
+            live_neighbor_count = sum([
+                world[wrap(x)][wrap(y + 1)].value,
+                world[wrap(x + 1)][wrap(y + 1)].value,
+                world[wrap(x + 1)][wrap(y)].value,
+                world[wrap(x + 1)][wrap(y - 1)].value,
+                world[wrap(x)][wrap(y-1)].value,
+                world[wrap(x - 1)][wrap(y - 1)].value,
+                world[wrap(x - 1)][wrap(y)].value,
+                world[wrap(x - 1)][wrap(y + 1)].value
+            ])
             if world[x][y].value:
                 # Any live cell with fewer than two live neighbours dies
                 # Any live cell with more than three live neighbours dies
@@ -97,6 +107,7 @@ for x in range(len(world)):
                                 fill="#808080")
 
 def click_event(event):
+    """On click, make the cell under the cursor alive."""
     grid_x_coord = int(divmod(event.x, cell_size)[0])
     grid_y_coord = int(divmod(event.y, cell_size)[0])
     world[grid_x_coord][grid_y_coord].value = True
@@ -104,6 +115,7 @@ def click_event(event):
     canvas.itemconfig(canvas_grid[grid_x_coord][grid_y_coord], fill=color)
 
 def draw_canvas():
+    """Render the tkinter canvas based on the state of ``world``"""
     for x in range(len(world)):
         for y in range(len(world[x])):
             if world[x][y].value:
@@ -113,11 +125,14 @@ def draw_canvas():
             canvas.itemconfig(canvas_grid[x][y], fill=color)
 
 def refresh_canvas_and_state():
+    """Callback for the main loop."""
     update_state(world)
     draw_canvas()
+    # Change ``100`` to alter the frame rate.
     tk_host.after(100, refresh_canvas_and_state)
 
 tk_host.bind('<Button 1>', click_event)
 tk_host.bind('<B1-Motion>', click_event)
 refresh_canvas_and_state()
+print('Click anywhere on the window to create Life!')
 tk_host.mainloop()

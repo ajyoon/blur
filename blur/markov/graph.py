@@ -363,14 +363,20 @@ class Graph:
     def from_file(cls,
                   source,
                   distance_weights=None,
-                  merge_same_words=False):
+                  merge_same_words=False,
+                  group_marker_opening='<<',
+                  group_marker_closing='>>'):
         """
         Read a string from a file and generate a Graph object based on it.
 
         Words and punctuation marks are made into nodes.
         To use whitespace and punctuation marks within a word
         (e.g. to make ``'hello, world!'``) into a single node, surround the
-        text in question with angle brackets ``'<hello, world!>'``.
+        text in question with ``group_marker_opening`` and
+        ``group_marker_closing``. With the default value, this
+        would look like ``'<<hello, world!>>'``. It is recommended that
+        the group markers not appear anywhere in the source text where they
+        aren't meant to act as such to prevent unexpected behavior.
 
         This is a convenience function for opening a file and passing its
         contents to Graph.from_string()
@@ -395,10 +401,18 @@ class Graph:
 
             merge_same_words (bool): whether nodes which have the same value
                 should be merged or not.
+            group_marker_opening (str): The string used to mark the beginning
+                of word groups.
+            group_marker_closing (str): The string used to mark the end
+                of word groups. It is strongly recommended that this be
+                different than ``group_marker_opening`` to prevent unexpected
+                behavior with the regex pattern.
 
         Returns: Graph
         """
         source_string = open(source, 'r').read()
         return cls.from_string(source_string,
                                distance_weights,
-                               merge_same_words)
+                               merge_same_words,
+                               group_marker_opening=group_marker_opening,
+                               group_marker_closing=group_marker_closing)

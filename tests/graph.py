@@ -287,11 +287,10 @@ class TestGraph(unittest.TestCase):
         # but with Python escape characters removed
         try:
             file_name = 'tests/test_source_text.txt'
-            graph_from_file = graph.Graph.from_file(file_name)
         except FileNotFoundError:
             # Maybe we're testing from within the tests folder...
             file_name = 'test_source_text.txt'
-            graph_from_file = graph.Graph.from_file(file_name)
+        graph_from_file = graph.Graph.from_file(file_name)
 
         source_as_string = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                             'and I am saying it and that is poetry.')
@@ -308,7 +307,6 @@ class TestGraph(unittest.TestCase):
     def test_from_string_with_default_group_marker(self):
         source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
-        # Default distance_weights = {1: 1}
         built_graph = graph.Graph.from_string(source)
         self.assertEqual(built_graph.node_list[2].name,
                          'nothing to say,.;!?:\\/\'"()[')
@@ -316,9 +314,20 @@ class TestGraph(unittest.TestCase):
     def test_from_string_with_custom_group_marker(self):
         source = ('I have {nothing to say,.;!?:\\/\'"()[}'
                   'and I am saying it and that is poetry.')
-        # Default distance_weights = {1: 1}
         built_graph = graph.Graph.from_string(source,
                                               group_marker_opening='{',
                                               group_marker_closing='}')
         self.assertEqual(built_graph.node_list[2].name,
+                         'nothing to say,.;!?:\\/\'"()[')
+
+    def test_from_file_with_custom_group_marker(self):
+        try:
+            file_name = 'tests/test_source_text_2.txt'
+        except FileNotFoundError:
+            # Maybe we're testing from within the tests folder...
+            file_name = 'test_source_text_2.txt'
+        graph_from_file = graph.Graph.from_file(file_name,
+                                                group_marker_opening='{',
+                                                group_marker_closing='}')
+        self.assertEqual(graph_from_file.node_list[2].name,
                          'nothing to say,.;!?:\\/\'"()[')

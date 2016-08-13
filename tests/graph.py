@@ -148,7 +148,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(self.test_graph.current_node, picked_node)
 
     def test_from_string_with_defaults(self):
-        source = ('I have <nothing to say,.;!?:\\/\'"()[>'
+        source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
         # Defaults:
         # distance_weights = {1: 1}
@@ -172,7 +172,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(built_graph.node_list[1].link_list[0].target.name,
                          'nothing to say,.;!?:\\/\'"()[')
         self.assertEqual(built_graph.node_list[2].name,
-                            'nothing to say,.;!?:\\/\'"()[')
+                         'nothing to say,.;!?:\\/\'"()[')
         self.assertEqual(built_graph.node_list[2].link_list[0].target.name,
                          'and')
         self.assertEqual(built_graph.node_list[3].name, 'and')
@@ -208,7 +208,7 @@ class TestGraph(unittest.TestCase):
                          'I')
 
     def test_from_string_with_default_weights_and_merge_same_words(self):
-        source = ('I have <nothing to say,.;!?:\\/\'"()[>'
+        source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
         # Default distance_weights = {1: 1}
         built_graph = graph.Graph.from_string(source, merge_same_words=True)
@@ -231,7 +231,7 @@ class TestGraph(unittest.TestCase):
                          'am')
 
     def test_from_string_with_custom_weights_and_merging_same_words(self):
-        source = ('I have <nothing to say,.;!?:\\/\'"()[>'
+        source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
         weights = {-5: 1, 0: 2, 1: 3, 4: 5}
         built_graph = graph.Graph.from_string(source,
@@ -287,13 +287,12 @@ class TestGraph(unittest.TestCase):
         # but with Python escape characters removed
         try:
             file_name = 'tests/test_source_text.txt'
-            graph_from_file = graph.Graph.from_file(file_name)
         except FileNotFoundError:
             # Maybe we're testing from within the tests folder...
             file_name = 'test_source_text.txt'
-            graph_from_file = graph.Graph.from_file(file_name)
+        graph_from_file = graph.Graph.from_file(file_name)
 
-        source_as_string = ('I have <nothing to say,.;!?:\\/\'"()[>'
+        source_as_string = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                             'and I am saying it and that is poetry.')
         graph_from_string = graph.Graph.from_string(source_as_string)
         for file_node, string_node in zip(graph_from_file.node_list,
@@ -304,3 +303,31 @@ class TestGraph(unittest.TestCase):
                 self.assertEqual(file_link.target.name,
                                  string_link.target.name)
                 self.assertEqual(file_link.weight, string_link.weight)
+
+    def test_from_string_with_default_group_marker(self):
+        source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
+                  'and I am saying it and that is poetry.')
+        built_graph = graph.Graph.from_string(source)
+        self.assertEqual(built_graph.node_list[2].name,
+                         'nothing to say,.;!?:\\/\'"()[')
+
+    def test_from_string_with_custom_group_marker(self):
+        source = ('I have {nothing to say,.;!?:\\/\'"()[}'
+                  'and I am saying it and that is poetry.')
+        built_graph = graph.Graph.from_string(source,
+                                              group_marker_opening='{',
+                                              group_marker_closing='}')
+        self.assertEqual(built_graph.node_list[2].name,
+                         'nothing to say,.;!?:\\/\'"()[')
+
+    def test_from_file_with_custom_group_marker(self):
+        try:
+            file_name = 'tests/test_source_text_2.txt'
+        except FileNotFoundError:
+            # Maybe we're testing from within the tests folder...
+            file_name = 'test_source_text_2.txt'
+        graph_from_file = graph.Graph.from_file(file_name,
+                                                group_marker_opening='{',
+                                                group_marker_closing='}')
+        self.assertEqual(graph_from_file.node_list[2].name,
+                         'nothing to say,.;!?:\\/\'"()[')

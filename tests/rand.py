@@ -164,8 +164,8 @@ class TestRand(unittest.TestCase):
         MEAN = -12
         VARIANCE = 2.5
         STANDARD_DEVIATION = math.sqrt(VARIANCE)
-        SAMPLE_COUNT = 600
-        curve = rand.normal_distribution(MEAN, VARIANCE)
+        SAMPLE_COUNT = 1000
+        curve = rand.normal_distribution(MEAN, VARIANCE, weight_count=30)
         samples = [rand.weighted_rand(curve) for i in range(SAMPLE_COUNT)]
         samples_mean = sum(samples) / len(samples)
         samples_variance = (
@@ -174,8 +174,8 @@ class TestRand(unittest.TestCase):
         )
         mean_diff = abs(MEAN - samples_mean)
         variance_diff = abs(VARIANCE - samples_variance)
-        self.assertLess(mean_diff, abs(MEAN / 5))
-        self.assertLess(variance_diff, abs(VARIANCE / 5))
+        self.assertLess(mean_diff, abs(MEAN / 4))
+        self.assertLess(variance_diff, abs(VARIANCE / 4))
 
     def test_normal_distribution_with_bounds(self):
         MEAN = -12
@@ -274,10 +274,22 @@ class TestRand(unittest.TestCase):
         self.assertTrue(50 <= five_count <= 600)
         self.assertTrue(300 <= ten_count <= 900)
 
-    def test_weighted_choice_with_all_zero_weights(self):
-        options = [(1, 0), (5, 0), (10, 0)]
-        self.assertIn(rand.weighted_choice(options),
-                      [1, 5, 10])
+    def test_weighted_choice_as_tuple(self):
+        options = [(1, 0), (5, -1), (10, 5), (19, 1)]
+        for i in range(25):
+            result = rand.weighted_choice(options, True)
+            expected_index = next(
+                i for i, option in enumerate(options)
+                if option[0] == result[1])
+            self.assertEqual(expected_index, result[0])
+
+    def test_weighted_choice_with_empty_list(self):
+        with self.assertRaises(ValueError):
+            foo = rand.weighted_choice([])
+
+    def test_weighted_choice_with_all_non_pos_weights(self):
+        with self.assertRaises(rand.ProbabilityUndefinedError):
+            foo = rand.weighted_choice([(1, 0), (5, 0), (10, 0)])
 
     def test_weighted_choice_with_mixed_pos_neg_weights(self):
         options = [(1, 0), (5, -1), (10, 5), (19, 1)]
@@ -285,10 +297,20 @@ class TestRand(unittest.TestCase):
             self.assertIn(rand.weighted_choice(options),
                           [10, 19])
 
+    def test_weighted_choice_with_one_weight_returns_it(self):
+        weight_list = [('The Only Weight', 2)]
+        expected_result = weight_list[0][0]
+        self.assertEqual(rand.weighted_choice(weight_list), expected_result)
+
     def test_weighted_rand_with_one_weight_returns_it(self):
         weight_list = [('The Only Weight', 2)]
         expected_result = weight_list[0][0]
         self.assertEqual(rand.weighted_rand(weight_list), expected_result)
+
+    def test_weighted_rand_and_choice_with_one_weight_equivalent(self):
+        weight_list = [('The Only Weight', 2)]
+        self.assertEqual(rand.weighted_rand(weight_list),
+                         rand.weighted_choice(weight_list))
 
     def test_weighted_rand_with_arbitrary_curve(self):
         """
@@ -330,56 +352,75 @@ class TestRand(unittest.TestCase):
             expected_count = (bin_probability / sum_probability) * TEST_COUNT
             self.assertLess(abs(count - expected_count), TEST_COUNT / 10)
 
-    def test_weighted_shuffle_output_shape(self):
-        original_list = [('Something', 50,     10),
-                         ('Another',   20,     5),
-                         ('Again',     90,     1),
-                         ('And',       'STAY', 700),
-                         ('More',      0,      5)]
-        shuffled = rand.weighted_shuffle(original_list)
+    def test_weighted_order_doesnt_modify_original(self):
+        original_list = [('Something', 10),
+                         ('Another',   5),
+                         ('Again',     1),
+                         ('And',       700),
+                         ('More',      5)]
+        input_list = original_list[:]
+        shuffled = rand.weighted_order(input_list)
+        self.assertEqual(input_list, original_list)
+
+    def test_weighted_order_output_type(self):
+        original_list = [('Something', 10),
+                         ('Another',   5),
+                         ('Again',     1),
+                         ('And',       700),
+                         ('More',      5)]
+        shuffled = rand.weighted_order(original_list)
         for item in shuffled:
             self.assertIsInstance(item, str)
 
-    def test_weighted_shuffle_doesnt_lose_or_add_items(self):
-        original_list = [('Something', 50,     10),
-                         ('Another',   20,     5),
-                         ('Again',     90,     1),
-                         ('And',       'STAY', 700),
-                         ('More',      0,      5)]
-        shuffled = rand.weighted_shuffle(original_list)
+    def test_weighted_order_doesnt_lose_or_add_items(self):
+        original_list = [('Something', 10),
+                         ('Another',   5),
+                         ('Again',     1),
+                         ('And',       700),
+                         ('More',      5)]
+        shuffled = rand.weighted_order(original_list)
         self.assertEqual(len(original_list), len(shuffled))
         for item in original_list:
             self.assertIn(item[0], shuffled)
 
-    def test_weighted_shuffle_with_all_weights_as_0(self):
-        original_list = [('Something', 50,     10),
-                         ('Another',   20,     5),
-                         ('Again',     90,     1),
-                         ('And',       'STAY', 700),
-                         ('More',      0,      5)]
-        shuffled = rand.weighted_shuffle(original_list)
-        self.assertEqual(len(original_list), len(shuffled))
-        for item in original_list:
-            self.assertIn(item[0], shuffled)
+    def test_weighted_order_with_extremely_strong_weight(self):
+        original_list = [('Something', 10),
+                         ('Another',   5),
+                         ('Again',     1),
+                         ('And',       7000),
+                         ('More',      5)]
+        success_count = 0
+        TRIALS = 500
+        for i in range(TRIALS):
+            shuffled = rand.weighted_order(original_list)
+            if shuffled.index('And') == 0:
+                success_count += 1
+        self.assertGreater(success_count, TRIALS * 0.75)
 
-    def test_weighted_shuffle_with_extremely_strong_weight(self):
-        original_list = [('Something',   50,     10),
-                         ('Another',     20,     5),
-                         ('Again',       90,     1),
-                         ('Mostly Stay', 'STAY', 7000),
-                         ('More',        0,      5)]
-        mostly_stay_success_count = 0
-        for i in range(500):
-            shuffled = rand.weighted_shuffle(original_list)
-            if shuffled.index('Mostly Stay') == 3:
-                mostly_stay_success_count += 1
-        self.assertGreater(mostly_stay_success_count, 300)
+    def test_weighted_order_with_all_1_weights(self):
+        # When every weight is 0, the probability spread should be uniform
+        original_list = [('Something', 1),
+                         ('Another',   1),
+                         ('Again',     1),
+                         ('And',       1),
+                         ('More',      1)]
+        landing_positions = {'Something': [],
+                             'Another': [],
+                             'Again': [],
+                             'And': [],
+                             'More': []}
+        for i in range(1000):
+            shuffled_list = rand.weighted_order(original_list)
+            for index, value in enumerate(shuffled_list):
+                landing_positions[value].append(index)
+        # With an even distribution, landing indices should average near 2.5
+        for positions in landing_positions.values():
+            average = sum(positions) / len(positions)
+            self.assertLess(abs(average - 2.5), 1)
 
-    def test_weighted_shuffle_raises_TypeError_with_invalid_position(self):
-        original_list = [('Something',   50,     10),
-                         ('Another',     20,     5),
-                         ('Again',       90,     1),
-                         ('Mostly Stay', 'BAD PLACE', 7000),
-                         ('More',        0,      5)]
-        with self.assertRaises(ValueError):
-            output_list = rand.weighted_shuffle(original_list)
+    def test_weighted_order_with_invalid_weight(self):
+        with self.assertRaises(rand.ProbabilityUndefinedError):
+            foo = rand.weighted_order([('bar', 0), ('baz', 5), ('buzz', -3)])
+
+    def test_weighted_order_with_empty_list_returns_empty_list(self):
+        self.assertEqual(rand.weighted_order([]), [])

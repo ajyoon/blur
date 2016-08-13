@@ -15,6 +15,14 @@ from warnings import warn
 
 
 ###############################################################################
+#   Module-specific Exception classes
+###############################################################################
+class ProbabilityUndefinedError(Exception):
+    """Exception raised when the probability of a system is undefined."""
+    pass
+
+
+###############################################################################
 #   Local utility functions
 ###############################################################################
 def _linear_interp(curve, test_x, round_result=False):
@@ -339,7 +347,7 @@ def weighted_rand(weights, round_result=False):
         return random.choice(weights)[0]
 
 
-def weighted_choice(weights):
+def weighted_choice(weights, as_index_and_value_tuple=False):
     """
     Generate a non-uniform random choice based on a list of option tuples.
 
@@ -350,105 +358,91 @@ def weighted_choice(weights):
             is a ``tuple`` of form ``(Any, float)`` corresponding to
             ``(outcome, weight)``. Outcome values may be of any type.
             Options with weight ``0`` or less will have no chance to be
-            rolled, unless all weights are ``0``, in which case a uniformally
-            random choice will be returned.
+            rolled - if this is the case in every item of ``weights``,
+            a ``ValueError`` is raised.
+        as_index_and_value_tuple (bool): Option to return an ``(index, value)``
+            tuple instead of just a single ``value``. This is useful when
+            multiple values in ``weights`` are the same and you need to know
+            exactly which one was picked.
 
     Returns:
-        Any: Any one of the items in the outcomes of ``weights``
+        Any: If as_index_and_value_tuple == False, any one of the items in
+            the outcomes of ``weights``
+        tuple (int, Any): If as_index_and_value_tuple == True, a tuple of
+            the index as well as value of the item that was picked.
+
+    Raises:
+        ValueError: if ``weights`` is an empty list.
+        ProbabilityUndefinedError: if no item weights in
+            ``weights`` are greater than 0.
+        AssertionError: if something in the function is broken.
     """
-    # If there's only one choice, choose it
-    if len(weights) == 1:
-        return weights[0][0]
-    # Remove all weights with weight 0 or less
-    working_weights = [w for w in weights if w[1] > 0]
-    # If no weights remain after trimming, choose a random option
-    if not working_weights:
-        return random.choice([w[0] for w in weights])
+    if not len(weights):
+        raise ValueError('List passed to weighted_choice() cannot be empty.')
     # Construct a line segment where each weight outcome is
     # allotted a length equal to the outcome's weight,
     # pick a uniformally random point along the line, and take
-    # the outcome that point corrosponds to
-    prob_sum = sum(w[1] for w in working_weights)
+    # the outcome that point corresponds to
+    prob_sum = sum(w[1] for w in weights)
+    if prob_sum <= 0:
+        raise ProbabilityUndefinedError(
+            'No item weights in weighted_choice() are greater than 0. '
+            'Probability distribution is undefined.')
     sample = random.uniform(0, prob_sum)
     current_pos = 0
     i = 0
-    while i < len(working_weights):
-        if current_pos <= sample <= (current_pos + working_weights[i][1]):
-            return working_weights[i][0]
-        current_pos += working_weights[i][1]
+    while i < len(weights):
+        if current_pos <= sample <= (current_pos + weights[i][1]):
+            if as_index_and_value_tuple:
+                return (i, weights[i][0])
+            else:
+                return weights[i][0]
+        current_pos += weights[i][1]
         i += 1
     else:
-        warn("Option couldn't be found in weighted_choice(). "
-             "It's not you it's me. "
-             "Please submit a bug report at https://github.com/ajyoon/blur")
-        return random.choice([opt[0] for opt in options])
+        raise AssertionError('Something went wrong in weighted_choice(). '
+                             'Please submit a bug report!')
 
 
-def weighted_shuffle(weights):
+def weighted_order(weights):
     """
-    Non-uniformally shuffle a list.
+    Non-uniformally order a list according to weighted priorities.
 
-    ``weights`` is a list of tuples of the form: ``(Any, float or str, float)``
-    corresponding to ``(list_item, place, weight)``.
-    ``list_item`` is the item to place in the final list. ``place`` is either a
-    ``float`` between ``0`` and ``100`` representing the percent along the list
-    it will end up, or the ``str`` ``'STAY'`` meaning the item will stay where
-    it appears in ``weights``. ``weight`` is the weight given to the chance
-    that the item appears in the specified ``place``.
+    ``weights`` is a list of tuples of the form ``(item, weight)`` of
+    types ``(Any, float or int)``. The output list is constructed by repeatedly
+    calling ``weighted_choice()`` on the weights, adding items to the end of
+    the list as the are picked.
 
-    The algorithm works by choosing an item from ``weights`` according to the
-    ``weight`` element and placing its ``list_item`` its the specified
-    ``place``. Items with the lowest ``weight`` will tend to be placed last,
-    filling in gaps left between higher priority items, making their positions
-    less predictable. ``weight`` values of 0 have the lowest possible
-    priority and will be placed anywhere left after other items have been
-    placed.
+    Higher value weights will have a higher chance of appearing near the
+    beginning of the output list.
+
+    A list of all uniform weights is equivalent to calling ``random.shuffle()``
+    on the list of values.
+
+    All weight values must be greater than 0
+    or a ``ProbabilityUndefinedError`` will be raised.
+
+    Passing an empty list will return an empty list.
 
     Args:
-        weights (list[(Any, float or str, float)]):
+        weights (list[(Any, float or int)]):
 
     Returns:
-        list: The shuffled list
+        list: the newly ordered list
 
     Raises:
-        ValueError: If passed ``weights`` is not formed correctly
+        ProbabilityUndefinedError: if any weight value is below 0.
     """
+    if not len(weights):
+        return []
+    if any(w[1] <= 0 for w in weights):
+        raise ProbabilityUndefinedError(
+            'All weight values must be greater than 0.')
     working_list = weights[:]
-    # list of tuples [list_item, target_index]
-    # used to store positions before moving them into the final list
-    shuffle_positions = []
-
-    def closest_available(requested_index):
-        """The closest index that isn't taken in ``shuffle_positions``."""
-        taken_positions = [position[1] for position in shuffle_positions]
-        available_indexes = [i for i in range(len(weights))
-                             if i not in taken_positions]
-        return min((available_index for available_index in available_indexes),
-                   key=lambda index: abs(move_index - index))
-
+    output_list = []
     while working_list:
-        # Pick which item to move
-        move_index = weighted_choice(
-            [(index, weight[2]) for index, weight in enumerate(working_list)])
-        move_item = working_list[move_index][0]
-        # Find the index where the item will be placed
-        if isinstance(working_list[move_index][1], str):
-            if working_list[move_index][1] == 'STAY':
-                # Place in the index closest to where the item appears already
-                target_position = closest_available(move_index)
-            else:
-                raise ValueError
-        else:
-            # Place in the index closest to working_list[][1] percent along
-            requested_index = int((working_list[move_index][1] / 100) *
-                                  move_index)
-            target_position = closest_available(requested_index)
-        shuffle_positions.append((move_item, target_position))
-        # Remove the item weight from working_list
-        working_list.pop(move_index)
-
-    # Construct the shuffled list and return it
-    shuffled_list = [None] * len(weights)
-    for item, target_index in shuffle_positions:
-        shuffled_list[target_index] = item
-    return shuffled_list
+        picked_item = weighted_choice(working_list,
+                                      as_index_and_value_tuple=True)
+        output_list.append(picked_item[1])
+        del working_list[picked_item[0]]
+    return output_list

@@ -259,14 +259,21 @@ class Graph:
     def from_string(cls,
                     source,
                     distance_weights=None,
-                    merge_same_words=False):
+                    merge_same_words=False,
+                    group_marker_opening='<<',
+                    group_marker_closing='>>'):
         """
         Read a string and generate a ``Graph`` object based on it.
 
         Words and punctuation marks are made into nodes.
+
         To use whitespace and punctuation marks within a word
         (e.g. to make ``'hello, world!'``) into a single node, surround the
-        text in question with angle brackets ``'<hello, world!>'``.
+        text in question with ``group_marker_opening`` and
+        ``group_marker_closing``. With the default value, this
+        would look like ``'<<hello, world!>>'``. It is recommended that
+        the group markers not appear anywhere in the source text where they
+        aren't meant to act as such to prevent unexpected behavior.
 
         Args:
             source (str): the string to derive the graph from
@@ -288,6 +295,12 @@ class Graph:
 
             merge_same_words (bool): if nodes which have the same value should
                 be merged or not.
+            group_marker_opening (str): The string used to mark the beginning
+                of word groups.
+            group_marker_closing (str): The string used to mark the end
+                of word groups. It is strongly recommended that this be
+                different than ``group_marker_opening`` to prevent unexpected
+                behavior with the regex pattern.
 
         Returns: Graph
         """
@@ -301,7 +314,10 @@ class Graph:
         #   * Anything surrounded by angle bracks,
         #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
         #   * Any continuous group of alphanumerical characters
-        expression = '<(.+)>|([,.;!?:\\/\'"()[])|([a-zA-z0-9]+)'
+        expression = '{0}(.+){1}|([,.;!?:\\/\'"()[])|([a-zA-z0-9]+)'.format(
+            ''.join('\\' + c for c in group_marker_opening),
+            ''.join('\\' + c for c in group_marker_closing)
+        )
         matches = re.findall(expression, source)
         # Un-tuple matches since we are only using groups to strip brackets
         # Is there a better way to do this?

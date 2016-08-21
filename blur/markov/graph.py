@@ -267,13 +267,25 @@ class Graph:
 
         Words and punctuation marks are made into nodes.
 
-        To use whitespace and punctuation marks within a word
-        (e.g. to make ``'hello, world!'``) into a single node, surround the
+        Punctuation marks are split into separate nodes unless they fall
+        between other non-punctuation marks. ``'hello, world'`` is split
+        into ``'hello'``, ``','``, and ``'world'``, while ``'who's there?'``
+        is split into ``"who's"``, ``'there'``, and ``'?'``.
+
+        To group arbitrary characters together into a single node
+        (e.g. to make ``'hello, world!'``), surround the
         text in question with ``group_marker_opening`` and
         ``group_marker_closing``. With the default value, this
         would look like ``'<<hello, world!>>'``. It is recommended that
         the group markers not appear anywhere in the source text where they
         aren't meant to act as such to prevent unexpected behavior.
+
+        The exact regex for extracting nodes is defined by: ::
+
+            expression = r'{0}(.+){1}|([^\w\s]+)\B|([\S]+\b)'.format(
+                ''.join('\\' + c for c in group_marker_opening),
+                ''.join('\\' + c for c in group_marker_closing)
+            )
 
         Args:
             source (str): the string to derive the graph from
@@ -311,10 +323,12 @@ class Graph:
         sorted_weights_list = sorted(distance_weights.items(),
                                      key=lambda i: i[0])
         # regex that matches:
-        #   * Anything surrounded by angle bracks,
-        #   * The punctuation marks: , . ; ! ? : \ / ' " ( ) [ ]
-        #   * Any continuous group of alphanumerical characters
-        expression = '{0}(.+){1}|([,.;!?:\\/\'"()[])|([a-zA-z0-9]+)'.format(
+        #   * Anything surrounded by
+        #       group_marker_opening and group_marker_closing,
+        #   * Groups of punctuation marks followed by whitespace
+        #   * Any continuous group of non-whitespace characters
+        #       followed by whitespace
+        expression = r'{0}(.+){1}|([^\w\s]+)\B|([\S]+\b)'.format(
             ''.join('\\' + c for c in group_marker_opening),
             ''.join('\\' + c for c in group_marker_closing)
         )
@@ -370,13 +384,26 @@ class Graph:
         Read a string from a file and generate a Graph object based on it.
 
         Words and punctuation marks are made into nodes.
-        To use whitespace and punctuation marks within a word
-        (e.g. to make ``'hello, world!'``) into a single node, surround the
+
+        Punctuation marks are split into separate nodes unless they fall
+        between other non-punctuation marks. ``'hello, world'`` is split
+        into ``'hello'``, ``','``, and ``'world'``, while ``'who's there?'``
+        is split into ``"who's"``, ``'there'``, and ``'?'``.
+
+        To group arbitrary characters together into a single node
+        (e.g. to make ``'hello, world!'``), surround the
         text in question with ``group_marker_opening`` and
         ``group_marker_closing``. With the default value, this
         would look like ``'<<hello, world!>>'``. It is recommended that
         the group markers not appear anywhere in the source text where they
         aren't meant to act as such to prevent unexpected behavior.
+
+        The exact regex for extracting nodes is defined by: ::
+
+            expression = r'{0}(.+){1}|([^\w\s]+)\B|([\S]+\b)'.format(
+                ''.join('\\' + c for c in group_marker_opening),
+                ''.join('\\' + c for c in group_marker_closing)
+            )
 
         This is a convenience function for opening a file and passing its
         contents to Graph.from_string()

@@ -278,6 +278,15 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(i_node.link_list[4].target.name, 'am')
         self.assertEqual(i_node.link_list[4].weight, 3)
 
+    def test_from_string_with_punc_inside_word(self):
+        source = ("I'm a human!")
+        built_graph = graph.Graph.from_string(source)
+        self.assertEqual(len(built_graph.node_list), 4)
+        self.assertEqual(built_graph.node_list[0].name,  "I'm")
+        self.assertEqual(built_graph.node_list[1].name,  'a')
+        self.assertEqual(built_graph.node_list[2].name,  'human')
+        self.assertEqual(built_graph.node_list[3].name,  '!')
+
 
     def test_from_file_is_same_as_from_string_of_file_contents(self):
         # Defaults:

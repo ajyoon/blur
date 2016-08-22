@@ -1,7 +1,7 @@
 # blur
 #### 0.3
 
-[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=master)](https://travis-ci.org/ajyoon/blur)  [![Documentation Status](https://readthedocs.org/projects/blur/badge/?version=stable)](http://blur.readthedocs.io/en/stable/?badge=stable)
+[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=dev)](https://travis-ci.org/ajyoon/blur)  [![Documentation Status](https://readthedocs.org/projects/blur/badge/?version=latest)](http://blur.readthedocs.io/en/latest/?badge=latest)
 
 blur is a suite of tools for Python to help make using chance operations in
 algorithmic art easier.
@@ -79,7 +79,7 @@ To install *blur* use pip from the command line:
 
     pip install blur
 
-You can read the official documentation for blur online [here](http://blur.readthedocs.io/en/stable/).
+You can read the latest (unstable) documentation for *blur* online [here](http://blur.readthedocs.io/en/latest/).
 
 ***
 

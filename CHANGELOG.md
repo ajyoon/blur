@@ -1,5 +1,14 @@
 # Change Log
 ---
+### 0.3
+
+* The `Graph.from_string()` and `from_file()` methods now support
+  punctuation marks inside words This allows words to be grouped
+  correctly when they contain internal punctuation marks such
+  as `we're` - cases like this will now be grouped into single nodes.
+* The `Graph.from_string()` and `from_file()` additionally now support
+  non-ascii characters.
+
 ### 0.2
 
 * `rand.weighted_shuffle()` was broken in 0.1 and

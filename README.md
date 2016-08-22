@@ -1,7 +1,7 @@
 # blur
-#### 0.3 (unstable)
+#### 0.3
 
-[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=dev)](https://travis-ci.org/ajyoon/blur)  [![Documentation Status](https://readthedocs.org/projects/blur/badge/?version=latest)](http://blur.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=master)](https://travis-ci.org/ajyoon/blur)  [![Documentation Status](https://readthedocs.org/projects/blur/badge/?version=stable)](http://blur.readthedocs.io/en/stable/?badge=stable)
 
 blur is a suite of tools for Python to help make using chance operations in
 algorithmic art easier.
@@ -79,8 +79,7 @@ To install *blur* use pip from the command line:
 
     pip install blur
 
-You can read the latest (unstable) official documentation for *blur* online
-[here](http://blur.readthedocs.io/en/latest/).
+You can read the official documentation for blur online [here](http://blur.readthedocs.io/en/stable/).
 
 ***
 
@@ -90,9 +89,9 @@ Head on over to https://github.com/ajyoon/blur and get in touch.
 
 
 #### Testing
-The test suite is located in the `tests` directory. Travis has been
-configured to automatically run these tests on any changes in the
-git repository, but you can run these tests yourself as well.
+The test suite is located in the `tests` directory. Travis CI has been
+configured to automatically run these tests on any proposed changes to the
+upstream git repository, but you can run these tests yourself as well.
 Travis tests run on `nose`, but any testing framework compatible
 with the built-in Python `Unittest` module should work. To get `nose`
 you can install it with `pip`:

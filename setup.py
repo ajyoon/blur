@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='blur',
-    version='0.2',
+    version='0.3',
     packages=['blur', 'blur.markov'],
     description='A chance art toolkit.',
     author='Andrew Yoon',
     author_email='andrewyoon2@gmail.com',
     license='GPLv3',
     url='https://github.com/ajyoon/blur',
-    download_url='https://github.com/ajyoon/blur/tarball/0.2',
+    download_url='https://github.com/ajyoon/blur/tarball/0.3',
     keywords=['random', 'stochastic', 'art'],
     classifiers=[
         'Development Status :: 3 - Alpha',

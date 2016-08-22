@@ -1,5 +1,5 @@
 # blur
-#### 0.3
+#### 0.4 (development branch)
 
 [![Build Status](https://travis-ci.org/ajyoon/blur.svg?branch=dev)](https://travis-ci.org/ajyoon/blur)  [![Documentation Status](https://readthedocs.org/projects/blur/badge/?version=latest)](http://blur.readthedocs.io/en/latest/?badge=latest)
 

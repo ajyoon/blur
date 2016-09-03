@@ -194,6 +194,17 @@ class TestSoftColor(unittest.TestCase):
         self.assertEqual(test_object.green.weights, [(0, 1), (255, 10)])
         self.assertEqual(test_object.blue.weights, [(0, 1), (255, 10)])
 
+    def test_init_with_invalid_arg_types_raises_TypeError(self):
+        with self.assertRaises(TypeError):
+            # Test red
+            test_object = soft.SoftColor('NONSENSE', 255, 255)
+        with self.assertRaises(TypeError):
+            # Test green
+            test_object = soft.SoftColor(255, 'NONSENSE', 255)
+        with self.assertRaises(TypeError):
+            # Test blue
+            test_object = soft.SoftColor(255, 255, 'NONSENSE')
+
     def test_bound_color_value(self):
         # Test that values below 0 return 0
         self.assertEqual(soft.SoftColor._bound_color_value(-1), 0)
@@ -252,9 +263,13 @@ class TestSoftColor(unittest.TestCase):
         self.assertEqual(blue, 255)
 
     def test_get_as_hex(self):
-        red_input = 128
-        green_input = 200
-        blue_input = 255
-        test_object = soft.SoftColor(red_input, green_input, blue_input)
+        test_object = soft.SoftColor(128, 200, 255)
+        hex_color = test_object.get_as_hex()
+        # Convert to uppercase to separate upper/lower case
+        #   into a different test
+        self.assertEqual(hex_color.upper(), '#80C8FF')
+
+    def test_get_as_hex_returns_uppercase(self):
+        test_object = soft.SoftColor(128, 200, 255)
         hex_color = test_object.get_as_hex()
         self.assertEqual(hex_color, '#80C8FF')

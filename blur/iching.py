@@ -82,6 +82,8 @@ hexagrams = {
     64: ('䷿', '未濟',  'Not Yet Fording')
 }
 
+# Mapping of the different combinations Yin (0) and Yang (1) to
+#   their appropriate hexagrams per the I Ching
 _hexagram_dict = {
     (1, 1, 1,   1, 1, 1): 1,
     (1, 1, 1,   0, 0, 0): 11,
@@ -164,14 +166,26 @@ def get_hexagram(method='THREE COIN'):
     The ``NAIVE`` method simply returns a uniformally random ``int`` between
     ``1`` and ``64``.
 
-    All other methods return a ``tuple`` of two ``int`` where the first
+    All other methods return a 2-tuple where the first value
     represents the starting hexagram and the second represents the 'moving to'
     hexagram.
 
-    Args:
-        method (Optional[str]): THREE COIN, YARROW, NAIVE
+    To find the name and unicode glyph for a found hexagram, look it up in
+    the module-level `hexagrams` dict.
 
-    Returns: tuple(int) or int
+    Args:
+        method (str): ``'THREE COIN'``, ``'YARROW'``, or ``'NAIVE'``,
+            the divination method model to use. Note that the three coin and
+            yarrow methods are not actually literally simulated,
+            but rather statistical models reflecting the methods are passed
+            to `blur.rand` functions to accurately approximate them.
+
+    Returns:
+        int: The `int` key of the found hexagram.
+
+        (int, int): A 2-tuple where the first value is `int` key of the
+            starting hexagram and the second is that of the
+            'moving-to' hexagram.
 
     Raises: ValueError if ``method`` is invalid
     """
@@ -204,11 +218,10 @@ def get_hexagram(method='THREE COIN'):
         elif roll == 'STATIC YANG':
             hexagram_1.append(1)
             hexagram_2.append(1)
-        else:  # roll == 'STATIC YIN'
+        else:  # if roll == 'STATIC YIN'
             hexagram_1.append(0)
             hexagram_2.append(0)
     # Convert hexagrams lists into tuples
     hexagram_1 = tuple(hexagram_1)
     hexagram_2 = tuple(hexagram_2)
-    return (_hexagram_dict[hexagram_1],
-            _hexagram_dict[hexagram_2])
+    return (_hexagram_dict[hexagram_1], _hexagram_dict[hexagram_2])

@@ -1,5 +1,16 @@
 # Change Log
 ---
+### 0.4 (dev)
+
+* `SoftColor.__init__()` now raises a `TypeError` if invalid arguments
+  are passed to it for `red`, `green`, or `blue`.
+* When called with neither `minimum` nor `maximum`,
+  `rand.bound_weights()` now returns the input `weights` unmodified
+  instead of raising a `TypeError`
+* `rand._linear_interp()` now raises a `ProbabilityUndefinedError`
+  instead of a `ValueError` when the tested x value lies outside of the
+  given curve.
+
 ### 0.3
 
 * The `Graph.from_string()` and `from_file()` methods now support

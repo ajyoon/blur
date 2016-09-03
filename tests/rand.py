@@ -57,7 +57,7 @@ class TestRand(unittest.TestCase):
             rand._linear_interp([(0, 0), (2, 2), (18, 7)],
                                 1, round_result=True), 1)
         # test_x out of the domain of the curve
-        with self.assertRaises(ValueError):
+        with self.assertRaises(rand.ProbabilityUndefinedError):
             rand._linear_interp([(0, 0), (2, 2)], -1, round_result=False)
 
     def test__point_under_curve(self):
@@ -96,18 +96,22 @@ class TestRand(unittest.TestCase):
         self.assertTrue(rand._point_under_curve(
             curve, point_on_upper_x_bound))
 
-    def test__clamp_value(self):
-        # value between minimum and maximum returns value
+    def test_clamp_value_between_min_and_max_returns_value(self):
         self.assertEqual(rand._clamp_value(value=5, minimum=4, maximum=6), 5)
-        # value on minimum returns value
+
+    def test_clamp_value_on_min_returns_value(self):
         self.assertEqual(rand._clamp_value(value=5, minimum=5, maximum=6), 5)
-        # value on maximum returns value
+
+    def test_clamp_value_on_max_returns_value(self):
         self.assertEqual(rand._clamp_value(value=6, minimum=4, maximum=6), 6)
-        # value below minimum returns minimum
+
+    def test_clamp_value_below_min_returns_min(self):
         self.assertEqual(rand._clamp_value(value=3, minimum=4, maximum=6), 4)
-        # value above maximum returns maximum
+
+    def test_clamp_value_above_max_returns_max(self):
         self.assertEqual(rand._clamp_value(value=7, minimum=4, maximum=6), 6)
-        # maximum below minimum raises ValueError
+
+    def test_clamp_value_with_max_under_min_raises_ValueError(self):
         with self.assertRaises(ValueError):
             rand._clamp_value(value=5, minimum=3, maximum=2)
 
@@ -116,10 +120,9 @@ class TestRand(unittest.TestCase):
         with self.assertRaises(ValueError):
             rand.bound_weights(weights, 10, 5)
 
-    def test_bound_weights_without_bounds_raises_TypeError(self):
+    def test_bound_weights_without_bounds_returns_unmodified(self):
         weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
-        with self.assertRaises(TypeError):
-            rand.bound_weights(weights)
+        self.assertEqual(weights, rand.bound_weights(weights))
 
     def test_bound_weights_doesnt_modify_input(self):
         weights = [(0, 0), (2, 2), (4, 2), (6, 0)]

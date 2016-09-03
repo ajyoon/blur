@@ -1,17 +1,16 @@
 """
 A collection of functions for performing non-uniform random operations.
 
-Many functions rely of weight ``tuple`` 's of the form ``(outcome, weight)``
-where ``weight`` is a number and ``outcome`` is either a number
+Many functions rely of weight 2-tuples of the form ``(outcome, strength)``
+where ``strength`` is a number and ``outcome`` is either a number
 or any type depending on the function.
 """
 
+# Python 2/3 compatibility
 from __future__ import division
-import copy
 import random
 import math
-
-from warnings import warn
+import warnings
 
 
 ###############################################################################
@@ -32,14 +31,18 @@ def _linear_interp(curve, test_x, round_result=False):
     Args:
         curve (list[tuple]): A list of ``(x, y)`` points sorted in
             nondecreasing ``x`` value. If multiple points have the same
-            ``x`` value, all but the last occuring will be ignored.
+            ``x`` value, all but the last will be ignored.
         test_x (float): The ``x`` value to find the ``y`` value of
 
     Returns:
         float: The ``y`` value of the curve at ``test_x``
 
+        int: if ``round_result == True``, the ``y`` value of the curve at
+        ``test_x`` rounded to the nearest whole number
+
     Raises:
-        ValueError if ``test_x`` is out of the domain of ``curve``
+        ProbabilityUndefinedError: if ``test_x`` is out of the
+            domain of ``curve``
     """
     index = 0
     for index in range(len(curve) - 1):
@@ -56,7 +59,7 @@ def _linear_interp(curve, test_x, round_result=False):
             else:
                 return result
     else:
-        raise ValueError
+        raise ProbabilityUndefinedError
 
 
 def _point_under_curve(curve, point):
@@ -68,15 +71,16 @@ def _point_under_curve(curve, point):
     will be ignored.
 
     Args:
-        curve [(x, y)]:
-        point (x, y):
+        curve [(float, float)]: A list of ``(x, y)`` coordinates for
+            a piecewise linear curve.
+        point (float, float): An ``(x, y)`` coordinate point to test.
 
     Returns:
         bool: Whether the point is under the curve
     """
     try:
         return _linear_interp(curve, point[0]) > point[1]
-    except ValueError:
+    except ProbabilityUndefinedError:
         return False
 
 
@@ -116,9 +120,9 @@ def _normal_function(x, mean, variance):
     See https://en.wikipedia.org/wiki/Normal_distribution
 
     Args:
-        x (float):
-        mean (float):
-        variance (float):
+        x (float): Value to feed into the normal function
+        mean (float): Mean of the normal function
+        variance (float): Variance of the normal function
     """
     e_power = -1 * (((x - mean) ** 2) / (2 * variance))
     return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
@@ -131,14 +135,16 @@ def bound_weights(weights, minimum=None, maximum=None):
     """
     Bound a weight list so that all outcomes fit within specified bounds.
 
-    The probability distribution within the minimum and maximum values remains
-    the same. Weights in the list with outcomes outside of ``minimum`` and
-    ``maximum`` are removed. If weights are removed from either end, attach
-    weights at the modified edges at the same weight (y-axis) position they
-    had interpolated in the original list.
+    The probability distribution within the ``minimum`` and ``maximum``
+    values remains the same. Weights in the list with outcomes outside of
+    ``minimum`` and ``maximum`` are removed.
+    If weights are removed from either end, attach weights at the modified
+    edges at the same weight (y-axis) position they had interpolated in the
+    original list.
 
-    At least one of ``minimum`` and ``maximum`` must be set.
-    If both are set, minimum must be less than maximum.
+    If neither ``minimum`` nor ``maximum`` are set, ``weights`` will be
+    returned unmodified. If both are set, ``minimum`` must be less
+    than ``maximum``.
 
     Args:
         weights (List[(float, float)]): the list of weights where each weight
@@ -149,11 +155,10 @@ def bound_weights(weights, minimum=None, maximum=None):
         maximum (float): Highest allowed outcome for the weight list
 
     Returns:
-        List: A ``list`` of ``tuple`` 's of form ``(float, float)``,
+        list: A list of 2-tuples of form ``(float, float)``,
         the bounded weight list.
 
     Raises:
-        TypeError: if both ``minimum`` and ``maximum`` are ``None``
         ValueError: if ``maximum < minimum``
     """
     # Copy weights to avoid side-effects
@@ -171,8 +176,9 @@ def bound_weights(weights, minimum=None, maximum=None):
         bounded_weights = [bw for bw in bounded_weights
                            if bw[0] <= maximum]
     else:
-        # Both minimum and maximum are not defined
-        raise TypeError
+        # Both minimum and maximum are None - the bound list is the same
+        # as the original
+        return bounded_weights
     # If weights were removed, attach new endpoints where they would have
     # appeared in the original curve
     if (bounded_weights[0][0] > weights[0][0] and
@@ -201,7 +207,7 @@ def normal_distribution(mean, variance,
 
     Returns:
         list[(float, float)]: a list of weights approximating
-            a normal distribution.
+        a normal distribution.
 
     Raises:
         ValueError: ``if maximum < minimum``
@@ -216,8 +222,9 @@ def normal_distribution(mean, variance,
     current_x = min_x
     weights = []
     while current_x < max_x:
-        weights.append((current_x,
-                        _normal_function(current_x, mean, variance)))
+        weights.append(
+            (current_x, _normal_function(current_x, mean, variance))
+        )
         current_x += step
     if minimum is not None or maximum is not None:
         return bound_weights(weights, minimum, maximum)
@@ -277,7 +284,7 @@ def pos_or_neg_1(prob_pos=0.5):
     Return either ``1`` with probability of ``prob_pos``, otherwise ``-1``.
 
     Args:
-        prob_pos (Optional[float]): The probability to return positive ``1``
+        prob_pos (float): The probability to return positive ``1``
             where ``prob_pos = 0`` is guaranteed to return negative and
             ``prob_pos = 1`` is guaranteed to return positive.
             Default value is ``0.5``.
@@ -293,26 +300,28 @@ def pos_or_neg_1(prob_pos=0.5):
 
 def weighted_rand(weights, round_result=False):
     """
-    Generate a non-uniform random value based on a list of tuple weights.
+    Generate a non-uniform random value based on a list of weight tuples.
 
     Treats weights as coordinates for a probability distribution curve and
     rolls accordingly. Constructs a piece-wise linear curve according to
-    coordinates given in input_weights and rolls random values in the
+    coordinates given in ``weights`` and rolls random values in the
     curve's bounding box until a value is found under the curve
 
-    Weight tuples should be of the form: (outcome, weight).
+    Weight tuples should be of the form: (outcome, strength).
 
     Args:
         weights: (List[(float, float)]): the list of weights where each weight
-            is a ``tuple`` of form ``(float, float)`` corresponding to
-            ``(outcome, weight)``. All weights outcome values must be numbers.
-            Weights with weight ``0`` or less will have no chance to be
-            rolled. Must be sorted in increasing order of outcomes.
-        round_result (Optional[Bool])):
+            is a tuple of form ``(float, float)`` corresponding to
+            ``(outcome, strength)``.
+            Weights with strength ``0`` or less will have no chance to be
+            rolled. The list must be sorted in increasing order of outcomes.
+        round_result (bool): Whether or not to round the resulting value
+            to the nearest integer.
 
     Returns:
-        float or int: A number between the smallest and largest outcomes
-            in ``weights``
+        float: A weighted random number
+
+        int: A weighted random number rounded to the nearest ``int``
     """
     # If just one weight is passed, simply return the weight's name
     if len(weights) == 1:
@@ -340,10 +349,10 @@ def weighted_rand(weights, round_result=False):
                 return sample[0]
         attempt_count += 1
     else:
-        warn('Point not being found in weighted_rand() after 500000 '
+        warnings.warn(
+             'Point not being found in weighted_rand() after 500000 '
              'attempts, defaulting to a random weight point. '
-             'If this happens often, it is probably a bug, so please let us '
-             'know with a bug report at https://github.com/ajyoon/blur')
+             'If this happens often, it is probably a bug...')
         return random.choice(weights)[0]
 
 
@@ -355,27 +364,27 @@ def weighted_choice(weights, as_index_and_value_tuple=False):
 
     Args:
         weights: (List[(Any, float)]): a list of options where each option
-            is a ``tuple`` of form ``(Any, float)`` corresponding to
-            ``(outcome, weight)``. Outcome values may be of any type.
-            Options with weight ``0`` or less will have no chance to be
-            rolled - if this is the case in every item of ``weights``,
-            a ``ValueError`` is raised.
+            is a tuple of form ``(Any, float)`` corresponding to
+            ``(outcome, strength)``. Outcome values may be of any type.
+            Options with strength ``0`` or less will have no chance to be
+            chosen.
         as_index_and_value_tuple (bool): Option to return an ``(index, value)``
             tuple instead of just a single ``value``. This is useful when
-            multiple values in ``weights`` are the same and you need to know
+            multiple outcomes in ``weights`` are the same and you need to know
             exactly which one was picked.
 
     Returns:
         Any: If as_index_and_value_tuple == False, any one of the items in
-            the outcomes of ``weights``
-        tuple (int, Any): If as_index_and_value_tuple == True, a tuple of
-            the index as well as value of the item that was picked.
+        the outcomes of ``weights``
+
+        tuple (int, Any): If ``as_index_and_value_tuple == True``,
+        a 2-tuple of form ``(int, Any)`` corresponding to ``(index, value)``.
+        the index as well as value of the item that was picked.
 
     Raises:
         ValueError: if ``weights`` is an empty list.
         ProbabilityUndefinedError: if no item weights in
             ``weights`` are greater than 0.
-        AssertionError: if something in the function is broken.
     """
     if not len(weights):
         raise ValueError('List passed to weighted_choice() cannot be empty.')
@@ -408,18 +417,18 @@ def weighted_order(weights):
     """
     Non-uniformally order a list according to weighted priorities.
 
-    ``weights`` is a list of tuples of the form ``(item, weight)`` of
-    types ``(Any, float or int)``. The output list is constructed by repeatedly
-    calling ``weighted_choice()`` on the weights, adding items to the end of
-    the list as the are picked.
+    ``weights`` is a list of tuples of form ``(Any, float or int)``
+    corresponding to ``(item, strength)``. The output list is constructed
+    by repeatedly calling ``weighted_choice()`` on the weights, adding items
+    to the end of the list as they are picked.
 
-    Higher value weights will have a higher chance of appearing near the
+    Higher strength weights will have a higher chance of appearing near the
     beginning of the output list.
 
-    A list of all uniform weights is equivalent to calling ``random.shuffle()``
-    on the list of values.
+    A list weights with uniform strengths is equivalent to calling
+    ``random.shuffle()`` on the list of items.
 
-    All weight values must be greater than 0
+    *All* weight values must be greater than 0
     or a ``ProbabilityUndefinedError`` will be raised.
 
     Passing an empty list will return an empty list.
@@ -431,7 +440,7 @@ def weighted_order(weights):
         list: the newly ordered list
 
     Raises:
-        ProbabilityUndefinedError: if any weight value is below 0.
+        ProbabilityUndefinedError: if any weight's strength is below 0.
     """
     if not len(weights):
         return []

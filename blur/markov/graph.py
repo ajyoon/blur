@@ -20,8 +20,6 @@ class Graph:
 
     def __init__(self, node_list=None):
         """
-        Initialize a graph, optionally with an initial list of ``Node`` 's.
-
         Args:
             node_list (Optional[list]): An optional list of nodes to
                 populate the network with. To populate the network after
@@ -171,6 +169,7 @@ class Graph:
 
         Returns:
             Node: A node with name ``name`` if it was found
+
             None: If no node exists with name ``name``
         """
         try:

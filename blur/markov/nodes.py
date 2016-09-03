@@ -23,8 +23,6 @@ class Link:
 
     def __init__(self, target, weight):
         """
-        Initialize a link.
-
         Args:
             target (Node): The ``Node`` this ``Link`` will point to
             weight (float or int): The numerical weight for this ``Link``
@@ -38,8 +36,6 @@ class Node:
 
     def __init__(self, name=None, self_destruct=False):
         """
-        Initialize a ``Node``.
-
         Args:
             name (str or int): Name of the node
             self_destruct (bool): whether this note deletes itself after
@@ -91,6 +87,7 @@ class Node:
 
         Returns:
             Link: An existing link pointing to ``target_node`` if found
+
             None: If no such link exists
         """
         try:

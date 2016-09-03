@@ -30,8 +30,6 @@ class SoftObject:
 
     def __init__(self):
         """
-        Initialize a ``SoftObject``.
-
         This is an abstract method and should not be called. Subclasses of
         ``SoftObject`` must override and implement this.
 
@@ -64,8 +62,6 @@ class SoftOptions(SoftObject):
 
     def __init__(self, options):
         """
-        Initialize from a list of (outcome, weight) tuples.
-
         Args:
             options (list[tuple]): a list of options where each option
                 is a ``tuple`` of form ``(Any, float)`` corresponding to
@@ -134,8 +130,6 @@ class SoftBool(SoftObject):
 
     def __init__(self, prob_true):
         """
-        Initialize from a probability to be ``True``.
-
         Args:
             prob_true (float): The probability that ``get()`` returns ``True``
                 where ``prob_true <= 0`` is always ``False`` and
@@ -158,8 +152,6 @@ class SoftFloat(SoftObject):
 
     def __init__(self, weights):
         """
-        Initialize from a list of weights.
-
         Args:
             weights (list[tuple(float, float)])
         """
@@ -241,12 +233,13 @@ class SoftColor(SoftObject):
 
     def __init__(self, red, green, blue):
         """
-        Initialize from soft values for rgb color channels.
-
         Args:
             red (int or SoftInt or tuple(args for SoftInt)):
             green (int or SoftInt or tuple(args for SoftInt)):
             blue (int or SoftInt or tuple(args for SoftInt)):
+
+        Raises:
+            TypeError: if invalid types are passed in args
 
         Notes:
             When initializing the soft color channels using the
@@ -264,14 +257,20 @@ class SoftColor(SoftObject):
             self.red = red
         elif isinstance(red, tuple):
             self.red = SoftInt(*red)
+        else:
+            raise TypeError('Invalid type for SoftColor.red')
         if isinstance(green, int) or isinstance(green, SoftInt):
             self.green = green
         elif isinstance(green, tuple):
             self.green = SoftInt(*green)
+        else:
+            raise TypeError('Invalid type for SoftColor.green')
         if isinstance(blue, int) or isinstance(blue, SoftInt):
             self.blue = blue
         elif isinstance(blue, tuple):
             self.blue = SoftInt(*blue)
+        else:
+            raise TypeError('Invalid type for SoftColor.blue')
 
     @staticmethod
     def _bound_color_value(color):

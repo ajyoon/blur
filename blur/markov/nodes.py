@@ -6,10 +6,6 @@ to directly interact with these objects, as ``Graph`` provides
 much easier and more powerful interactions.
 """
 
-import random
-
-from blur import rand
-
 
 class Link:
     """

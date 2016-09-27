@@ -93,6 +93,7 @@ ENV/
 # emacs
 *~
 \#*
+.\#*
 
 # pycharm
 .idea

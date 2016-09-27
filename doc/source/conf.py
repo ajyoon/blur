@@ -45,8 +45,9 @@ extensions = [
 # Note that to build properly, sphinxcontrib.fulltoc must be installed.
 # use `pip install sphinxcontrib-fulltoc` to satisfy this dependency
 
-# Autoclass settings
+# Autodoc settings
 autoclass_content = 'both'
+autodoc_member_order = 'bysource'
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -318,7 +319,7 @@ latex_documents = [
 #
 # latex_appendices = []
 
-# It false, will not define \strong, \code, 	itleref, \crossref ... but only
+# It false, will not define \strong, \code,     itleref, \crossref ... but only
 # \sphinxstrong, ..., \sphinxtitleref, ... To help avoid clash with user added
 # packages.
 #

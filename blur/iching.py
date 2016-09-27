@@ -181,11 +181,12 @@ def get_hexagram(method='THREE COIN'):
             to `blur.rand` functions to accurately approximate them.
 
     Returns:
-        int: The `int` key of the found hexagram.
+        int: If ``method == 'NAIVE'``, the ``int`` key of the found hexagram.
+        Otherwise a `tuple` will be returned.
 
-        (int, int): A 2-tuple where the first value is `int` key of the
-            starting hexagram and the second is that of the
-            'moving-to' hexagram.
+        tuple: A 2-tuple of form ``(int, int)``  where the first value
+        is key of the starting hexagram and the second is that of the
+        'moving-to' hexagram.
 
     Raises: ValueError if ``method`` is invalid
     """

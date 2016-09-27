@@ -21,7 +21,7 @@ class Graph:
     def __init__(self, node_list=None):
         """
         Args:
-            node_list (Optional[list]): An optional list of nodes to
+            node_list (list): An optional list of nodes to
                 populate the network with. To populate the network after
                 initialization, use the ``Graph.add_nodes()`` method.
 
@@ -71,7 +71,8 @@ class Graph:
         Add a given node or list of nodes to self.node_list.
 
         Args:
-            node (Node or list[node]): ``Node``(s) to be added to the graph
+            node (Node or list[Node]): the node or list of nodes to add
+                to the graph
 
         Returns: None
 
@@ -138,8 +139,10 @@ class Graph:
         ignored.
 
         Args:
-            noise_weights (Optional[(amount, weight)]): a list of weights
-                describing the noise to be added to each link
+            noise_weights (list): a list of weight tuples
+                of form ``(float, float)`` corresponding to
+                ``(amount, weight)`` describing the noise to be
+                added to each link in the graph
             uniform_amount (float): the maximum amount of uniform noise
                 to be applied if ``noise_weights`` is not set
 
@@ -235,10 +238,10 @@ class Graph:
         * if ``starting_node`` is specified, start from there
         * if ``starting_node`` is ``None``, start from ``self.current_node``
         * if ``starting_node`` is ``None`` and ``self.current_node``
-            is ``None``, pick a uniformally random node in ``self.node_list``
+          is ``None``, pick a uniformally random node in ``self.node_list``
 
         Args:
-            starting_node (Optional[Node]): ``Node`` to pick from.
+            starting_node (Node): ``Node`` to pick from.
 
         Returns: Node
         """

@@ -147,7 +147,7 @@ def bound_weights(weights, minimum=None, maximum=None):
     than ``maximum``.
 
     Args:
-        weights (List[(float, float)]): the list of weights where each weight
+        weights (list): the list of weights where each weight
             is a ``tuple`` of form ``(float, float)`` corresponding to
             ``(outcome, weight)``. Must be sorted in increasing order
             of outcomes
@@ -202,12 +202,12 @@ def normal_distribution(mean, variance,
             bound the output distribution to
         maximum (float): The maximum outcome possible to
             bound the output distribution to
-        weight_count (Optional[int]): The number of weights that will
+        weight_count (int): The number of weights that will
             be used to approximate the distribution
 
     Returns:
-        list[(float, float)]: a list of weights approximating
-        a normal distribution.
+        list: a list of ``(float, float)`` weight tuples
+        approximating a normal distribution.
 
     Raises:
         ValueError: ``if maximum < minimum``
@@ -268,7 +268,7 @@ def pos_or_neg(value, prob_pos=0.5):
 
     Args:
         value (int or float): the value to operate on
-        prob_pos (Optional[float]): The probability to return positive.
+        prob_pos (float): The probability to return positive.
             where ``prob_pos = 0`` is guaranteed to return negative and
             ``prob_pos = 1`` is guaranteed to return positive.
             Default value is ``0.5``.
@@ -310,7 +310,7 @@ def weighted_rand(weights, round_result=False):
     Weight tuples should be of the form: (outcome, strength).
 
     Args:
-        weights: (List[(float, float)]): the list of weights where each weight
+        weights: (list): the list of weights where each weight
             is a tuple of form ``(float, float)`` corresponding to
             ``(outcome, strength)``.
             Weights with strength ``0`` or less will have no chance to be
@@ -363,7 +363,7 @@ def weighted_choice(weights, as_index_and_value_tuple=False):
     Treats each outcome as a discreet unit with a chance to occur.
 
     Args:
-        weights: (List[(Any, float)]): a list of options where each option
+        weights (list): a list of options where each option
             is a tuple of form ``(Any, float)`` corresponding to
             ``(outcome, strength)``. Outcome values may be of any type.
             Options with strength ``0`` or less will have no chance to be
@@ -374,7 +374,7 @@ def weighted_choice(weights, as_index_and_value_tuple=False):
             exactly which one was picked.
 
     Returns:
-        Any: If as_index_and_value_tuple == False, any one of the items in
+        Any: If ``as_index_and_value_tuple is False``, any one of the items in
         the outcomes of ``weights``
 
         tuple (int, Any): If ``as_index_and_value_tuple == True``,
@@ -434,7 +434,11 @@ def weighted_order(weights):
     Passing an empty list will return an empty list.
 
     Args:
-        weights (list[(Any, float or int)]):
+        weights (list): is a list of tuples of form ``(Any, float or int)``
+            corresponding to ``(item, strength)``. The output list is
+            constructed by repeatedly calling ``weighted_choice()`` on
+            the weights, adding items to the end of the list
+            as they are picked.
 
     Returns:
         list: the newly ordered list

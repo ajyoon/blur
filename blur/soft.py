@@ -17,7 +17,7 @@ import random
 from blur import rand
 
 
-class SoftObject:
+class SoftObject(object):
     """
     An abstract base class for ``SoftObject`` 's.
 
@@ -63,7 +63,7 @@ class SoftOptions(SoftObject):
     def __init__(self, options):
         """
         Args:
-            options (list[tuple]): a list of options where each option
+            options (list): a list of options where each option
                 is a ``tuple`` of form ``(Any, float)`` corresponding to
                 ``(outcome, weight)``. Outcome values may be of any
                 type. Weights ``0`` or less will have no chance
@@ -77,9 +77,9 @@ class SoftOptions(SoftObject):
         Initialize from a list of options, assigning uniform weights.
 
         Args:
-            options (List[Any]): The list of options this object can return
-                with the ``get()`` method.
-            weight (Optional[float or int]): The weight to be assigned to
+            options (list): The list of options of any type this object
+                can return with the ``get()`` method.
+            weight (float or int): The weight to be assigned to
                 every option. Regardless of what this is, the probability
                 of each option will be the same. In almost all cases this can
                 be ignored. The only case for explicitly setting this is if
@@ -100,13 +100,38 @@ class SoftOptions(SoftObject):
         integers between ``1`` and ``len(options)``
 
         Args:
-            options (list[Any]):
+            options (list): The list of options of any type this object
+                can return with the ``get()`` method.
 
         Returns:
             SoftOptions: A newly constructed instance
         """
         return cls([(value, random.randint(1, len(options)))
                     for value in options])
+
+    @property
+    def options(self):
+        """list: a list of options where each option
+            is a ``tuple`` of form ``(Any, float)`` corresponding to
+            ``(outcome, weight)``. Outcome values may be of any type.
+            Weights ``0`` or less will have no chance
+            to be retrieved by ``get()``
+        """
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        if value == []:
+            raise rand.ProbabilityUndefinedError(
+                'SoftOptions.options cannot be empty')
+        if not ((isinstance(value, list)) and
+                (all(isinstance(opt, tuple)
+                     and len(opt) == 2 and
+                     isinstance(opt[1], (int, float))
+                     for opt in value))):
+            raise TypeError('SoftOptions.options must be a list of '
+                            '2-tuples of form (Any, int or float)')
+        self._options = value
 
     def get(self):
         """
@@ -119,14 +144,7 @@ class SoftOptions(SoftObject):
 
 
 class SoftBool(SoftObject):
-    """
-    A stochastic ``bool`` defined by a probability to be ``True``.
-
-    Attributes:
-        prob_true (float): The probability that ``get()`` returns ``True``
-            where ``prob_true <= 0`` is always ``False`` and
-            ``prob_true >= 1`` is always ``True``.
-    """
+    """A stochastic ``bool`` defined by a probability to be ``True``."""
 
     def __init__(self, prob_true):
         """
@@ -136,6 +154,21 @@ class SoftBool(SoftObject):
                 ``prob_true >= 1`` is always ``True``.
         """
         self.prob_true = prob_true
+
+    @property
+    def prob_true(self):
+        """
+        float or int: The probability that ``get()`` returns ``True``
+            where ``prob_true <= 0`` is always ``False`` and
+            ``prob_true >= 1`` is always ``True``.
+        """
+        return self._prob_true
+
+    @prob_true.setter
+    def prob_true(self, value):
+        if not isinstance(value, (float, int)):
+            raise TypeError('SoftBool.prob_true must be of type float or int.')
+        self._prob_true = value
 
     def get(self):
         """
@@ -153,7 +186,10 @@ class SoftFloat(SoftObject):
     def __init__(self, weights):
         """
         Args:
-            weights (list[tuple(float, float)])
+            weights (list): the list of weights where each weight
+                is a tuple of form ``(float, float)`` corresponding to
+                ``(outcome, strength)``. These weights represent the
+                stochastic value of this `SoftFloat`.
         """
         self.weights = weights
 
@@ -193,7 +229,7 @@ class SoftFloat(SoftObject):
 
         Returns:
             float: A value between the lowest and highest outcomes
-                in ``self.weights``
+            in ``self.weights``
         """
         return rand.weighted_rand(self.weights, round_result=False)
 

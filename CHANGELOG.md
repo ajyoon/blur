@@ -10,6 +10,7 @@
 * `rand._linear_interp()` now raises a `ProbabilityUndefinedError`
   instead of a `ValueError` when the tested x value lies outside of the
   given curve.
+* SoftObject is now a new-style class
 
 ### 0.3
 

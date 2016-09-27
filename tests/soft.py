@@ -5,6 +5,7 @@ import math
 import random
 
 from blur import soft
+from blur.rand import ProbabilityUndefinedError
 
 
 class TestSoftObject(unittest.TestCase):
@@ -19,7 +20,7 @@ class TestSoftObject(unittest.TestCase):
 
 
 class TestSoftOptions(unittest.TestCase):
-    def test_init__(self):
+    def test_init(self):
         options_original = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
         options_input = options_original[:]
         test_object = soft.SoftOptions(options_input)
@@ -55,11 +56,56 @@ class TestSoftOptions(unittest.TestCase):
             self.assertIn(test_object.get(),
                           ['Option 1', 'Option 2', 'Option 3'])
 
+    def test_options_with_correct_type(self):
+        try:
+            options = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
+            test_object = soft.SoftOptions(options)
+        except TypeError:
+            self.fail()
+
+    def test_options_with_empty_list_fails(self):
+        with self.assertRaises(ProbabilityUndefinedError):
+            test_object = soft.SoftOptions([])
+
+    def test_options_with_non_list_fails(self):
+        with self.assertRaises(TypeError):
+            test_object = soft.SoftOptions(42)
+
+    def test_options_with_non_tuple_contents_fails(self):
+        with self.assertRaises(TypeError):
+            options = [('Option 1', 5), 'this is not a tuple']
+            test_object = soft.SoftOptions(options)
+
+    def test_options_with_wrong_tuple_length_fails(self):
+        with self.assertRaises(TypeError):
+            options = [('Option 1', 5, 'one extra')]
+            test_object = soft.SoftOptions(options)
+        with self.assertRaises(TypeError):
+            options = [('one too few',)]
+            test_object = soft.SoftOptions(options)
+        with self.assertRaises(TypeError):
+            options = [()]  # Empty tuple
+            test_object = soft.SoftOptions(options)
+
+    def test_options_with_invalid_weight_strength_fails(self):
+        with self.assertRaises(TypeError):
+            options = [('Option 1', 'not a number for strength')]
+            test_object = soft.SoftOptions(options)
+
 
 class TestSoftBool(unittest.TestCase):
-    def test__init__(self):
+    def test_init(self):
         test_object = soft.SoftBool(0.9)
         self.assertEqual(test_object.prob_true, 0.9)
+
+    def test_init_with_invalid_prob_true(self):
+        with self.assertRaises(TypeError):
+            test_object = soft.SoftBool('not a number')
+
+    def test_set_invalid_prob_true(self):
+        with self.assertRaises(TypeError):
+            test_object = soft.SoftBool(0.9)
+            test_object.prob_true = 'not a number'
 
     def test_get(self):
         test_object = soft.SoftBool(0.9)

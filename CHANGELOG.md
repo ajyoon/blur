@@ -11,6 +11,19 @@
   instead of a `ValueError` when the tested x value lies outside of the
   given curve.
 * SoftObject is now a new-style class
+* The following names have been changed from attributes to properties
+  with type-enforcing setters. Their API's have not changed except
+  where noed:
+  * `SoftOptions.options`
+  * `SoftBool.prob_true`
+  * `SoftFloat.weights`
+  * `SoftInt.weights`
+  * `SoftColor.red`, `SoftColor.blue`, `SoftColor.green` now store a copy
+    of arguments assigned to them rather than the original. This will only
+    affect existing code if `SoftInt` values are created manually before being
+    passed to `SoftColor`'s, then and the `SoftInt` are manipulated outside of
+    the context of the `SoftColor` with the expectation that the `SoftColor`'s
+    attributes would be changed as well.
 
 ### 0.3
 

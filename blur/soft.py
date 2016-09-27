@@ -112,7 +112,7 @@ class SoftOptions(SoftObject):
     @property
     def options(self):
         """list: a list of options where each option
-            is a ``tuple`` of form ``(Any, float)`` corresponding to
+            is a ``tuple`` of form ``(Any, float or int)`` corresponding to
             ``(outcome, weight)``. Outcome values may be of any type.
             Weights ``0`` or less will have no chance
             to be retrieved by ``get()``
@@ -187,9 +187,10 @@ class SoftFloat(SoftObject):
         """
         Args:
             weights (list): the list of weights where each weight
-                is a tuple of form ``(float, float)`` corresponding to
-                ``(outcome, strength)``. These weights represent the
-                stochastic value of this `SoftFloat`.
+                is a tuple of form ``(int or float, int or float)``
+                corresponding to ``(outcome, strength)``.
+                These weights represent the stochastic value of
+                this `SoftFloat`.
         """
         self.weights = weights
 
@@ -222,6 +223,30 @@ class SoftFloat(SoftObject):
                 i += weight_interval
             weights.append((highest, 1))
         return cls(weights)
+
+    @property
+    def weights(self):
+        """list: the list of weights where each weight
+        is a tuple of form ``(int or float, int or float)`` corresponding to
+        ``(outcome, strength)``. These weights represent the
+        stochastic value of this `SoftFloat`.
+        """
+        return self._weights
+
+    @weights.setter
+    def weights(self, value):
+        if value == []:
+            raise rand.ProbabilityUndefinedError(
+                'weights cannot be empty')
+        if not ((isinstance(value, list)) and
+                (all(isinstance(opt, tuple)
+                     and len(opt) == 2 and
+                     isinstance(opt[0], (int, float)) and
+                     isinstance(opt[1], (int, float))
+                     for opt in value))):
+            raise TypeError('weights must be a list of '
+                            '2-tuples of form (int or float, int or float)')
+        self._weights = value
 
     def get(self):
         """
@@ -289,24 +314,63 @@ class SoftColor(SoftObject):
                                        ([(0, 1), (255, 10)],),
                                        ([(0, 1), (255, 10)],))
         """
-        if isinstance(red, int) or isinstance(red, SoftInt):
+        if isinstance(red, tuple):
+            try:
+                self.red = SoftInt(*red)
+            except Exception as exception:
+                raise TypeError('Invalid tuple args for SoftInt in red, '
+                                'init error: {}'.format(exception))
+        else:
             self.red = red
-        elif isinstance(red, tuple):
-            self.red = SoftInt(*red)
+        if isinstance(green, tuple):
+            try:
+                self.green = SoftInt(*green)
+            except Exception as exception:
+                raise TypeError('Invalid tuple args for SoftInt in green, '
+                                'init error: {}'.format(exception))
         else:
-            raise TypeError('Invalid type for SoftColor.red')
-        if isinstance(green, int) or isinstance(green, SoftInt):
             self.green = green
-        elif isinstance(green, tuple):
-            self.green = SoftInt(*green)
+        if isinstance(blue, tuple):
+            try:
+                self.blue = SoftInt(*blue)
+            except Exception as exception:
+                raise TypeError('Invalid tuple args for SoftInt in blue, '
+                                'init error: {}'.format(exception))
         else:
-            raise TypeError('Invalid type for SoftColor.green')
-        if isinstance(blue, int) or isinstance(blue, SoftInt):
             self.blue = blue
-        elif isinstance(blue, tuple):
-            self.blue = SoftInt(*blue)
-        else:
-            raise TypeError('Invalid type for SoftColor.blue')
+
+    @property
+    def red(self):
+        """SoftInt or int: The red channel of the RGB color"""
+        return self._red
+
+    @red.setter
+    def red(self, value):
+        if not isinstance(value, (SoftInt, int)):
+            raise TypeError('SoftColor.red must be of type SoftInt or int')
+        self._red = value
+
+    @property
+    def green(self):
+        """SoftInt or int: The green channel of the RGB color"""
+        return self._green
+
+    @green.setter
+    def green(self, value):
+        if not isinstance(value, (SoftInt, int)):
+            raise TypeError('SoftColor.green must be of type SoftInt or int')
+        self._green = value
+
+    @property
+    def blue(self):
+        """SoftInt or int: The blue channel of the RGB color"""
+        return self._blue
+
+    @blue.setter
+    def blue(self, value):
+        if not isinstance(value, (SoftInt, int)):
+            raise TypeError('SoftColor.blue must be of type SoftInt or int')
+        self._blue = value
 
     @staticmethod
     def _bound_color_value(color):
@@ -361,7 +425,6 @@ class SoftColor(SoftObject):
             blue = self.blue.get()
         else:
             blue = self.blue
-
         return (red, green, blue)
 
     def get_as_hex(self):

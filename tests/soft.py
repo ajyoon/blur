@@ -1,8 +1,6 @@
 from __future__ import division
 
 import unittest
-import math
-import random
 
 from blur import soft
 from blur.rand import ProbabilityUndefinedError
@@ -12,7 +10,7 @@ class TestSoftObject(unittest.TestCase):
     def test_init_is_not_implemented(self):
         """Test that SoftObject.__init__() is not implemented."""
         with self.assertRaises(NotImplementedError):
-            soft_object = soft.SoftObject()
+            soft.SoftObject()
 
     def test_has_get_method(self):
         """Test that SoftObject.get() exists."""
@@ -59,38 +57,38 @@ class TestSoftOptions(unittest.TestCase):
     def test_options_with_correct_type(self):
         try:
             options = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
         except TypeError:
             self.fail()
 
     def test_options_with_empty_list_fails(self):
         with self.assertRaises(ProbabilityUndefinedError):
-            test_object = soft.SoftOptions([])
+            soft.SoftOptions([])
 
     def test_options_with_non_list_fails(self):
         with self.assertRaises(TypeError):
-            test_object = soft.SoftOptions(42)
+            soft.SoftOptions(42)
 
     def test_options_with_non_tuple_contents_fails(self):
         with self.assertRaises(TypeError):
             options = [('Option 1', 5), 'this is not a tuple']
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
 
     def test_options_with_wrong_tuple_length_fails(self):
         with self.assertRaises(TypeError):
             options = [('Option 1', 5, 'one extra')]
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
         with self.assertRaises(TypeError):
             options = [('one too few',)]
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
         with self.assertRaises(TypeError):
             options = [()]  # Empty tuple
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
 
     def test_options_with_invalid_weight_strength_fails(self):
         with self.assertRaises(TypeError):
             options = [('Option 1', 'not a number for strength')]
-            test_object = soft.SoftOptions(options)
+            soft.SoftOptions(options)
 
 
 class TestSoftBool(unittest.TestCase):
@@ -100,7 +98,7 @@ class TestSoftBool(unittest.TestCase):
 
     def test_init_with_invalid_prob_true(self):
         with self.assertRaises(TypeError):
-            test_object = soft.SoftBool('not a number')
+            soft.SoftBool('not a number')
 
     def test_set_invalid_prob_true(self):
         with self.assertRaises(TypeError):
@@ -117,14 +115,38 @@ class TestSoftBool(unittest.TestCase):
 
 
 class TestSoftFloat(unittest.TestCase):
-    def test_init__(self):
+    def test_init(self):
+        weights = [(-5, 2), (3, 1), (5, 6)]
+        test_object = soft.SoftFloat(weights)
+        # Test that weights were passed correctly to the SoftFloat
+        self.assertEqual(test_object.weights, weights)
+
+    def test_init_doesnt_cause_side_effects_on_input(self):
         original_weights = [(-5, 2), (3, 1), (5, 6)]
         weights = original_weights[:]
         test_object = soft.SoftFloat(weights)
         # Test that no side effects occured in passed list
         self.assertEqual(weights, original_weights)
-        # Test that weights were passed correctly to the SoftFloat
-        self.assertEqual(test_object.weights, weights)
+
+    def test_invalid_weights_fails(self):
+        with self.assertRaises(TypeError):
+            weights = 'not a list'
+            soft.SoftFloat(weights)
+        with self.assertRaises(TypeError):
+            weights = ['items', 'are', 'not', 'tuples']
+            soft.SoftFloat(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1)]  # tuple wrong length
+            soft.SoftFloat(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1, 2, 3)]
+            soft.SoftFloat(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1, 'wrong type')]
+            soft.SoftFloat(weights)
+        with self.assertRaises(TypeError):
+            weights = [('wrong type', 2)]
+            soft.SoftFloat(weights)
 
     def test_bounded_uniform_without_weight_interval(self):
         lowest = -5
@@ -159,7 +181,7 @@ class TestSoftFloat(unittest.TestCase):
 
 
 class TestSoftInt(unittest.TestCase):
-    def test_init__(self):
+    def test_init(self):
         original_weights = [(-5, 2), (3, 1), (5, 6)]
         weights = original_weights[:]
         test_object = soft.SoftInt(weights)
@@ -167,6 +189,26 @@ class TestSoftInt(unittest.TestCase):
         self.assertEqual(weights, original_weights)
         # Test that weights were passed correctly to the SoftFloat
         self.assertEqual(test_object.weights, weights)
+
+    def test_invalid_weights_fails(self):
+        with self.assertRaises(TypeError):
+            weights = 'not a list'
+            soft.SoftInt(weights)
+        with self.assertRaises(TypeError):
+            weights = ['items', 'are', 'not', 'tuples']
+            soft.SoftInt(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1)]  # tuple wrong length
+            soft.SoftInt(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1, 2, 3)]
+            soft.SoftInt(weights)
+        with self.assertRaises(TypeError):
+            weights = [(1, 'wrong type')]
+            soft.SoftInt(weights)
+        with self.assertRaises(TypeError):
+            weights = [('wrong type', 2)]
+            soft.SoftInt(weights)
 
     def test_bounded_uniform_without_weight_interval(self):
         lowest = -5
@@ -222,9 +264,9 @@ class TestSoftColor(unittest.TestCase):
         blue = soft.SoftInt.bounded_uniform(0, 255)
         test_object = soft.SoftColor(red, green, blue)
         # Test that attributes were assigned correctly
-        self.assertEqual(test_object.red, red)
-        self.assertEqual(test_object.green, green)
-        self.assertEqual(test_object.blue, blue)
+        self.assertEqual(test_object.red.weights, red.weights)
+        self.assertEqual(test_object.green.weights, green.weights)
+        self.assertEqual(test_object.blue.weights, blue.weights)
 
     def test_init_from_tuples_of_args_for_softints(self):
         red_args = ([(0, 1), (255, 10)],)
@@ -240,16 +282,23 @@ class TestSoftColor(unittest.TestCase):
         self.assertEqual(test_object.green.weights, [(0, 1), (255, 10)])
         self.assertEqual(test_object.blue.weights, [(0, 1), (255, 10)])
 
+    def test_init_from_tuples_of_args_for_softints_with_bad_args_fails(self):
+        with self.assertRaises(TypeError):
+            red_args = ([(0, 1), (255, 10)],)
+            green_args = ([(0, 1), (255, 10)],)
+            blue_args = ()  # empty tuple - wrong number of args
+            soft.SoftColor(red_args, green_args, blue_args)
+
     def test_init_with_invalid_arg_types_raises_TypeError(self):
         with self.assertRaises(TypeError):
             # Test red
-            test_object = soft.SoftColor('NONSENSE', 255, 255)
+            soft.SoftColor('NONSENSE', 255, 255)
         with self.assertRaises(TypeError):
             # Test green
-            test_object = soft.SoftColor(255, 'NONSENSE', 255)
+            soft.SoftColor(255, 'NONSENSE', 255)
         with self.assertRaises(TypeError):
             # Test blue
-            test_object = soft.SoftColor(255, 255, 'NONSENSE')
+            soft.SoftColor(255, 255, 'NONSENSE')
 
     def test_bound_color_value(self):
         # Test that values below 0 return 0

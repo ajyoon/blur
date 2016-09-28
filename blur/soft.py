@@ -124,11 +124,7 @@ class SoftOptions(SoftObject):
         if value == []:
             raise rand.ProbabilityUndefinedError(
                 'SoftOptions.options cannot be empty')
-        if not ((isinstance(value, list)) and
-                (all(isinstance(opt, tuple)
-                     and len(opt) == 2 and
-                     isinstance(opt[1], (int, float))
-                     for opt in value))):
+        if not rand._is_valid_options_weights_list(value):
             raise TypeError('SoftOptions.options must be a list of '
                             '2-tuples of form (Any, int or float)')
         self._options = value
@@ -238,12 +234,7 @@ class SoftFloat(SoftObject):
         if value == []:
             raise rand.ProbabilityUndefinedError(
                 'weights cannot be empty')
-        if not ((isinstance(value, list)) and
-                (all(isinstance(opt, tuple)
-                     and len(opt) == 2 and
-                     isinstance(opt[0], (int, float)) and
-                     isinstance(opt[1], (int, float))
-                     for opt in value))):
+        if not rand._is_valid_numerical_weights_list(value):
             raise TypeError('weights must be a list of '
                             '2-tuples of form (int or float, int or float)')
         self._weights = value

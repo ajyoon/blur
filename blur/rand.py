@@ -22,7 +22,7 @@ class ProbabilityUndefinedError(Exception):
 
 
 ###############################################################################
-#   Local utility functions
+#   Private utility functions
 ###############################################################################
 def _linear_interp(curve, test_x, round_result=False):
     """
@@ -126,6 +126,27 @@ def _normal_function(x, mean, variance):
     """
     e_power = -1 * (((x - mean) ** 2) / (2 * variance))
     return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
+
+
+def _is_valid_options_weights_list(value):
+    '''Check whether ``values`` is a valid argument for ``weighted_choice``.'''
+    return ((isinstance(value, list)) and
+            len(value) > 1 and
+            (all(isinstance(opt, tuple) and
+                 len(opt) == 2 and
+                 isinstance(opt[1], (int, float))
+                 for opt in value)))
+
+
+def _is_valid_numerical_weights_list(value):
+    '''Check whether ``values`` is a valid argument for ``weighted_rand``.'''
+    return ((isinstance(value, list)) and
+            len(value) > 1 and
+            (all(isinstance(opt, tuple) and
+                 len(opt) == 2 and
+                 isinstance(opt[0], (int, float)) and
+                 isinstance(opt[1], (int, float))
+                 for opt in value)))
 
 
 ###############################################################################

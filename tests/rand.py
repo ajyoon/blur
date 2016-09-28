@@ -127,7 +127,7 @@ class TestRand(unittest.TestCase):
     def test_bound_weights_doesnt_modify_input(self):
         weights = [(0, 0), (2, 2), (4, 2), (6, 0)]
         original_weights = weights[:]
-        modified = rand.bound_weights(weights, 2, 4)
+        rand.bound_weights(weights, 2, 4)
         self.assertEqual(weights, original_weights)
 
     def test_bound_weights_with_weights_already_inside_bounds(self):
@@ -188,6 +188,65 @@ class TestRand(unittest.TestCase):
         curve = rand.normal_distribution(MEAN, VARIANCE, MIN_X, MAX_X)
         self.assertEqual(min(weight[0] for weight in curve), MIN_X)
         self.assertEqual(max(weight[0] for weight in curve), MAX_X)
+
+    def test_is_valid_options_weights_list_with_valid_args(self):
+        try:
+            options = [('Option 1', 5), ('Option 2', 3), ('Option 3', 1)]
+            rand._is_valid_options_weights_list(options)
+        except TypeError:
+            self.fail()
+
+    def test_is_valid_options_weights_list_with_empty_list(self):
+        self.assertFalse(rand._is_valid_options_weights_list([]))
+
+    def test_is_valid_options_weights_list_with_non_list(self):
+        self.assertFalse(rand._is_valid_options_weights_list(42))
+
+    def test_is_valid_options_weights_list_with_non_tuple_in_list(self):
+        options = [('Option 1', 5), 'this is not a tuple']
+        self.assertFalse(rand._is_valid_options_weights_list(options))
+
+    def test_is_valid_options_weights_list_with_wrong_tuple_lengths(self):
+        options = [('Option 1', 5, 'one extra')]
+        self.assertFalse(rand._is_valid_options_weights_list(options))
+        options = [('one too few',)]
+        self.assertFalse(rand._is_valid_options_weights_list(options))
+        options = [()]  # Empty tuple
+        self.assertFalse(rand._is_valid_options_weights_list(options))
+
+    def test_is_valid_options_weights_list_with_invalid_weight_strength(self):
+        options = [('Option 1', 'not a number for strength')]
+        self.assertFalse(rand._is_valid_options_weights_list(options))
+
+    def test_is_valid_numerical_weights_list_with_valid(self):
+        weights = [(1, 2), (3, 4.0), (5.6, 7)]
+        self.assertTrue(rand._is_valid_numerical_weights_list(weights))
+
+    def test_is_valid_numerical_weights_list_with_nonlist(self):
+        weights = 'not a list'
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+
+    def test_is_valid_numerical_weights_list_with_empty_list(self):
+        self.assertFalse(rand._is_valid_numerical_weights_list([]))
+
+    def test_is_valid_numerical_weights_list_with_nontuples(self):
+        weights = ['items', 'are', 'not', 'tuples']
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+
+    def test_is_valid_numerical_weights_list_with_short_tuples(self):
+        weights = [(1)]  # tuple wrong length
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+
+    def test_is_valid_numerical_weights_list_with_long_tuples(self):
+        weights = [(1, 2, 3)]
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+
+    def test_is_valid_numerical_weights_list_with_wrong_types_in_tuples(self):
+        weights = [(1, 'wrong type')]
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+        weights = [('wrong type', 2)]
+        self.assertFalse(rand._is_valid_numerical_weights_list(weights))
+
 
     def test_prob_bool(self):
         # Test guaranteed outcomes

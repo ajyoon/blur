@@ -5,9 +5,14 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
- 
+  - "3.5-dev"
+  - "nightly"
+
 # command to install dependencies
 install: "pip install -r requirements.txt"
 
 # command to run tests
-script: nosetests tests/*.py
+script: echo "Running Unit Tests:\n" && \
+        py.test tests/*.py && \
+        echo "Running Doc Tests:\n" && \
+        py.test --doctest-modules blur/

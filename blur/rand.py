@@ -40,6 +40,13 @@ def _linear_interp(curve, test_x, round_result=False):
         int: if ``round_result == True``, the ``y`` value of the curve at
         ``test_x`` rounded to the nearest whole number
 
+    Example:
+        >>> curve = [(0, 0), (2, 1)]
+        >>> _linear_interp(curve, 0.5)
+        0.25
+        >>> _linear_interp(curve, 0.5, round_result=True)
+        0
+
     Raises:
         ProbabilityUndefinedError: if ``test_x`` is out of the
             domain of ``curve``

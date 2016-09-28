@@ -5,11 +5,11 @@ according to defined chance profiles. This value can be retrieved
 with the ``SoftObject`` 's ``get()`` method.
 
 >>> blurry_float = SoftFloat([(-1, 2), (3, 5)])
->>> blurry_float.get()
+>>> blurry_float.get()                                         # doctest: +SKIP
 1.925674784815838
->>> blurry_float.get()
+>>> blurry_float.get()                                         # doctest: +SKIP
 1.120389067727415
->>> blurry_float.get()
+>>> blurry_float.get()                                         # doctest: +SKIP
 1.30418962132812
 """
 
@@ -50,14 +50,8 @@ class SoftObject(object):
 
 class SoftOptions(SoftObject):
     """
-    One of many objects with corrosponding weights.
+    One of many objects with corresponding weights.
 
-    Attributes:
-        options (list): a list of options where each option
-            is a ``tuple`` of form ``(Any, float)`` corresponding to
-            ``(outcome, weight)``. Outcome values may be of any type.
-            Weights ``0`` or less will have no chance
-            to be retrieved by ``get()``
     """
 
     def __init__(self, options):
@@ -68,6 +62,13 @@ class SoftOptions(SoftObject):
                 ``(outcome, weight)``. Outcome values may be of any
                 type. Weights ``0`` or less will have no chance
                 to be retrieved by ``get()``
+
+        Example:
+            >>> options = SoftOptions([('option one', 2),
+            ...                        ('option two', 5),
+            ...                        ('option three', 8)])
+            >>> options.get()                                  # doctest: +SKIP
+            'option three'
         """
         self.options = options
 
@@ -88,6 +89,12 @@ class SoftOptions(SoftObject):
 
         Returns:
             SoftOptions: A newly constructed instance
+
+        Example:
+            >>> blurry_object = SoftOptions.with_uniform_weights(
+            ...     ['option one', 'option two', 'option three'])
+            >>> blurry_object.options
+            [('option one', 1), ('option two', 1), ('option three', 1)]
         """
         return cls([(value, weight) for value in options])
 
@@ -269,18 +276,23 @@ class SoftInt(SoftFloat):
 
 class SoftColor(SoftObject):
     """
-    An RGB color whose individual channels are ``SoftInt`` objects.
+    An RGB color whose individual channels can be ``SoftInt`` objects.
 
-    ``SoftColor.get()`` returns an ``(r, g, b)`` ``tuple``.
+    ``SoftColor.get()`` returns an ``(r, g, b)`` tuple o integers.
     To get a hexadecimal color value, use ``get_as_hex()``.
 
-    >>> rgb = some_soft_color.get()
-    >>> rgb
-    (234, 124, 32)
-    >>> SoftColor.rgb_to_hex(rgb)
-    '#EA7C20'
-    >>> some_soft_color.get_as_hex()  # Pretending output is the same rgb color
-    '#EA7C20'
+        >>> color = SoftColor(234,                           # static red
+        ...                   124,                           # static green
+        ...                   SoftInt([(0, 10), (40, 20)]))  # soft blue
+        >>> rgb = color.get()
+        >>> rgb                                                # doctest: +SKIP
+        (234, 124, 32)
+        # Conveniently convert the value to hex
+        >>> SoftColor.rgb_to_hex(rgb)                          # doctest: +SKIP
+        '#EA7C20'
+        # Generate a new value directly as hex
+        >>> some_soft_color.get_as_hex()                       # doctest: +SKIP
+        '#EA7C20'
     """
 
     def __init__(self, red, green, blue):
@@ -301,9 +313,9 @@ class SoftColor(SoftObject):
             comma after the first element, or Python will ignore
             the parentheses. ::
 
-                color = soft.SoftColor(([(0, 1), (255, 10)],),
-                                       ([(0, 1), (255, 10)],),
-                                       ([(0, 1), (255, 10)],))
+                color = SoftColor(([(0, 1), (255, 10)],),
+                                  ([(0, 1), (255, 10)],),
+                                  ([(0, 1), (255, 10)],))
         """
         if isinstance(red, tuple):
             try:
@@ -372,6 +384,14 @@ class SoftColor(SoftObject):
             color (int):
 
         Returns: int
+
+        Example:
+            >>> SoftColor._bound_color_value(-100)
+            0
+            >>> SoftColor._bound_color_value(200)
+            200
+            >>> SoftColor._bound_color_value(300)
+            255
         """
         if color < 0:
             return 0
@@ -391,6 +411,12 @@ class SoftColor(SoftObject):
             color (tuple): An rgb color tuple of form: (int, int, int)
 
         Returns: string
+
+        Example:
+            >>> SoftColor.rgb_to_hex((0, 0, 0))
+            '#000000'
+            >>> SoftColor.rgb_to_hex((255, 255, 255))
+            '#FFFFFF'
         """
         return '#{0:02x}{1:02x}{2:02x}'.format(
             cls._bound_color_value(color[0]),
@@ -403,6 +429,13 @@ class SoftColor(SoftObject):
 
         Returns:
             tuple(int, int, int): A ``(red, green, blue)`` tuple.
+
+        Example:
+            >>> color = SoftColor(([(0, 1), (255, 10)],),
+            ...                   ([(0, 1), (255, 10)],),
+            ...                   ([(0, 1), (255, 10)],))
+            >>> color.get()                                    # doctest: +SKIP
+            (234, 201, 243)
         """
         if isinstance(self.red, SoftInt):
             red = self.red.get()
@@ -426,5 +459,12 @@ class SoftColor(SoftObject):
 
         Returns:
             str: A hexademical color string
+
+        Example:
+            >>> color = SoftColor(([(0, 1), (255, 10)],),
+            ...                   ([(0, 1), (255, 10)],),
+            ...                   ([(0, 1), (255, 10)],))
+            >>> color.get_as_hex()                             # doctest: +SKIP
+            '#C8EABB'
         """
         return SoftColor.rgb_to_hex(self.get())

@@ -36,9 +36,11 @@ def _linear_interp(curve, test_x, round_result=False):
 
     Returns:
         float: The ``y`` value of the curve at ``test_x``
+        if ``round_result is False``
 
-        int: if ``round_result == True``, the ``y`` value of the curve at
-        ``test_x`` rounded to the nearest whole number
+        int: if ``round_result is True`` or the result is a whole number,
+        the ``y`` value of the curve at ``test_x`` rounded to the
+        nearest whole number.
 
     Example:
         >>> curve = [(0, 0), (2, 1)]
@@ -64,7 +66,10 @@ def _linear_interp(curve, test_x, round_result=False):
             if round_result:
                 return int(round(result))
             else:
-                return result
+                if result.is_integer():
+                    return int(result)
+                else:
+                    return result
     else:
         raise ProbabilityUndefinedError
 
@@ -84,6 +89,13 @@ def _point_under_curve(curve, point):
 
     Returns:
         bool: Whether the point is under the curve
+
+    Example:
+        >>> curve = [(0, 0), (2, 4), (4, 0)]
+        >>> _point_under_curve(curve, (2, 1))
+        True
+        >>> _point_under_curve(curve, (3, 10))
+        False
     """
     try:
         return _linear_interp(curve, point[0]) > point[1]
@@ -106,6 +118,14 @@ def _clamp_value(value, minimum, maximum):
 
     Returns:
         float or int: the clamped value
+
+    Example:
+        >>> _clamp_value(3, 5, 10)
+        5
+        >>> _clamp_value(11, 5, 10)
+        10
+        >>> _clamp_value(8, 5, 10)
+        8
 
     Raises:
         ValueError: if maximum < minimum
@@ -130,6 +150,12 @@ def _normal_function(x, mean, variance):
         x (float): Value to feed into the normal function
         mean (float): Mean of the normal function
         variance (float): Variance of the normal function
+
+    Returns: float
+
+    Example:
+        >>> round(_normal_function(0, 0, 5), 4)
+        0.1784
     """
     e_power = -1 * (((x - mean) ** 2) / (2 * variance))
     return (1 / math.sqrt(2 * variance * math.pi)) * (math.e ** e_power)
@@ -186,6 +212,11 @@ def bound_weights(weights, minimum=None, maximum=None):
         list: A list of 2-tuples of form ``(float, float)``,
         the bounded weight list.
 
+    Example:
+        >>> weights = [(0, 0), (2, 2), (4, 0)]
+        >>> bound_weights(weights, 1, 3)
+        [(1, 1), (2, 2), (3, 1)]
+
     Raises:
         ValueError: if ``maximum < minimum``
     """
@@ -237,9 +268,19 @@ def normal_distribution(mean, variance,
         list: a list of ``(float, float)`` weight tuples
         approximating a normal distribution.
 
+    Example:
+        >>> weights = normal_distribution(10, 3,
+        ...                               minimum=0, maximum=20,
+        ...                               weight_count=5)
+        >>> rounded_weights = [(round(value, 2), round(strength, 2))
+        ...                    for value, strength in weights]
+        >>> rounded_weights
+        [(1.34, 0.0), (4.8, 0.0), (8.27, 0.14), (11.73, 0.14), (15.2, 0.0)]
+
     Raises:
         ValueError: ``if maximum < minimum``
         TypeError: if both ``minimum`` and ``maximum`` are ``None``
+
     """
     # Pin 0 to +- 5 sigma as bounds, or minimum and maximum
     # if they cross +/- sigma
@@ -271,6 +312,14 @@ def prob_bool(probability):
 
     Returns:
         bool: ``True`` or ``False`` depending on ``probability``.
+
+    Example:
+        >>> prob_bool(0.9)                                     # doctest: +SKIP
+        # Usually will be...
+        True
+        >>> prob_bool(0.1)                                     # doctest: +SKIP
+        # Usually will be...
+        False
     """
     return random.uniform(0, 1) < probability
 
@@ -284,6 +333,14 @@ def percent_possible(percent):
 
     Returns:
         bool: Either ``True`` or ``False`` depending on ``percent``
+
+    Example:
+        >>> percent_possible(90)                               # doctest: +SKIP
+        # Usually will be...
+        True
+        >>> percent_possible(10)                               # doctest: +SKIP
+        # Usually will be...
+        False
     """
     return random.uniform(0, 100) < percent
 
@@ -303,6 +360,14 @@ def pos_or_neg(value, prob_pos=0.5):
 
     Returns:
         int or float: ``value`` either positive or negative
+
+    Example:
+        >>> pos_or_neg(42, 0.9)                                # doctest: +SKIP
+        # Usually will be...
+        42
+        >>> pos_or_neg(42, 0.1)                                # doctest: +SKIP
+        # Usually will be...
+        -42
     """
     return abs(value) * pos_or_neg_1(prob_pos)
 
@@ -319,6 +384,14 @@ def pos_or_neg_1(prob_pos=0.5):
 
     Returns:
         int: either ``1`` or ``-1``
+
+    Example:
+        >>> pos_or_neg_1(0.9)                                  # doctest: +SKIP
+        # Usually will be...
+        1
+        >>> pos_or_neg_1(0.1)                                  # doctest: +SKIP
+        # Usually will be...
+        -1
     """
     if random.uniform(0, 1) < prob_pos:
         return 1
@@ -350,6 +423,12 @@ def weighted_rand(weights, round_result=False):
         float: A weighted random number
 
         int: A weighted random number rounded to the nearest ``int``
+
+    Example:
+        >>> weighted_rand([(-3, 4), (0, 10), (5, 1)])          # doctest: +SKIP
+        -0.650612268193731
+        >>> weighted_rand([(-3, 4), (0, 10), (5, 1)])          # doctest: +SKIP
+        -2
     """
     # If just one weight is passed, simply return the weight's name
     if len(weights) == 1:
@@ -380,7 +459,7 @@ def weighted_rand(weights, round_result=False):
         warnings.warn(
              'Point not being found in weighted_rand() after 500000 '
              'attempts, defaulting to a random weight point. '
-             'If this happens often, it is probably a bug...')
+             'If this happens often, it is probably a bug.')
         return random.choice(weights)[0]
 
 
@@ -405,9 +484,19 @@ def weighted_choice(weights, as_index_and_value_tuple=False):
         Any: If ``as_index_and_value_tuple is False``, any one of the items in
         the outcomes of ``weights``
 
-        tuple (int, Any): If ``as_index_and_value_tuple == True``,
+        tuple (int, Any): If ``as_index_and_value_tuple is True``,
         a 2-tuple of form ``(int, Any)`` corresponding to ``(index, value)``.
         the index as well as value of the item that was picked.
+
+    Example:
+        >>> choices = [('choice one', 10), ('choice two', 3)]
+        >>> weighted_choice(choices)                           # doctest: +SKIP
+        # Often will be...
+        'choice one'
+        >>> weighted_choice(choices,
+        ...                 as_index_and_value_tuple=True)     # doctest: +SKIP
+        # Often will be...
+        (0, 'choice one')
 
     Raises:
         ValueError: if ``weights`` is an empty list.

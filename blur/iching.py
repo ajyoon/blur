@@ -8,14 +8,12 @@ All data and probabilities taken from Wikipedia at:
 """
 
 from __future__ import unicode_literals
-
 import random
-import warnings
 
 from blur.rand import weighted_choice
 
 hexagrams = {
-    # number: (character, name, english_name)
+    # number: (hexagram_symbol, chinese_character, english_translation)
     1:  ('䷀', '乾',   'Force'),
     2:  ('䷁', '坤',   'Field'),
     3:  ('䷂', '屯',   'Sprouting'),
@@ -83,7 +81,7 @@ hexagrams = {
 }
 
 # Mapping of the different combinations Yin (0) and Yang (1) to
-#   their appropriate hexagrams per the I Ching
+# their appropriate hexagrams per the I Ching
 _hexagram_dict = {
     (1, 1, 1,   1, 1, 1): 1,
     (1, 1, 1,   0, 0, 0): 11,
@@ -189,6 +187,37 @@ def get_hexagram(method='THREE COIN'):
         'moving-to' hexagram.
 
     Raises: ValueError if ``method`` is invalid
+
+    Examples:
+
+    The function being used alone: ::
+
+        >>> get_hexagram(method='THREE COIN')                  # doctest: +SKIP
+        # Might be...
+        (55, 2)
+        >>> get_hexagram(method='YARROW')                      # doctest: +SKIP
+        # Might be...
+        (41, 27)
+        >>> get_hexagram(method='NAIVE')                       # doctest: +SKIP
+        # Might be...
+        26
+
+    Usage in combination with hexagram lookup: ::
+
+        >>> grams = get_hexagram()
+        >>> grams                                              # doctest: +SKIP
+        (47, 42)
+        # unpack hexagrams for convenient reference
+        >>> initial, moving_to = grams
+        >>> hexagrams[initial]                                 # doctest: +SKIP
+        ('䷮', '困', 'Confining')
+        >>> hexagrams[moving_to]                               # doctest: +SKIP
+        ('䷩', '益', 'Augmenting')
+        >>> print('{} moving to {}'.format(
+        ...     hexagrams[initial][2],
+        ...     hexagrams[moving_to][2])
+        ...     )                                              # doctest: +SKIP
+        Confining moving to Augmenting
     """
     if method == 'THREE COIN':
         weights = [('MOVING YANG', 2),

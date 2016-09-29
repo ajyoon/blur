@@ -42,16 +42,16 @@ def _linear_interp(curve, test_x, round_result=False):
         the ``y`` value of the curve at ``test_x`` rounded to the
         nearest whole number.
 
+    Raises:
+        ProbabilityUndefinedError: if ``test_x`` is out of the
+            domain of ``curve``
+
     Example:
         >>> curve = [(0, 0), (2, 1)]
         >>> _linear_interp(curve, 0.5)
         0.25
         >>> _linear_interp(curve, 0.5, round_result=True)
         0
-
-    Raises:
-        ProbabilityUndefinedError: if ``test_x`` is out of the
-            domain of ``curve``
     """
     index = 0
     for index in range(len(curve) - 1):
@@ -119,6 +119,9 @@ def _clamp_value(value, minimum, maximum):
     Returns:
         float or int: the clamped value
 
+    Raises:
+        ValueError: if maximum < minimum
+
     Example:
         >>> _clamp_value(3, 5, 10)
         5
@@ -126,9 +129,6 @@ def _clamp_value(value, minimum, maximum):
         10
         >>> _clamp_value(8, 5, 10)
         8
-
-    Raises:
-        ValueError: if maximum < minimum
     """
     if maximum < minimum:
         raise ValueError
@@ -212,13 +212,13 @@ def bound_weights(weights, minimum=None, maximum=None):
         list: A list of 2-tuples of form ``(float, float)``,
         the bounded weight list.
 
+    Raises:
+        ValueError: if ``maximum < minimum``
+
     Example:
         >>> weights = [(0, 0), (2, 2), (4, 0)]
         >>> bound_weights(weights, 1, 3)
         [(1, 1), (2, 2), (3, 1)]
-
-    Raises:
-        ValueError: if ``maximum < minimum``
     """
     # Copy weights to avoid side-effects
     bounded_weights = weights[:]
@@ -268,6 +268,10 @@ def normal_distribution(mean, variance,
         list: a list of ``(float, float)`` weight tuples
         approximating a normal distribution.
 
+    Raises:
+        ValueError: ``if maximum < minimum``
+        TypeError: if both ``minimum`` and ``maximum`` are ``None``
+
     Example:
         >>> weights = normal_distribution(10, 3,
         ...                               minimum=0, maximum=20,
@@ -276,11 +280,6 @@ def normal_distribution(mean, variance,
         ...                    for value, strength in weights]
         >>> rounded_weights
         [(1.34, 0.0), (4.8, 0.0), (8.27, 0.14), (11.73, 0.14), (15.2, 0.0)]
-
-    Raises:
-        ValueError: ``if maximum < minimum``
-        TypeError: if both ``minimum`` and ``maximum`` are ``None``
-
     """
     # Pin 0 to +- 5 sigma as bounds, or minimum and maximum
     # if they cross +/- sigma
@@ -497,11 +496,6 @@ def weighted_choice(weights, as_index_and_value_tuple=False):
         ...                 as_index_and_value_tuple=True)     # doctest: +SKIP
         # Often will be...
         (0, 'choice one')
-
-    Raises:
-        ValueError: if ``weights`` is an empty list.
-        ProbabilityUndefinedError: if no item weights in
-            ``weights`` are greater than 0.
     """
     if not len(weights):
         raise ValueError('List passed to weighted_choice() cannot be empty.')
@@ -545,16 +539,16 @@ def weighted_order(weights):
     A list weights with uniform strengths is equivalent to calling
     ``random.shuffle()`` on the list of items.
 
-    *All* weight values must be greater than 0
-    or a ``ProbabilityUndefinedError`` will be raised.
+    If any weight strengths are ``<= 0``, a ``ProbabilityUndefinedError``
+    is be raised.
 
     Passing an empty list will return an empty list.
 
     Args:
-        weights (list): is a list of tuples of form ``(Any, float or int)``
+        weights (list): a list of tuples of form ``(Any, float or int)``
             corresponding to ``(item, strength)``. The output list is
             constructed by repeatedly calling ``weighted_choice()`` on
-            the weights, adding items to the end of the list
+            the weights, appending items to the output list
             as they are picked.
 
     Returns:
@@ -562,6 +556,13 @@ def weighted_order(weights):
 
     Raises:
         ProbabilityUndefinedError: if any weight's strength is below 0.
+
+    Example:
+        >>> weights = [('Probably Earlier', 100),
+        ...            ('Probably Middle', 20),
+        ...            ('Probably Last', 1)]
+        >>> weighted_order(weights)                            # doctest: +SKIP
+        ['Probably Earlier', 'Probably Middle', 'Probably Last']
     """
     if not len(weights):
         return []

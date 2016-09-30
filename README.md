@@ -83,43 +83,8 @@ You can read the latest (unstable) documentation for *blur* online [here](http:/
 
 ***
 
-#### Contributing
+### Contributing
 Feature requests, bug reports, and pull requests are all welcomed!
 Head on over to https://github.com/ajyoon/blur and get in touch.
 
-
-#### Testing
-The test suite is located in the `tests` directory. Travis CI has been
-configured to automatically run these tests on any proposed changes to the
-upstream git repository, but you can run these tests yourself as well.
-Travis tests run on `nose`, but any testing framework compatible
-with the built-in Python `Unittest` module should work. To get `nose`
-you can install it with `pip`:
-
-    pip install nose
-
-To run the tests, navigate to `tests` and run nose:
-
-    cd blur/tests
-    nosetests *.py
-
-or alternatively:
-
-    cd blur
-    nosetests tests/*.py
-
-#### Building the documentation
-To get the requirements to build the documentation, navigate to
-the docs folder and install from doc_requirements.txt
-
-    cd blur/doc
-    pip install -r doc_requirements.txt
-
-To build, simply navigate to the ``doc`` folder and call ``make html``
-
-    cd blur/doc
-    make html
-
-###### TODO:
-* Add examples
-* Refine documentation
+See CONTRIBUTING.md for help getting started.

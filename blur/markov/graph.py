@@ -1,4 +1,15 @@
-"""A module containing a model Markov graph."""
+"""A module containing a model Markov graph.
+::
+    >>> from blur.markov.nodes import Node
+    >>> node_1 = Node('One')
+    >>> node_2 = Node('Two')
+    >>> node_1.add_link(node_1, 5)
+    >>> node_1.add_link(node_2, 2)
+    >>> node_2.add_link(node_1, 1)
+    >>> graph = Graph([node_1, node_2])
+    >>> [graph.pick().get_value() for i in range(10)]        # doctest: +SKIP
+    ['One', 'One', 'One', 'One', 'One', 'One', 'Two', 'One', 'One', 'One']
+"""
 
 from __future__ import division
 import random
@@ -25,9 +36,9 @@ class Graph:
                 populate the network with. To populate the network after
                 initialization, use the ``Graph.add_nodes()`` method.
 
-        Notes:
-            The nodes passed here are not copied when placing into
-            the graph: the passed nodes are used in the object.
+        Warning:
+            Nodes are not copied when placed into the graph:
+            the passed nodes are used in the object.
             Side effects may occur if node-altering methods are called,
             such as ``Graph.apply_noise()`` or ``Graph.feather_links()``.
             Handle with care if using the same ``Node`` in multiple contexts.
@@ -53,6 +64,28 @@ class Graph:
             kill_node (Node): node to be deleted
 
         Returns: None
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_3 = Node('Three')
+            >>> node_1.add_link(node_3, 7)
+            >>> node_2.add_link(node_1, 1)
+            >>> node_2.add_link(node_2, 3)
+            >>> node_3.add_link(node_2, 5)
+            >>> graph = Graph([node_1, node_2, node_3])
+            >>> print([node.name for node in graph.node_list])
+            ['One', 'Two', 'Three']
+            >>> graph.merge_nodes(node_2, node_3)
+            >>> print([node.name for node in graph.node_list])
+            ['One', 'Two']
+            >>> for link in graph.node_list[1].link_list:
+            ...     print(link.target.name, link.weight)
+            One 1
+            Two 8
+            >>> for link in graph.node_list[0].link_list:
+            ...     print(link.target.name, link.weight)
         """
         # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
@@ -76,12 +109,26 @@ class Graph:
 
         Returns: None
 
-        Notes:
-            The nodes passed here are not copied when placing into
-            the graph: the passed nodes are used in the object.
-            Side effects may occur if node-altering methods are called,
-            such as ``Graph.apply_noise()`` or ``Graph.feather_links()``.
-            Handle with care if using the same ``Node`` in multiple contexts.
+        Examples:
+
+        Adding one node: ::
+
+            >>> from blur.markov.nodes import Node
+            >>> graph = Graph()
+            >>> node_1 = Node('One')
+            >>> graph.add_nodes(node_1)
+            >>> print([node.name for node in graph.node_list])
+            ['One']
+
+        Adding multiple nodes at a time in a list: ::
+
+            >>> from blur.markov.nodes import Node
+            >>> graph = Graph()
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> graph.add_nodes([node_1, node_2])
+            >>> print([node.name for node in graph.node_list])
+            ['One', 'Two']
         """
         # Generalize nodes to a list
         if not isinstance(nodes, list):
@@ -106,6 +153,22 @@ class Graph:
                 to themselves
 
         Returns: None
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_2, 1)
+            >>> node_2.add_link(node_1, 1)
+            >>> graph = Graph([node_1, node_2])
+            >>> for link in graph.node_list[0].link_list:
+            ...     print(link.target.name, link.weight)
+            Two 1
+            >>> graph.feather_links(include_self=True)
+            >>> for link in graph.node_list[0].link_list:
+            ...     print(link.target.name, link.weight)
+            Two 1
+            One 0.01
         """
         def feather_node(node):
             node_weight_sum = sum(l.weight for l in node.link_list)
@@ -147,6 +210,24 @@ class Graph:
                 to be applied if ``noise_weights`` is not set
 
         Returns: None
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_1, 3)
+            >>> node_1.add_link(node_2, 5)
+            >>> node_2.add_link(node_1, 1)
+            >>> graph = Graph([node_1, node_2])
+            >>> for link in graph.node_list[0].link_list:
+            ...     print(link.target.name, link.weight)
+            One 3
+            Two 5
+            >>> graph.apply_noise()
+            >>> for link in graph.node_list[0].link_list:
+            ...     print(link.target.name, link.weight)       # doctest: +SKIP
+            One 3.154
+            Two 5.321
         """
         # Main node loop
         for node in self.node_list:
@@ -174,6 +255,14 @@ class Graph:
             Node: A node with name ``name`` if it was found
 
             None: If no node exists with name ``name``
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> graph = Graph([node_1])
+            >>> found_node = graph.find_node_by_name('One')
+            >>> found_node == node_1
+            True
         """
         try:
             return next(n for n in self.node_list if n.name == name)
@@ -190,6 +279,14 @@ class Graph:
             node (Node): The node to be removed
 
         Returns: None
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> graph = Graph([node_1])
+            >>> graph.remove_node(node_1)
+            >>> len(graph.node_list)
+            0
         """
         if node not in self.node_list:
             return
@@ -207,6 +304,14 @@ class Graph:
             name (Any): The name to find and delete owners of.
 
         Returns: None
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> graph = Graph([node_1])
+            >>> graph.remove_node_by_name('One')
+            >>> len(graph.node_list)
+            0
         """
         self.node_list = [node for node in self.node_list if node.name != name]
         # Remove links pointing to the deleted node
@@ -222,6 +327,15 @@ class Graph:
             name (Any): The name to find in ``self.node_list``
 
         Returns: bool
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> graph = Graph([node_1])
+            >>> graph.has_node_with_name('One')
+            True
+            >>> graph.has_node_with_name('Foo')
+            False
         """
         for node in self.node_list:
             if node.name == name:
@@ -244,6 +358,17 @@ class Graph:
             starting_node (Node): ``Node`` to pick from.
 
         Returns: Node
+
+        Example:
+            >>> from blur.markov.nodes import Node
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_1, 5)
+            >>> node_1.add_link(node_2, 2)
+            >>> node_2.add_link(node_1, 1)
+            >>> graph = Graph([node_1, node_2])
+            >>> [graph.pick().get_value() for i in range(5)]   # doctest: +SKIP
+            ['One', 'One', 'Two', 'One', 'One']
         """
         if starting_node is None:
             if self.current_node is None:
@@ -265,7 +390,7 @@ class Graph:
                     group_marker_opening='<<',
                     group_marker_closing='>>'):
         """
-        Read a string and generate a ``Graph`` object based on it.
+        Read a string and derivce of ``Graph`` from it.
 
         Words and punctuation marks are made into nodes.
 
@@ -317,6 +442,12 @@ class Graph:
                 behavior with the regex pattern.
 
         Returns: Graph
+
+        Example:
+            >>> graph = Graph.from_string('i have nothing to say and '
+            ...                           'i am saying it and that is poetry.')
+            >>> ' '.join(graph.pick().name for i in range(8))  # doctest: +SKIP
+            'using chance algorithmic in algorithmic art easier blur'
         """
         if distance_weights is None:
             distance_weights = {1: 1}
@@ -383,61 +514,28 @@ class Graph:
                   group_marker_opening='<<',
                   group_marker_closing='>>'):
         """
-        Read a string from a file and generate a Graph object based on it.
-
-        Words and punctuation marks are made into nodes.
-
-        Punctuation marks are split into separate nodes unless they fall
-        between other non-punctuation marks. ``'hello, world'`` is split
-        into ``'hello'``, ``','``, and ``'world'``, while ``'who's there?'``
-        is split into ``"who's"``, ``'there'``, and ``'?'``.
-
-        To group arbitrary characters together into a single node
-        (e.g. to make ``'hello, world!'``), surround the
-        text in question with ``group_marker_opening`` and
-        ``group_marker_closing``. With the default value, this
-        would look like ``'<<hello, world!>>'``. It is recommended that
-        the group markers not appear anywhere in the source text where they
-        aren't meant to act as such to prevent unexpected behavior.
-
-        The exact regex for extracting nodes is defined by: ::
-
-            expression = r'{0}(.+){1}|([^\w\s]+)\B|([\S]+\b)'.format(
-                ''.join('\\' + c for c in group_marker_opening),
-                ''.join('\\' + c for c in group_marker_closing)
-            )
+        Read a string from a file and derive a ``Graph`` from it.
 
         This is a convenience function for opening a file and passing its
-        contents to Graph.from_string()
+        contents to ``Graph.from_string()`` (see that for more detail)
 
         Args:
-            source (str): the string to derive the graph from
+            source (str): the file to read and derive the graph from
             distance_weights (dict): dict of relative indices corresponding
-                with word weights. For example, if a dict entry is ``1: 1000``
-                this means that every word is linked to the word which follows
-                it with a weight of 1000. ``-4: 350`` would mean that every
-                word is linked to the 4th word behind it with a weight of 350.
-                A key of ``0`` refers to the weight words get
-                pointing to themselves. Keys pointing beyond the edge of the
-                word list will wrap around the list.
-
-                The default value for ``distance_weights`` is ``{1: 1}``.
-                This means that each word gets equal weight to whatever
-                word follows it. Consequently, if this default value is
-                used and ``merge_same_words`` is ``False``, the resulting
-                graph behavior will simply move linearly through the
-                source, wrapping at the end to the beginning.
-
+                with word weights. See ``Graph.from_string`` for more detail.
             merge_same_words (bool): whether nodes which have the same value
                 should be merged or not.
             group_marker_opening (str): The string used to mark the beginning
                 of word groups.
             group_marker_closing (str): The string used to mark the end
-                of word groups. It is strongly recommended that this be
-                different than ``group_marker_opening`` to prevent unexpected
-                behavior with the regex pattern.
+                of word groups.
 
         Returns: Graph
+
+        Example:
+            >>> graph = Graph.from_file('cage.txt')            # doctest: +SKIP
+            >>> ' '.join(graph.pick().name for i in range(8))  # doctest: +SKIP
+            'poetry i have nothing to say and i'
         """
         source_string = open(source, 'r').read()
         return cls.from_string(source_string,

@@ -1,5 +1,5 @@
 """
-Classes for use in ``Graph`` 's.
+Node and Link classes for use in markov graphs
 
 Besides initializing ``Node`` 's, you will rarely need
 to directly interact with these objects, as ``Graph`` provides
@@ -58,6 +58,18 @@ class Node:
                 ``link_in_other.target.name == link_in_self.target.name``
 
         Returns: None
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_1, 1)
+            >>> node_1.add_link(node_2, 3)
+            >>> node_2.add_link(node_1, 4)
+            >>> node_1.merge_links_from(node_2)
+            >>> for link in node_1.link_list:
+            ...     print(link.target.name, link.weight)
+            One 5
+            Two 3
         """
         for other_link in other_node.link_list:
             for existing_link in self.link_list:
@@ -85,6 +97,15 @@ class Node:
             Link: An existing link pointing to ``target_node`` if found
 
             None: If no such link exists
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_2, 1)
+            >>> link_1 = node_1.link_list[0]
+            >>> found_link = node_1.find_link(node_2)
+            >>> found_link == link_1
+            True
         """
         try:
             return next(l for l in self.link_list if l.target == target_node)
@@ -103,6 +124,14 @@ class Node:
             weight (int or float): weight for the new link(s)
 
         Returns: None
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link(node_2, 1)
+            >>> new_link = node_1.link_list[0]
+            >>> print(new_link.target.name, new_link.weight)
+            Two 1
         """
         # Generalize targets to a list to simplify code
         if not isinstance(targets, list):
@@ -129,6 +158,14 @@ class Node:
             weight (int or float): The weight of the newly created ``Link``
 
         Returns: None
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_link_to_self(node_2, 5)
+            >>> new_link = node_2.link_list[0]
+            >>> print(new_link.target.name, new_link.weight)
+            One 5
         """
         # Generalize source to a list to simplify code
         if not isinstance(source, list):
@@ -149,6 +186,17 @@ class Node:
             weight (int or float):
 
         Returns: None
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_2 = Node('Two')
+            >>> node_1.add_reciprocal_link(node_2, 5)
+            >>> new_link_1 = node_1.link_list[0]
+            >>> new_link_2 = node_2.link_list[0]
+            >>> print(new_link_1.target.name, new_link_1.weight)
+            Two 5
+            >>> print(new_link_2.target.name, new_link_2.weight)
+            One 5
         """
         # Generalize ``target`` to a list
         if not isinstance(target, list):
@@ -164,6 +212,13 @@ class Node:
         Remove any link in ``self.link_list`` whose ``target`` is ``self``.
 
         Returns: None
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_1.add_link(node_1, 5)
+            >>> node_1.remove_links_to_self()
+            >>> len(node_1.link_list)
+            0
         """
         self.link_list = [link for link in self.link_list if
                           link.target != self]
@@ -179,5 +234,10 @@ class Node:
         return a ``SoftColor.get()`` value.
 
         Returns: Any
+
+        Example:
+            >>> node_1 = Node('One')
+            >>> node_1.get_value()
+            'One'
         """
         return self.name

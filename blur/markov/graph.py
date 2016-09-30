@@ -1,6 +1,6 @@
 """A module containing a model Markov graph.
 ::
-    >>> from blur.markov.nodes import Node
+    >>> from blur.markov.node import Node
     >>> node_1 = Node('One')
     >>> node_2 = Node('Two')
     >>> node_1.add_link(node_1, 5)
@@ -16,7 +16,7 @@ import random
 import re
 
 from blur.rand import weighted_choice, weighted_rand
-from . import nodes
+from blur.markov.node import Node
 
 
 class Graph:
@@ -66,7 +66,7 @@ class Graph:
         Returns: None
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
             >>> node_3 = Node('Three')
@@ -81,11 +81,9 @@ class Graph:
             >>> print([node.name for node in graph.node_list])
             ['One', 'Two']
             >>> for link in graph.node_list[1].link_list:
-            ...     print(link.target.name, link.weight)
+            ...     print('{} {}'.format(link.target.name, link.weight))
             One 1
             Two 8
-            >>> for link in graph.node_list[0].link_list:
-            ...     print(link.target.name, link.weight)
         """
         # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
@@ -113,7 +111,7 @@ class Graph:
 
         Adding one node: ::
 
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> graph = Graph()
             >>> node_1 = Node('One')
             >>> graph.add_nodes(node_1)
@@ -122,7 +120,7 @@ class Graph:
 
         Adding multiple nodes at a time in a list: ::
 
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> graph = Graph()
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
@@ -155,18 +153,18 @@ class Graph:
         Returns: None
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
             >>> node_1.add_link(node_2, 1)
             >>> node_2.add_link(node_1, 1)
             >>> graph = Graph([node_1, node_2])
             >>> for link in graph.node_list[0].link_list:
-            ...     print(link.target.name, link.weight)
+            ...     print('{} {}'.format(link.target.name, link.weight))
             Two 1
             >>> graph.feather_links(include_self=True)
             >>> for link in graph.node_list[0].link_list:
-            ...     print(link.target.name, link.weight)
+            ...     print('{} {}'.format(link.target.name, link.weight))
             Two 1
             One 0.01
         """
@@ -212,7 +210,7 @@ class Graph:
         Returns: None
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
             >>> node_1.add_link(node_1, 3)
@@ -220,12 +218,13 @@ class Graph:
             >>> node_2.add_link(node_1, 1)
             >>> graph = Graph([node_1, node_2])
             >>> for link in graph.node_list[0].link_list:
-            ...     print(link.target.name, link.weight)
+            ...     print('{} {}'.format(link.target.name, link.weight))
             One 3
             Two 5
             >>> graph.apply_noise()
             >>> for link in graph.node_list[0].link_list:
-            ...     print(link.target.name, link.weight)       # doctest: +SKIP
+            ...     print('{} {}'.format(
+            ...         link.target.name, link.weight))        # doctest: +SKIP
             One 3.154
             Two 5.321
         """
@@ -257,7 +256,7 @@ class Graph:
             None: If no node exists with name ``name``
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
             >>> found_node = graph.find_node_by_name('One')
@@ -281,7 +280,7 @@ class Graph:
         Returns: None
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
             >>> graph.remove_node(node_1)
@@ -306,7 +305,7 @@ class Graph:
         Returns: None
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
             >>> graph.remove_node_by_name('One')
@@ -329,7 +328,7 @@ class Graph:
         Returns: bool
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
             >>> graph.has_node_with_name('One')
@@ -360,7 +359,7 @@ class Graph:
         Returns: Node
 
         Example:
-            >>> from blur.markov.nodes import Node
+            >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
             >>> node_1.add_link(node_1, 5)
@@ -477,25 +476,25 @@ class Graph:
             # Create nodes for every unique word
             temp_node_list = []
             for word in words:
-                if word not in (node.name for node in temp_node_list):
-                    temp_node_list.append(nodes.Node(word))
+                if word not in (n.name for n in temp_node_list):
+                    temp_node_list.append(Node(word))
             # Loop through words, attaching links to nodes which correspond
             # to the current word. Ensure links also point to valid
             # corresponding nodes in the node list.
             for i, word in enumerate(words):
                 matching_node = next(
-                    (node for node in temp_node_list if node.name == word))
+                    (n for n in temp_node_list if n.name == word))
                 for key, weight in sorted_weights_list:
                     # Wrap the index of edge items
                     wrapped_index = (key + i) % len(words)
                     target_word = words[wrapped_index]
                     matching_target_node = next(
-                        (node for node in temp_node_list
-                         if node.name == target_word))
+                        (n for n in temp_node_list
+                         if n.name == target_word))
                     matching_node.add_link(matching_target_node, weight)
         else:
             # Create one node for every (not necessarily unique) word.
-            temp_node_list = [nodes.Node(word) for word in words]
+            temp_node_list = [Node(word) for word in words]
             for i, node in enumerate(temp_node_list):
                 for key, weight in sorted_weights_list:
                     # Wrap the index of edge items

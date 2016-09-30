@@ -67,7 +67,7 @@ class Node:
             >>> node_2.add_link(node_1, 4)
             >>> node_1.merge_links_from(node_2)
             >>> for link in node_1.link_list:
-            ...     print(link.target.name, link.weight)
+            ...     print('{} {}'.format(link.target.name, link.weight))
             One 5
             Two 3
         """
@@ -130,7 +130,7 @@ class Node:
             >>> node_2 = Node('Two')
             >>> node_1.add_link(node_2, 1)
             >>> new_link = node_1.link_list[0]
-            >>> print(new_link.target.name, new_link.weight)
+            >>> print('{} {}'.format(new_link.target.name, new_link.weight))
             Two 1
         """
         # Generalize targets to a list to simplify code
@@ -164,7 +164,7 @@ class Node:
             >>> node_2 = Node('Two')
             >>> node_1.add_link_to_self(node_2, 5)
             >>> new_link = node_2.link_list[0]
-            >>> print(new_link.target.name, new_link.weight)
+            >>> print('{} {}'.format(new_link.target.name, new_link.weight))
             One 5
         """
         # Generalize source to a list to simplify code
@@ -193,9 +193,11 @@ class Node:
             >>> node_1.add_reciprocal_link(node_2, 5)
             >>> new_link_1 = node_1.link_list[0]
             >>> new_link_2 = node_2.link_list[0]
-            >>> print(new_link_1.target.name, new_link_1.weight)
+            >>> print('{} {}'.format(new_link_1.target.name,
+            ...                      new_link_1.weight))
             Two 5
-            >>> print(new_link_2.target.name, new_link_2.weight)
+            >>> print('{} {}'.format(new_link_2.target.name,
+            ...                      new_link_2.weight))
             One 5
         """
         # Generalize ``target`` to a list

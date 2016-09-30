@@ -2,6 +2,7 @@
 ---
 ### 0.4 (dev)
 
+* `markov.nodes` is now named `markov.node`
 * `SoftColor.__init__()` now raises a `TypeError` if invalid arguments
   are passed to it for `red`, `green`, or `blue`.
 * When called with neither `minimum` nor `maximum`,

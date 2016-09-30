@@ -1,30 +1,30 @@
-import os
 import unittest
 
-from blur.markov import graph, nodes
+from blur.markov.graph import Graph
+from blur.markov.node import Node, Link
 
 
 class TestGraph(unittest.TestCase):
     def setUp(self):
-        self.test_graph = graph.Graph()
-        self.node_1 = nodes.Node('Node 1')
-        self.node_2 = nodes.Node('Node 2')
-        self.node_3 = nodes.Node('Node 3')
+        self.test_graph = Graph()
+        self.node_1 = Node('Node 1')
+        self.node_2 = Node('Node 2')
+        self.node_3 = Node('Node 3')
         self.test_graph.node_list.extend([
             self.node_1,
             self.node_2,
             self.node_3])
-        self.node_1.link_list.append(nodes.Link(self.node_2, 234))
-        self.node_1.link_list.append(nodes.Link(self.node_3, 375))
-        self.node_2.link_list.append(nodes.Link(self.node_1, 124))
-        self.node_2.link_list.append(nodes.Link(self.node_3, 247))
-        self.node_3.link_list.append(nodes.Link(self.node_1, 123))
-        self.node_3.link_list.append(nodes.Link(self.node_2, 234))
+        self.node_1.link_list.append(Link(self.node_2, 234))
+        self.node_1.link_list.append(Link(self.node_3, 375))
+        self.node_2.link_list.append(Link(self.node_1, 124))
+        self.node_2.link_list.append(Link(self.node_3, 247))
+        self.node_3.link_list.append(Link(self.node_1, 123))
+        self.node_3.link_list.append(Link(self.node_2, 234))
 
     def test_init_with_existing_list_of_nodes(self):
-        other_test_graph = graph.Graph([self.node_1,
-                                        self.node_2,
-                                        self.node_3])
+        other_test_graph = Graph([self.node_1,
+                                  self.node_2,
+                                  self.node_3])
         self.assertTrue(self.node_1 in other_test_graph.node_list)
         self.assertTrue(self.node_2 in other_test_graph.node_list)
         self.assertTrue(self.node_3 in other_test_graph.node_list)
@@ -37,12 +37,12 @@ class TestGraph(unittest.TestCase):
                          [(self.node_1, 123)])
 
     def test_add_nodes_with_one_node(self):
-        self.test_graph.add_nodes(nodes.Node('Node 4'))
+        self.test_graph.add_nodes(Node('Node 4'))
         self.assertEqual(len(self.test_graph.node_list), 4)
 
     def test_add_nodes_with_multiple_nodes(self):
-        self.test_graph.add_nodes([nodes.Node('Node 4'),
-                                   nodes.Node('Node 5')])
+        self.test_graph.add_nodes([Node('Node 4'),
+                                   Node('Node 5')])
         self.assertEqual(len(self.test_graph.node_list), 5)
 
     def test_feather_links_allowing_self_links(self):
@@ -101,7 +101,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(len(self.test_graph.node_list[1].link_list), 1)
 
     def test_remove_node_with_node_not_in_graph_does_nothing(self):
-        node_not_in_graph = nodes.Node('Node not in the graph')
+        node_not_in_graph = Node('Node not in the graph')
         self.test_graph.remove_node(node_not_in_graph)
         self.assertEqual(self.test_graph.node_list,
                          [self.node_1, self.node_2, self.node_3])
@@ -153,7 +153,7 @@ class TestGraph(unittest.TestCase):
         # Defaults:
         # distance_weights = {1: 1}
         # merge_same_words = False
-        built_graph = graph.Graph.from_string(source)
+        built_graph = Graph.from_string(source)
         # Should result in a graph with one node per word in the source string,
         # each with exactly one link pointing to the following word
         # (last word wrapping to the first)
@@ -211,7 +211,7 @@ class TestGraph(unittest.TestCase):
         source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
         # Default distance_weights = {1: 1}
-        built_graph = graph.Graph.from_string(source, merge_same_words=True)
+        built_graph = Graph.from_string(source, merge_same_words=True)
         # Should result in a graph with one node per word in the source string,
         # each with exactly one link pointing to the following word
         # (last word wrapping to the first)
@@ -234,9 +234,9 @@ class TestGraph(unittest.TestCase):
         source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
         weights = {-5: 1, 0: 2, 1: 3, 4: 5}
-        built_graph = graph.Graph.from_string(source,
-                                              distance_weights=weights,
-                                              merge_same_words=True)
+        built_graph = Graph.from_string(source,
+                                        distance_weights=weights,
+                                        merge_same_words=True)
         # Should result in a graph with one node per word in the source string,
         # each with exactly one link pointing to the following word
         # (last word wrapping to the first)
@@ -280,13 +280,12 @@ class TestGraph(unittest.TestCase):
 
     def test_from_string_with_punc_inside_word(self):
         source = ("I'm a human!")
-        built_graph = graph.Graph.from_string(source)
+        built_graph = Graph.from_string(source)
         self.assertEqual(len(built_graph.node_list), 4)
         self.assertEqual(built_graph.node_list[0].name,  "I'm")
         self.assertEqual(built_graph.node_list[1].name,  'a')
         self.assertEqual(built_graph.node_list[2].name,  'human')
         self.assertEqual(built_graph.node_list[3].name,  '!')
-
 
     def test_from_file_is_same_as_from_string_of_file_contents(self):
         # Defaults:
@@ -299,11 +298,11 @@ class TestGraph(unittest.TestCase):
         except FileNotFoundError:
             # Maybe we're testing from within the tests folder...
             file_name = 'test_source_text.txt'
-        graph_from_file = graph.Graph.from_file(file_name)
+        graph_from_file = Graph.from_file(file_name)
 
         source_as_string = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                             'and I am saying it and that is poetry.')
-        graph_from_string = graph.Graph.from_string(source_as_string)
+        graph_from_string = Graph.from_string(source_as_string)
         for file_node, string_node in zip(graph_from_file.node_list,
                                           graph_from_string.node_list):
             self.assertEqual(file_node.name, string_node.name)
@@ -316,16 +315,16 @@ class TestGraph(unittest.TestCase):
     def test_from_string_with_default_group_marker(self):
         source = ('I have <<nothing to say,.;!?:\\/\'"()[>>'
                   'and I am saying it and that is poetry.')
-        built_graph = graph.Graph.from_string(source)
+        built_graph = Graph.from_string(source)
         self.assertEqual(built_graph.node_list[2].name,
                          'nothing to say,.;!?:\\/\'"()[')
 
     def test_from_string_with_custom_group_marker(self):
         source = ('I have {nothing to say,.;!?:\\/\'"()[}'
                   'and I am saying it and that is poetry.')
-        built_graph = graph.Graph.from_string(source,
-                                              group_marker_opening='{',
-                                              group_marker_closing='}')
+        built_graph = Graph.from_string(source,
+                                        group_marker_opening='{',
+                                        group_marker_closing='}')
         self.assertEqual(built_graph.node_list[2].name,
                          'nothing to say,.;!?:\\/\'"()[')
 
@@ -335,8 +334,8 @@ class TestGraph(unittest.TestCase):
         except FileNotFoundError:
             # Maybe we're testing from within the tests folder...
             file_name = 'test_source_text_2.txt'
-        graph_from_file = graph.Graph.from_file(file_name,
-                                                group_marker_opening='{',
-                                                group_marker_closing='}')
+        graph_from_file = Graph.from_file(file_name,
+                                          group_marker_opening='{',
+                                          group_marker_closing='}')
         self.assertEqual(graph_from_file.node_list[2].name,
                          'nothing to say,.;!?:\\/\'"()[')

@@ -1,22 +1,22 @@
 import unittest
 
-from blur.markov import nodes
+from blur.markov.node import Node, Link
 
 
-class Link(unittest.TestCase):
+class TestLink(unittest.TestCase):
     def test_init(self):
-        node = nodes.Node('Test Node')
-        link = nodes.Link(node, 1)
+        node = Node('Test Node')
+        link = Link(node, 1)
         self.assertEqual(link.target, node)
         self.assertEqual(link.weight, 1)
 
 
-class Node(unittest.TestCase):
+class TestNode(unittest.TestCase):
     def setUp(self):
-        self.main_node = nodes.Node('Main Test Node')
-        self.other_node = nodes.Node('Other Test Node')
-        self.main_link = nodes.Link(self.other_node, 1)
-        self.other_link = nodes.Link(self.main_node, 1)
+        self.main_node = Node('Main Test Node')
+        self.other_node = Node('Other Test Node')
+        self.main_link = Link(self.other_node, 1)
+        self.other_link = Link(self.main_node, 1)
         self.main_node.link_list.append(self.main_link)
         self.other_node.link_list.append(self.other_link)
 
@@ -27,7 +27,7 @@ class Node(unittest.TestCase):
         self.assertEqual(self.main_node.link_list, [self.main_link])
 
     def test_merge_links_from(self):
-        extra_test_link = nodes.Link(self.other_node, 5)
+        extra_test_link = Link(self.other_node, 5)
         self.other_node.link_list.append(extra_test_link)
 
         self.main_node.merge_links_from(self.other_node)
@@ -42,8 +42,8 @@ class Node(unittest.TestCase):
         self.assertEqual(self.main_node.link_list[1].weight, 1)
 
     def test_merge_links_from_with_merge_same_name_targets(self):
-        new_node_with_existing_name = nodes.Node('Other Test Node')
-        extra_test_link = nodes.Link(new_node_with_existing_name, 5)
+        new_node_with_existing_name = Node('Other Test Node')
+        extra_test_link = Link(new_node_with_existing_name, 5)
         self.other_node.link_list.append(extra_test_link)
 
         self.main_node.merge_links_from(self.other_node,
@@ -62,12 +62,12 @@ class Node(unittest.TestCase):
         found_link = self.main_node.find_link(self.other_node)
         self.assertEqual(found_link, self.main_link)
         # Test target value not found should return None
-        unlinked_to_node = nodes.Node("Node that isn't linked to")
+        unlinked_to_node = Node("Node that isn't linked to")
         bad_found_link = self.main_node.find_link(unlinked_to_node)
         self.assertIsNone(bad_found_link)
 
     def test_add_link_with_one_target(self):
-        additional_node = nodes.Node('Additional Node')
+        additional_node = Node('Additional Node')
         LINK_WEIGHT = 10
         self.main_node.add_link(additional_node, weight=LINK_WEIGHT)
         # Check that the link was added and has the correct weight
@@ -76,8 +76,8 @@ class Node(unittest.TestCase):
         self.assertEqual(new_link.weight, LINK_WEIGHT)
 
     def test_add_link_with_multiple_targets(self):
-        additional_node_1 = nodes.Node('Additional Node 1')
-        additional_node_2 = nodes.Node('Additional Node 2')
+        additional_node_1 = Node('Additional Node 1')
+        additional_node_2 = Node('Additional Node 2')
         LINK_WEIGHT = 10
         self.main_node.add_link([additional_node_1, additional_node_2],
                                 weight=LINK_WEIGHT)
@@ -103,7 +103,7 @@ class Node(unittest.TestCase):
 
     def test_add_link_to_self_with_one_source(self):
         LINK_WEIGHT = 1
-        additional_node = nodes.Node('Additional Node')
+        additional_node = Node('Additional Node')
         self.main_node.add_link_to_self(additional_node, LINK_WEIGHT)
         # Check that the link was added and has the correct weight
         new_link = additional_node.link_list[-1]
@@ -112,8 +112,8 @@ class Node(unittest.TestCase):
 
     def test_add_link_to_self_with_multiple_sources(self):
         LINK_WEIGHT = 1
-        additional_node_1 = nodes.Node('Additional Node 1')
-        additional_node_2 = nodes.Node('Additional Node 2')
+        additional_node_1 = Node('Additional Node 1')
+        additional_node_2 = Node('Additional Node 2')
         self.main_node.add_link_to_self([additional_node_1, additional_node_2],
                                         LINK_WEIGHT)
         # Check that the link was added and has the correct weight
@@ -126,7 +126,7 @@ class Node(unittest.TestCase):
 
     def test_add_reciprocal_link_with_one_target(self):
         LINK_WEIGHT = 1
-        additional_node = nodes.Node('Additional Node')
+        additional_node = Node('Additional Node')
         self.main_node.add_reciprocal_link(additional_node, LINK_WEIGHT)
         # Test that both links were added
         new_link_1 = self.main_node.link_list[-1]
@@ -138,8 +138,8 @@ class Node(unittest.TestCase):
 
     def test_add_reciprocal_link_with_multiple_targets(self):
         LINK_WEIGHT = 1
-        additional_node_1 = nodes.Node('Additional Node 1')
-        additional_node_2 = nodes.Node('Additional Node 2')
+        additional_node_1 = Node('Additional Node 1')
+        additional_node_2 = Node('Additional Node 2')
         self.main_node.add_reciprocal_link(
             [additional_node_1, additional_node_2],
             LINK_WEIGHT)
@@ -162,7 +162,7 @@ class Node(unittest.TestCase):
 
     def test_remove_links_to_self(self):
         # Manually add a link pointing from self.main_node to itself
-        new_link = nodes.Link(self.main_node, 1)
+        new_link = Link(self.main_node, 1)
         self.main_node.link_list.append(new_link)
         self.main_node.remove_links_to_self()
         self.assertFalse(self.main_node in

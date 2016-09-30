@@ -49,7 +49,7 @@ class Graph:
             self.add_nodes(node_list)
 
     def __str__(self):
-        node_list = ''.join(['\n    {}: {}'.format(i, n.name)
+        node_list = ''.join(['\n    {}: {}'.format(i, n.value)
                              for i, n in enumerate(self.node_list)])
         return ('graph.Graph instance with {} nodes:{}'.format(
                     len(self.node_list),
@@ -84,13 +84,13 @@ class Graph:
             >>> node_2.add_link(node_2, 3)
             >>> node_3.add_link(node_2, 5)
             >>> graph = Graph([node_1, node_2, node_3])
-            >>> print([node.name for node in graph.node_list])
+            >>> print([node.value for node in graph.node_list])
             ['One', 'Two', 'Three']
             >>> graph.merge_nodes(node_2, node_3)
-            >>> print([node.name for node in graph.node_list])
+            >>> print([node.value for node in graph.node_list])
             ['One', 'Two']
             >>> for link in graph.node_list[1].link_list:
-            ...     print('{} {}'.format(link.target.name, link.weight))
+            ...     print('{} {}'.format(link.target.value, link.weight))
             One 1
             Two 8
         """
@@ -124,7 +124,7 @@ class Graph:
             >>> graph = Graph()
             >>> node_1 = Node('One')
             >>> graph.add_nodes(node_1)
-            >>> print([node.name for node in graph.node_list])
+            >>> print([node.value for node in graph.node_list])
             ['One']
 
         Adding multiple nodes at a time in a list: ::
@@ -134,7 +134,7 @@ class Graph:
             >>> node_1 = Node('One')
             >>> node_2 = Node('Two')
             >>> graph.add_nodes([node_1, node_2])
-            >>> print([node.name for node in graph.node_list])
+            >>> print([node.value for node in graph.node_list])
             ['One', 'Two']
         """
         # Generalize nodes to a list
@@ -169,11 +169,11 @@ class Graph:
             >>> node_2.add_link(node_1, 1)
             >>> graph = Graph([node_1, node_2])
             >>> for link in graph.node_list[0].link_list:
-            ...     print('{} {}'.format(link.target.name, link.weight))
+            ...     print('{} {}'.format(link.target.value, link.weight))
             Two 1
             >>> graph.feather_links(include_self=True)
             >>> for link in graph.node_list[0].link_list:
-            ...     print('{} {}'.format(link.target.name, link.weight))
+            ...     print('{} {}'.format(link.target.value, link.weight))
             Two 1
             One 0.01
         """
@@ -227,13 +227,13 @@ class Graph:
             >>> node_2.add_link(node_1, 1)
             >>> graph = Graph([node_1, node_2])
             >>> for link in graph.node_list[0].link_list:
-            ...     print('{} {}'.format(link.target.name, link.weight))
+            ...     print('{} {}'.format(link.target.value, link.weight))
             One 3
             Two 5
             >>> graph.apply_noise()
             >>> for link in graph.node_list[0].link_list:
             ...     print('{} {}'.format(
-            ...         link.target.name, link.weight))        # doctest: +SKIP
+            ...         link.target.value, link.weight))       # doctest: +SKIP
             One 3.154
             Two 5.321
         """
@@ -247,33 +247,33 @@ class Graph:
                         0, link.weight * uniform_amount), 3)
                 link.weight += noise_amount
 
-    def find_node_by_name(self, name):
+    def find_node_by_value(self, value):
         """
-        Find and return a node in self.node_list with the name ``name``.
+        Find and return a node in self.node_list with the value ``value``.
 
-        If multiple nodes exist with the name ``name``,
+        If multiple nodes exist with the value ``value``,
         return the first one found.
 
         If no such node exists, this returns ``None``.
 
         Args:
-            name (Any): The name of the node to find
+            value (Any): The value of the node to find
 
         Returns:
-            Node: A node with name ``name`` if it was found
+            Node: A node with value ``value`` if it was found
 
-            None: If no node exists with name ``name``
+            None: If no node exists with value ``value``
 
         Example:
             >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
-            >>> found_node = graph.find_node_by_name('One')
+            >>> found_node = graph.find_node_by_value('One')
             >>> found_node == node_1
             True
         """
         try:
-            return next(n for n in self.node_list if n.name == name)
+            return next(n for n in self.node_list if n.value == value)
         except StopIteration:
             return None
 
@@ -304,12 +304,12 @@ class Graph:
             n.link_list = [link for link in n.link_list if
                            link.target != node]
 
-    def remove_node_by_name(self, name):
+    def remove_node_by_value(self, value):
         """
-        Delete all nodes in ``self.node_list`` with the name ``name``.
+        Delete all nodes in ``self.node_list`` with the value ``value``.
 
         Args:
-            name (Any): The name to find and delete owners of.
+            value (Any): The value to find and delete owners of.
 
         Returns: None
 
@@ -317,22 +317,23 @@ class Graph:
             >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
-            >>> graph.remove_node_by_name('One')
+            >>> graph.remove_node_by_value('One')
             >>> len(graph.node_list)
             0
         """
-        self.node_list = [node for node in self.node_list if node.name != name]
+        self.node_list = [node for node in self.node_list
+                          if node.value != value]
         # Remove links pointing to the deleted node
         for node in self.node_list:
             node.link_list = [link for link in node.link_list if
-                              link.target.name != name]
+                              link.target.value != value]
 
-    def has_node_with_name(self, name):
+    def has_node_with_value(self, value):
         """
-        Whether any node in ``self.node_list`` has the name ``name``.
+        Whether any node in ``self.node_list`` has the value ``value``.
 
         Args:
-            name (Any): The name to find in ``self.node_list``
+            value (Any): The value to find in ``self.node_list``
 
         Returns: bool
 
@@ -340,13 +341,13 @@ class Graph:
             >>> from blur.markov.node import Node
             >>> node_1 = Node('One')
             >>> graph = Graph([node_1])
-            >>> graph.has_node_with_name('One')
+            >>> graph.has_node_with_value('One')
             True
-            >>> graph.has_node_with_name('Foo')
+            >>> graph.has_node_with_value('Foo')
             False
         """
         for node in self.node_list:
-            if node.name == name:
+            if node.value == value:
                 return True
         else:
             return False
@@ -454,7 +455,7 @@ class Graph:
         Example:
             >>> graph = Graph.from_string('i have nothing to say and '
             ...                           'i am saying it and that is poetry.')
-            >>> ' '.join(graph.pick().name for i in range(8))  # doctest: +SKIP
+            >>> ' '.join(graph.pick().value for i in range(8)) # doctest: +SKIP
             'using chance algorithmic in algorithmic art easier blur'
         """
         if distance_weights is None:
@@ -485,21 +486,21 @@ class Graph:
             # Create nodes for every unique word
             temp_node_list = []
             for word in words:
-                if word not in (n.name for n in temp_node_list):
+                if word not in (n.value for n in temp_node_list):
                     temp_node_list.append(Node(word))
             # Loop through words, attaching links to nodes which correspond
             # to the current word. Ensure links also point to valid
             # corresponding nodes in the node list.
             for i, word in enumerate(words):
                 matching_node = next(
-                    (n for n in temp_node_list if n.name == word))
+                    (n for n in temp_node_list if n.value == word))
                 for key, weight in sorted_weights_list:
                     # Wrap the index of edge items
                     wrapped_index = (key + i) % len(words)
                     target_word = words[wrapped_index]
                     matching_target_node = next(
                         (n for n in temp_node_list
-                         if n.name == target_word))
+                         if n.value == target_word))
                     matching_node.add_link(matching_target_node, weight)
         else:
             # Create one node for every (not necessarily unique) word.
@@ -542,7 +543,7 @@ class Graph:
 
         Example:
             >>> graph = Graph.from_file('cage.txt')            # doctest: +SKIP
-            >>> ' '.join(graph.pick().name for i in range(8))  # doctest: +SKIP
+            >>> ' '.join(graph.pick().value for i in range(8)) # doctest: +SKIP
             'poetry i have nothing to say and i'
         """
         source_string = open(source, 'r').read()

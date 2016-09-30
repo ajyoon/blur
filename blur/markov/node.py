@@ -29,27 +29,27 @@ class Link:
     def __str__(self):
         return ('node.Link instance pointing to node with value "{}" '
                 'with weight {}'.format(
-                    self.target.name,
+                    self.target.value,
                     self.weight
                     )
                 )
 
     def _short_str(self):
         """A less verbose version of __str__()."""
-        return ('{} --> {}'.format(self.weight, self.target.name))
+        return ('{} --> {}'.format(self.weight, self.target.value))
 
 
 class Node:
     """A node to be used in a Markov graph."""
 
-    def __init__(self, name=None, self_destruct=False):
+    def __init__(self, value=None, self_destruct=False):
         """
         Args:
-            name (str or int): Name of the node
+            value (Any): Value of the node
             self_destruct (bool): whether this note deletes itself after
-                being picked by a ./graph
+                being picked by a `Graph`
         """
-        self.name = name
+        self.value = value
         self.self_destruct = self_destruct
         self.link_list = []
 
@@ -57,13 +57,13 @@ class Node:
         link_list = ''.join(['\n    {}: {}'.format(i, link._short_str())
                              for i, link in enumerate(self.link_list)])
         return ('node.Node instance with value {} with {} links:{}'.format(
-                    self.name,
+                    self.value,
                     len(self.link_list),
                     link_list
             )
         )
 
-    def merge_links_from(self, other_node, merge_same_name_targets=False):
+    def merge_links_from(self, other_node, merge_same_value_targets=False):
         """
         Merge links from another node with ``self.link_list``.
 
@@ -72,12 +72,12 @@ class Node:
 
         Args:
             other_node (Node): The node to merge links from
-            merge_same_name_targets (bool): Whether or not to merge links
-                whose targets have the same name (but are not necessarily
+            merge_same_value_targets (bool): Whether or not to merge links
+                whose targets have the same value (but are not necessarily
                 the same ``Node``). If False, links will only be merged
                 when ``link_in_other.target == link_in_self.target``. If True,
                 links will be merged when
-                ``link_in_other.target.name == link_in_self.target.name``
+                ``link_in_other.target.value == link_in_self.target.value``
 
         Returns: None
 
@@ -95,8 +95,8 @@ class Node:
         """
         for other_link in other_node.link_list:
             for existing_link in self.link_list:
-                if merge_same_name_targets:
-                    if other_link.target.name == existing_link.target.name:
+                if merge_same_value_targets:
+                    if other_link.target.value == existing_link.target.value:
                         existing_link.weight += other_link.weight
                         break
                 else:
@@ -186,7 +186,7 @@ class Node:
             >>> node_2 = Node('Two')
             >>> node_1.add_link_to_self(node_2, 5)
             >>> new_link = node_2.link_list[0]
-            >>> print('{} {}'.format(new_link.target.name, new_link.weight))
+            >>> print('{} {}'.format(new_link.target.value, new_link.weight))
             One 5
             >>> print(new_link)
             node.Link instance pointing to node with value "One" with weight 5
@@ -251,7 +251,7 @@ class Node:
         """
         Get the value of this ``Node``.
 
-        For this class, this simply returns ``self.name``, but
+        For this class, this simply returns ``self.value``, but
         for subclasses with more complex behavior, this could be
         more powerful. For example, a ``Node`` might have a value
         which is a ``SoftColor``, in which case this method could
@@ -264,4 +264,4 @@ class Node:
             >>> node_1.get_value()
             'One'
         """
-        return self.name
+        return self.value

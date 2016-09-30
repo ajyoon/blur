@@ -35,7 +35,7 @@ class TestNode(unittest.TestCase):
 
     def test_init(self):
         # since setUp() already calls init, just verify that it worked
-        self.assertEqual(self.main_node.name, 'Main Test Node')
+        self.assertEqual(self.main_node.value, 'Main Test Node')
         self.assertFalse(self.main_node.self_destruct)
         self.assertEqual(self.main_node.link_list, [self.main_link])
 
@@ -59,13 +59,13 @@ class TestNode(unittest.TestCase):
         self.assertEqual(self.main_node.link_list[1].target, self.main_node)
         self.assertEqual(self.main_node.link_list[1].weight, 1)
 
-    def test_merge_links_from_with_merge_same_name_targets(self):
-        new_node_with_existing_name = Node('Other Test Node')
-        extra_test_link = Link(new_node_with_existing_name, 5)
+    def test_merge_links_from_with_merge_same_value_targets(self):
+        new_node_with_existing_value = Node('Other Test Node')
+        extra_test_link = Link(new_node_with_existing_value, 5)
         self.other_node.link_list.append(extra_test_link)
 
         self.main_node.merge_links_from(self.other_node,
-                                        merge_same_name_targets=True)
+                                        merge_same_value_targets=True)
         # Test that only one link was added to self.main_node
         self.assertEqual(len(self.main_node.link_list), 2)
         # Test that the weight of extra_test_link was added to self.main_link
@@ -188,4 +188,4 @@ class TestNode(unittest.TestCase):
 
     def test_get_value(self):
         value = self.main_node.get_value()
-        self.assertEqual(value, self.main_node.name)
+        self.assertEqual(value, self.main_node.value)

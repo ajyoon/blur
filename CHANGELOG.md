@@ -3,6 +3,15 @@
 ### 0.4 (dev)
 
 * `markov.nodes` is now named `markov.node`
+* `markov.node.Node.name` has been renamed to `markov.node.Node.value`
+* `markov.graph.Graph.find_node_by_name()` has been renamed
+  to `markov.graph.Graph.find_node_by_value()`
+* `markov.graph.Graph.remove_node_by_name()` has been renamed
+  to `markov.graph.Graph.remove_node_by_value()`
+* `markov.graph.Graph.has_node_with_name()` has been renamed
+  to `markov.graph.Graph.has_node_with_value()`
+* In `markov.node.Node.merge_links_from()`, the keyword argument
+  `merge_same_name_targets` has been renamed `merge_same_value_targets`
 * `SoftColor.__init__()` now raises a `TypeError` if invalid arguments
   are passed to it for `red`, `green`, or `blue`.
 * When called with neither `minimum` nor `maximum`,

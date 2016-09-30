@@ -9,4 +9,4 @@ Contents:
     :maxdepth: 3
 
     graph
-    nodes
+    node

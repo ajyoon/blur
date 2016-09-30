@@ -47,7 +47,7 @@ class Node:
         Args:
             name (str or int): Name of the node
             self_destruct (bool): whether this note deletes itself after
-                being picked by a graph
+                being picked by a ./graph
         """
         self.name = name
         self.self_destruct = self_destruct

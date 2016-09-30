@@ -12,6 +12,8 @@
   to `markov.graph.Graph.has_node_with_value()`
 * In `markov.node.Node.merge_links_from()`, the keyword argument
   `merge_same_name_targets` has been renamed `merge_same_value_targets`
+* `markov.graph.Graph.merge_nodes()` now preserves graph links pointing to
+  `kill_node`, merging them into links pointing to `keep_node`
 * `SoftColor.__init__()` now raises a `TypeError` if invalid arguments
   are passed to it for `red`, `green`, or `blue`.
 * When called with neither `minimum` nor `maximum`,

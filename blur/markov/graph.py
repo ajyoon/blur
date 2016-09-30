@@ -65,6 +65,9 @@ class Graph:
         combining the two link lists and summing the weights of links which
         point to the same node.
 
+        All links in the graph pointing to ``kill_node`` will be merged
+        into ``keep_node``.
+
         Links belonging to ``kill_node`` which point to targets not in
         ``self.node_list`` will not be merged into ``keep_node``
 
@@ -96,13 +99,15 @@ class Graph:
         """
         # Merge links from kill_node to keep_node
         for kill_link in kill_node.link_list:
-            for existing_link in keep_node.link_list:
-                if kill_link.target == existing_link.target:
-                    existing_link.weight += kill_link.weight
+            if kill_link.target in self.node_list:
+                keep_node.add_link(kill_link.target, kill_link.weight)
+        # Merge any links in the graph pointing to kill_node into links
+        # pointing to keep_node
+        for node in self.node_list:
+            for link in node.link_list:
+                if link.target == kill_node:
+                    node.add_link(keep_node, link.weight)
                     break
-            else:
-                if kill_link.target in self.node_list:
-                    keep_node.add_link(kill_link.target, kill_link.weight)
         # Remove kill_node from the graph
         self.remove_node(kill_node)
 

@@ -39,9 +39,12 @@ class TestGraph(unittest.TestCase):
     def test_merge_nodes(self):
         self.test_graph.merge_nodes(self.node_1, self.node_2)
         self.assertEqual([(l.target, l.weight) for l in self.node_1.link_list],
-                         [(self.node_3, 375 + 247), (self.node_1, 124)])
+                         [(self.node_3, 375 + 247), (self.node_1, 124 + 234)])
         self.assertEqual([(l.target, l.weight) for l in self.node_3.link_list],
-                         [(self.node_1, 123)])
+                         [(self.node_1, 123 + 234)])
+
+    # def test_merge_nodes_with_graph_links_pointing_to_kill_node(self):
+    #     self.test_graph.merge_nodes(self.node_1, self.node_2)
 
     def test_add_nodes_with_one_node(self):
         self.test_graph.add_nodes(Node('Node 4'))

@@ -26,6 +26,18 @@ class Link:
         self.target = target
         self.weight = weight
 
+    def __str__(self):
+        return ('node.Link instance pointing to node with value "{}" '
+                'with weight {}'.format(
+                    self.target.name,
+                    self.weight
+                    )
+                )
+
+    def _short_str(self):
+        """A less verbose version of __str__()."""
+        return ('{} --> {}'.format(self.weight, self.target.name))
+
 
 class Node:
     """A node to be used in a Markov graph."""
@@ -40,6 +52,16 @@ class Node:
         self.name = name
         self.self_destruct = self_destruct
         self.link_list = []
+
+    def __str__(self):
+        link_list = ''.join(['\n    {}: {}'.format(i, link._short_str())
+                             for i, link in enumerate(self.link_list)])
+        return ('node.Node instance with value {} with {} links:{}'.format(
+                    self.name,
+                    len(self.link_list),
+                    link_list
+            )
+        )
 
     def merge_links_from(self, other_node, merge_same_name_targets=False):
         """
@@ -66,10 +88,10 @@ class Node:
             >>> node_1.add_link(node_2, 3)
             >>> node_2.add_link(node_1, 4)
             >>> node_1.merge_links_from(node_2)
-            >>> for link in node_1.link_list:
-            ...     print('{} {}'.format(link.target.name, link.weight))
-            One 5
-            Two 3
+            >>> print(node_1)
+            node.Node instance with value One with 2 links:
+                0: 5 --> One
+                1: 3 --> Two
         """
         for other_link in other_node.link_list:
             for existing_link in self.link_list:
@@ -130,8 +152,8 @@ class Node:
             >>> node_2 = Node('Two')
             >>> node_1.add_link(node_2, 1)
             >>> new_link = node_1.link_list[0]
-            >>> print('{} {}'.format(new_link.target.name, new_link.weight))
-            Two 1
+            >>> print(new_link)
+            node.Link instance pointing to node with value "Two" with weight 1
         """
         # Generalize targets to a list to simplify code
         if not isinstance(targets, list):
@@ -166,6 +188,8 @@ class Node:
             >>> new_link = node_2.link_list[0]
             >>> print('{} {}'.format(new_link.target.name, new_link.weight))
             One 5
+            >>> print(new_link)
+            node.Link instance pointing to node with value "One" with weight 5
         """
         # Generalize source to a list to simplify code
         if not isinstance(source, list):
@@ -193,12 +217,10 @@ class Node:
             >>> node_1.add_reciprocal_link(node_2, 5)
             >>> new_link_1 = node_1.link_list[0]
             >>> new_link_2 = node_2.link_list[0]
-            >>> print('{} {}'.format(new_link_1.target.name,
-            ...                      new_link_1.weight))
-            Two 5
-            >>> print('{} {}'.format(new_link_2.target.name,
-            ...                      new_link_2.weight))
-            One 5
+            >>> print(new_link_1)
+            node.Link instance pointing to node with value "Two" with weight 5
+            >>> print(new_link_2)
+            node.Link instance pointing to node with value "One" with weight 5
         """
         # Generalize ``target`` to a list
         if not isinstance(target, list):

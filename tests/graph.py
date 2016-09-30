@@ -29,6 +29,13 @@ class TestGraph(unittest.TestCase):
         self.assertTrue(self.node_2 in other_test_graph.node_list)
         self.assertTrue(self.node_3 in other_test_graph.node_list)
 
+    def test_str(self):
+        expected = """graph.Graph instance with 3 nodes:
+    0: Node 1
+    1: Node 2
+    2: Node 3"""
+        self.assertMultiLineEqual(expected, self.test_graph.__str__())
+
     def test_merge_nodes(self):
         self.test_graph.merge_nodes(self.node_1, self.node_2)
         self.assertEqual([(l.target, l.weight) for l in self.node_1.link_list],

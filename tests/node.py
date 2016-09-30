@@ -10,6 +10,19 @@ class TestLink(unittest.TestCase):
         self.assertEqual(link.target, node)
         self.assertEqual(link.weight, 1)
 
+    def test_str(self):
+        node = Node('Test Node')
+        link = Link(node, 1)
+        expected = ('node.Link instance pointing to node '
+                    'with value "Test Node" with weight 1')
+        self.assertEqual(expected, link.__str__())
+
+    def test_short_str(self):
+        node = Node('Test Node')
+        link = Link(node, 1)
+        expected = ('1 --> Test Node')
+        self.assertEqual(expected, link._short_str())
+
 
 class TestNode(unittest.TestCase):
     def setUp(self):
@@ -25,6 +38,11 @@ class TestNode(unittest.TestCase):
         self.assertEqual(self.main_node.name, 'Main Test Node')
         self.assertFalse(self.main_node.self_destruct)
         self.assertEqual(self.main_node.link_list, [self.main_link])
+
+    def test_str(self):
+        expected = """node.Node instance with value Main Test Node with 1 links:
+    0: 1 --> Other Test Node"""
+        self.assertMultiLineEqual(expected, self.main_node.__str__())
 
     def test_merge_links_from(self):
         extra_test_link = Link(self.other_node, 5)

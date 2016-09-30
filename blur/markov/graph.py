@@ -48,6 +48,15 @@ class Graph:
         if node_list:
             self.add_nodes(node_list)
 
+    def __str__(self):
+        node_list = ''.join(['\n    {}: {}'.format(i, n.name)
+                             for i, n in enumerate(self.node_list)])
+        return ('graph.Graph instance with {} nodes:{}'.format(
+                    len(self.node_list),
+                    node_list
+            )
+        )
+
     def merge_nodes(self, keep_node, kill_node):
         """
         Merge two nodes in the graph.

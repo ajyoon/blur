@@ -4,10 +4,10 @@ API documentation
 Contents:
 
 ..  toctree::
-    :maxdepth: 3
 
     rand
     soft
     markov/markov
+    markov/graph
+    markov/node
     iching
-    tests

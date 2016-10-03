@@ -42,9 +42,6 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-# Note that to build properly, sphinxcontrib.fulltoc must be installed.
-# use `pip install sphinxcontrib-fulltoc` to satisfy this dependency
-
 # Autodoc settings
 autoclass_content = 'both'
 autodoc_member_order = 'bysource'
@@ -351,7 +348,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'blur', 'blur Documentation',
-     author, 'blur', 'One line description of project.',
+     author, 'blur', 'A chance art toolkit.',
      'Miscellaneous'),
 ]
 

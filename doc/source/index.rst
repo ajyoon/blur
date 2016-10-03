@@ -10,9 +10,9 @@
 Contents:
 
 .. toctree::
-   :maxdepth: 2
 
    Introduction
+   Installation
    API/API Documentation
 
 Indices and tables

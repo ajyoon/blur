@@ -404,7 +404,7 @@ class Graph:
                     group_marker_opening='<<',
                     group_marker_closing='>>'):
         """
-        Read a string and derivce of ``Graph`` from it.
+        Read a string and derive of ``Graph`` from it.
 
         Words and punctuation marks are made into nodes.
 

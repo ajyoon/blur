@@ -232,7 +232,7 @@ def get_hexagram(method='THREE COIN'):
     elif method == 'NAIVE':
         return random.randint(1, 64)
     else:
-        raise ValueError
+        raise ValueError('`method` value of "{}" is invalid')
 
     hexagram_1 = []
     hexagram_2 = []

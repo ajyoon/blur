@@ -37,7 +37,8 @@ class Oscillator:
         self.cache_length = round(self.sample_rate / self.frequency)
         factor = self.frequency * ((numpy.pi * 2) / self.sample_rate)
         self.wave_cache = numpy.arange(self.cache_length)
-        self.wave_cache = numpy.sin(self.wave_cache * factor) * 65535
+        self.wave_cache = (numpy.sin(self.wave_cache * factor) *
+                           config.SAMPLE_RANGE)
 
     def get_samples(self, sample_count):
         """

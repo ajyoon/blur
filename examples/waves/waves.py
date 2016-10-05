@@ -131,8 +131,8 @@ out_file.setparams((
     config.NUM_CHANNELS,
     config.BYTES_PER_SAMPLE,
     config.SAMPLE_RATE,
-    0,
-    'NONE',
+    0,                        # Initial frame count
+    'NONE',                   # Set compression (not supported in stdlib)
     'not compressed'))
 
 ###############################################################################
@@ -204,7 +204,7 @@ def build_chunk(oscillators):
                     [(-5, 1), (0, 10)])
                 osc.amplitude.change_rate = rand.weighted_rand(
                     osc.amplitude.change_rate_weights)
-    return new_chunk.astype(numpy.int16).tostring()
+    return new_chunk.astype(config.SAMPLE_DATA_TYPE).tostring()
 
 ###############################################################################
 #                                                                      Liftoff!

@@ -118,7 +118,6 @@ out_file.setparams((
 #                                           Function to handle random processes
 ###############################################################################
 
-
 def step_random_processes(oscillators):
     """
     Args:
@@ -145,15 +144,16 @@ def step_random_processes(oscillators):
 #                                                Function to build audio chunks
 ###############################################################################
 
-
 def build_chunk(oscillators):
     """
+    Build an audio chunk and progress the oscillator states.
+
     Args:
         oscillators (list): A list of oscillator.Oscillator objects
             to build chunks from
 
     Returns:
-        str:
+        str: a string of audio sample bytes ready to be written to a wave file
     """
     step_random_processes(oscillators)
     subchunks = []
@@ -162,14 +162,18 @@ def build_chunk(oscillators):
         osc_chunk = osc.get_samples(config.CHUNK_SIZE)
         if osc_chunk is not None:
             subchunks.append(osc_chunk)
-    new_chunk = sum(subchunks)
-    if isinstance(new_chunk, int):
+    if len(subchunks):
+        new_chunk = sum(subchunks)
+    else:
         new_chunk = numpy.zeros(config.CHUNK_SIZE)
+    # If we exceed the maximum amplitude, handle it gracefully
     chunk_amplitude = amplitude.find_amplitude(new_chunk)
     if chunk_amplitude > config.MAX_AMPLITUDE:
+        # Normalize the amplitude chunk to mitigate immediate clipping
         new_chunk = amplitude.normalize_amplitude(new_chunk,
                                                   config.MAX_AMPLITUDE)
-        # Find the average amp of every oscillator
+        # Pick some of the offending oscillators (and some random others)
+        # and lower their drift targets
         avg_amp = (sum(osc.amplitude.value for osc in oscillators) /
                    len(oscillators))
         for osc in oscillators:
@@ -194,6 +198,5 @@ for i in range(chunks_needed):
         print('{}%...'.format(math.ceil((i / chunks_needed) * 100)))
 
 # Clean up and exit
-
 print('File written to {}'.format(out_path))
 out_file.close()

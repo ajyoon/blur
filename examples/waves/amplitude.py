@@ -47,12 +47,12 @@ class AmplitudeHandler:
     A handler for audio amplitude values.
     """
     def __init__(self,
-                 init_value=0,
+                 init_value,
                  drift_target_weights=None,
                  change_rate_weights=None):
         """
         Args:
-            init_value (float):
+            init_value (float): The initial amplitude level
             drift_target_weights (list): a list of 2-tuple weights
             change_rate_weights (list): a list of 2-tuple weights
         """

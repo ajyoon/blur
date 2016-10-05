@@ -91,7 +91,6 @@ class AmplitudeHandler:
 
         Returns: None
         """
-        # step the amplitude
         difference = self.drift_target - self._raw_value
         if abs(difference) < self.change_rate:
             self.value = self.drift_target

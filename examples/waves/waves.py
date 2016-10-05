@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Use the iching to dictate the behavior of a series of sine waves."""
 
-import os
-import random
-import wave
 import math
+import os
+import wave
 
 import numpy
 
@@ -49,7 +48,7 @@ primary_osc_pitches = [
     frequency_map[9] * 4,
 ]
 
-# initialize oscillators
+# Initialize primary pitch oscillators
 osc_list = []
 for frequency in primary_osc_pitches:
     osc_list.append(
@@ -65,7 +64,7 @@ for frequency in primary_osc_pitches:
     )
 
 
-# add some random pitches ####################################################
+# Initialize random pitch oscillators
 rand_pitch_weights = [(120, 0), (220, 250), (440, 500), (1000, 1), (5000, 0)]
 pitches = [rand.weighted_rand(rand_pitch_weights) for i in range(4)]
 
@@ -179,7 +178,8 @@ def build_chunk(oscillators):
         for osc in oscillators:
             if (osc.amplitude.value > avg_amp and rand.prob_bool(0.1) or
                     rand.prob_bool(0.01)):
-                osc.amplitude.drift_target = random.uniform(-5, 0)
+                osc.amplitude.drift_target = rand.weighted_rand(
+                    [(-5, 1), (0, 10)])
                 osc.amplitude.change_rate = rand.weighted_rand(
                     osc.amplitude.change_rate_weights)
     return new_chunk.astype(numpy.int16).tostring()

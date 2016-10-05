@@ -3,7 +3,13 @@
 
 import math
 import os
+import sys
 import wave
+
+if sys.version_info[0] < 3:
+    print('Sorry, but this example currently only '
+          'supports Python 3. Stay tuned!')
+    sys.exit(1)
 
 import numpy
 

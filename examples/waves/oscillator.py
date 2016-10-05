@@ -11,29 +11,33 @@ class Oscillator:
 
     sample_rate = config.SAMPLE_RATE
 
-    def __init__(self, frequency,
-                 amplitude=None):
+    def __init__(self,
+                 frequency,
+                 amplitude=None,
+                 amplitude_multiplier=1):
         """
         Args:
             frequency (float): Frequency in herz of the oscillator
             amplitude (AmplitudeHandler): Amplitude handler for the oscillator
+            amplitude_multiplier (float): A factor to multiply amplitudes by
+                during sample generation in addition to transformations
+                occuring within ``self.amplitude``.
         """
         if frequency <= 0:
             raise ValueError("Oscillator.frequency cannot be <= 0")
         self.frequency = frequency
         self.last_played_sample = 0
-
+        if amplitude:
+            self.amplitude = amplitude
+        else:
+            self.amplitude = AmplitudeHandler(0)
+        self.amplitude_multiplier = amplitude_multiplier
         # Build a cache of a full period of the wave
         # and store it in self.wave_cache
         self.cache_length = round(self.sample_rate / self.frequency)
         factor = self.frequency * ((numpy.pi * 2) / self.sample_rate)
         self.wave_cache = numpy.arange(self.cache_length)
         self.wave_cache = numpy.sin(self.wave_cache * factor) * 65535
-
-        if amplitude:
-            self.amplitude = amplitude
-        else:
-            self.amplitude = AmplitudeHandler(0)
 
     def get_samples(self, sample_count):
         """
@@ -58,4 +62,5 @@ class Oscillator:
         self.last_played_sample = ((self.last_played_sample + remainder) %
                                    self.cache_length)
         # Multiply output by amplitude
-        return return_array * self.amplitude.value
+        return return_array * (self.amplitude.value *
+                               self.amplitude_multiplier)

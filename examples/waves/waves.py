@@ -44,14 +44,13 @@ frequency_map = {
 # Primary pitches to be used in the oscillators
 # Multiple / divide frequencies by powers of 2 to change octaves
 primary_osc_pitches = [
-    frequency_map[10] / 8,
-    frequency_map[5]  / 4,
-    frequency_map[7]  / 2,
-    frequency_map[3]     ,
-    frequency_map[10] / 4,
-    frequency_map[10] / 4,
-    frequency_map[10] * 2,
-    frequency_map[9]  * 4,
+    frequency_map[10] / 8,  # Bb1
+    frequency_map[5]  / 4,  # F3
+    frequency_map[10] / 4,  # Bb2
+    frequency_map[7]  / 2,  # G4
+    frequency_map[3]     ,  # Eb5
+    frequency_map[10] * 2,  # Bb6
+    frequency_map[9]  * 4,  # A6
 ]
 
 # Initialize primary pitch oscillators
@@ -70,9 +69,27 @@ for frequency in primary_osc_pitches:
     )
 
 
-# Initialize random pitch oscillators
-rand_pitch_weights = [(120, 0), (220, 250), (440, 500), (1000, 1), (5000, 0)]
-pitches = [rand.weighted_rand(rand_pitch_weights) for i in range(4)]
+# Initialize softer oscillators slightly out of tune with consonant pitches
+detune_weights = rand.normal_distribution(0, 20)
+detune_base_pitches_weights = [(frequency_map[10], 50),
+                               (frequency_map[0], 1),
+                               (frequency_map[2], 30),
+                               (frequency_map[3], 40),
+                               (frequency_map[5], 80),
+                               (frequency_map[7], 30),
+                               (frequency_map[9], 20)]
+octave_choice_weights = [(1/8, 20),
+                         (1/4, 15),
+                         (1/2, 10),
+                         (1, 5),
+                         (2, 5),
+                         (4, 5)]
+# Roll pitches
+pitches = [((rand.weighted_choice(detune_base_pitches_weights) +  # Base pitch
+             rand.weighted_rand(detune_weights)) *                # Detune
+            rand.weighted_choice(octave_choice_weights))          # Set Octave
+           for i in range(50)]
+amp_multiplier_weights = [(0.05, 10), (0.2, 2), (0.7, 1)]
 
 for pitch in pitches:
     osc_list.append(
@@ -86,7 +103,8 @@ for pitch in pitches:
                     (0.00001, 12000),
                     (0.0001, 100),
                     (0.001, 10)],
-            )
+            ),
+            amplitude_multiplier=rand.weighted_rand(amp_multiplier_weights)
         )
     )
 

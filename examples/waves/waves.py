@@ -27,31 +27,31 @@ from examples.waves import config
 
 # A mapping of pitch classes to frequencies above concert A
 frequency_map = {
-    9: 440,      # A
-    10: 466.16,  # A# / Bb
-    11: 493.88,  # B
-    0: 523.25,   # C
-    1: 554.37,   # C# / Db
-    2: 587.33,   # D
-    3: 622.25,   # D# / Eb
-    4: 659.26,   # E
-    5: 698.46,   # F
-    6: 739.99,   # F# / Gb
-    7: 783.99,   # G
-    8: 830.61    # G# / Ab
+    9:  440,      # A
+    10: 466.16,   # A# / Bb
+    11: 493.88,   # B
+    0:  523.25,   # C
+    1:  554.37,   # C# / Db
+    2:  587.33,   # D
+    3:  622.25,   # D# / Eb
+    4:  659.26,   # E
+    5:  698.46,   # F
+    6:  739.99,   # F# / Gb
+    7:  783.99,   # G
+    8:  830.61    # G# / Ab
 }
 
 # Primary pitches to be used in the oscillators
 # Multiple / divide frequencies by powers of 2 to change octaves
 primary_osc_pitches = [
     frequency_map[10] / 8,
-    frequency_map[5] / 4,
-    frequency_map[7] / 2,
-    frequency_map[3],
+    frequency_map[5]  / 4,
+    frequency_map[7]  / 2,
+    frequency_map[3]     ,
     frequency_map[10] / 4,
     frequency_map[10] / 4,
     frequency_map[10] * 2,
-    frequency_map[9] * 4,
+    frequency_map[9]  * 4,
 ]
 
 # Initialize primary pitch oscillators
@@ -81,13 +81,11 @@ for pitch in pitches:
             amplitude.AmplitudeHandler(
                 init_value=0,
                 drift_target_weights=[
-                    (-2, 30), (0.02, 8), (0.05, 2), (0.1, 0.1), (0.3, 0)
-                ],
+                    (-2, 30), (0.02, 8), (0.05, 2), (0.1, 0.1), (0.3, 0)],
                 change_rate_weights=[
                     (0.00001, 12000),
                     (0.0001, 100),
-                    (0.001, 10)
-                ],
+                    (0.001, 10)],
             )
         )
     )

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Use the iching to dictate the behavior of a series of sine waves."""
 
 from __future__ import division

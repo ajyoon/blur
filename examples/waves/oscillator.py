@@ -1,10 +1,12 @@
+from __future__ import division
+
 import numpy
 
 import config
-from examples.waves.amplitude import AmplitudeHandler
+from amplitude import AmplitudeHandler
 
 
-class Oscillator:
+class Oscillator(object):
     """
     A sine wave oscillator.
     """
@@ -56,12 +58,12 @@ class Oscillator:
                                   -1 * self.last_played_sample)
         # Append remaining partial period
         full_count, remainder = divmod(sample_count, self.cache_length)
-        final_subarray = rolled_array[:remainder]
+        final_subarray = rolled_array[:int(remainder)]
         return_array = numpy.concatenate((numpy.tile(rolled_array, full_count),
                                           final_subarray))
         # Keep track of where we left off to prevent popping between chunks
-        self.last_played_sample = ((self.last_played_sample + remainder) %
-                                   self.cache_length)
+        self.last_played_sample = int(((self.last_played_sample + remainder) %
+                                       self.cache_length))
         # Multiply output by amplitude
         return return_array * (self.amplitude.value *
                                self.amplitude_multiplier)

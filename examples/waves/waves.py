@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
 """Use the iching to dictate the behavior of a series of sine waves."""
 
+from __future__ import division
 import math
 import os
-import sys
 import wave
 
-if sys.version_info[0] < 3:
-    print('Sorry, but this example currently only '
-          'supports Python 3. Stay tuned!')
-    sys.exit(1)
+import oscillator
+import amplitude
+import config
 
 import numpy
 
 from blur import iching
 from blur import rand
-
-from examples.waves import oscillator
-from examples.waves import amplitude
-from examples.waves import config
 
 
 ###############################################################################
@@ -68,7 +63,6 @@ for frequency in primary_osc_pitches:
         )
     )
 
-
 # Initialize softer oscillators slightly out of tune with consonant pitches
 detune_weights = rand.normal_distribution(0, 20)
 detune_base_pitches_weights = [(frequency_map[10], 50),
@@ -84,7 +78,7 @@ octave_choice_weights = [(1/8, 20),
                          (1, 5),
                          (2, 5),
                          (4, 5)]
-# Roll pitches
+# Find detuned pitches
 pitches = [((rand.weighted_choice(detune_base_pitches_weights) +  # Base pitch
              rand.weighted_rand(detune_weights)) *                # Detune
             rand.weighted_choice(octave_choice_weights))          # Set Octave
@@ -217,7 +211,7 @@ for i in range(chunks_needed):
     out_file.writeframes(build_chunk(osc_list))
     if i % int(chunks_needed / 5) == 0:
         # Print progress
-        print('{}%...'.format(math.ceil((i / chunks_needed) * 100)))
+        print('{}%...'.format(int(math.ceil((i / chunks_needed) * 100))))
 
 # Clean up and exit
 print('File written to {}'.format(out_path))

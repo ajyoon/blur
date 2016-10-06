@@ -1,8 +1,10 @@
+from __future__ import division
+
 import numpy
 
 from blur import rand
 
-from examples.waves import config
+import config
 
 
 def find_amplitude(chunk):
@@ -42,7 +44,7 @@ def normalize_amplitude(chunk, amplitude):
     return chunk * (amplitude / chunk_amplitude)
 
 
-class AmplitudeHandler:
+class AmplitudeHandler(object):
     """
     A handler for audio amplitude values.
     """

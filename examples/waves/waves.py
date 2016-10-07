@@ -1,5 +1,25 @@
 #!/usr/bin/env python
-"""Use the iching to dictate the behavior of a series of sine waves."""
+"""An example using the I Ching to control a series of oscillators.
+
+This script can be executed directly from the command line: ::
+
+    cd blur/examples/waves
+    python waves.py
+
+We construct a series of oscillators using a combination of
+deterministic and indeterminate processes operating on their
+various parameters, including frequency and amplitude biases.
+
+We then generate a ``.wav`` file, storing it in an output folder.
+The contents of the file are populated by generating and mixing
+samples from the various oscillators as chance processes manipulate
+the amplitudes of each independent oscillator.
+
+To see where ``blur`` is used most in this example, have a look at
+the code below. Of particular interest may be the oscillator
+initialization below, the function ``step_random_processes()``,
+and the function ``build_chunk()``.
+"""
 
 from __future__ import division
 import math
@@ -98,7 +118,7 @@ for pitch in pitches:
                     (0.0001, 100),
                     (0.001, 10)],
             ),
-            amplitude_multiplier=rand.weighted_rand(amp_multiplier_weights)
+            amplitugde_multiplier=rand.weighted_rand(amp_multiplier_weights)
         )
     )
 

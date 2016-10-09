@@ -12,6 +12,8 @@ import random
 
 from blur.rand import weighted_choice
 
+__all__ = ['hexagrams', 'get_hexagram']
+
 hexagrams = {
     # number: (hexagram_symbol, chinese_character, english_translation)
     1:  ('䷀', '乾',   'Force'),

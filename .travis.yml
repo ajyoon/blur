@@ -15,4 +15,4 @@ install:
 
 # Run tests
 script:
-    - pytest
+    - py.test

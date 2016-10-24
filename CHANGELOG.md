@@ -1,6 +1,6 @@
 # Change Log
 ---
-### 0.4 (dev)
+### 0.4
 
 * The lowest workable Python 3 version has been correctly identified
   as `3.3`. This is not an API change, as it didn't work in earlier

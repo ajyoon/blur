@@ -2,6 +2,9 @@
 ---
 ### 0.4 (dev)
 
+* The lowest workable Python 3 version has been correctly identified
+  as `3.3`. This is not an API change, as it didn't work in earlier
+  versions either.
 * `markov.nodes` is now named `markov.node`
 * `markov.node.Node.name` has been renamed to `markov.node.Node.value`
 * `markov.graph.Graph.find_node_by_name()` has been renamed

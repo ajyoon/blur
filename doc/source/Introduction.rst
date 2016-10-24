@@ -37,7 +37,7 @@ functions for finding non-uniform random numbers based on customizable weights.
 from text, a collection of soft objects whose values vary according to
 customizable weights and rules, and a model I Ching.
 
-Besides `Python <https://www.python.org/>`_ (version 2.7 or 3.x),
+Besides `Python <https://www.python.org/>`_ (version 2.7 or 3.3),
 *blur* has no dependencies, making it easy to incorporate into your project.
 
 To install *blur* use pip from the command line: ::

@@ -7,7 +7,7 @@ Head on over to https://github.com/ajyoon/blur and get in touch.
 Development dependencies can be installed with pip from a dedicated
 dev requirements file:
 
-    $ pip install dev_requirements.txt
+    $ pip install -r dev_requirements.txt
 
 The documentation build dependencies can be similarly installed
 from a dedicated requirements file:
@@ -22,15 +22,9 @@ upstream git repository, but you can run these tests yourself as well.
 Travis tests run on `pytest`, but any testing framework compatible
 with the built-in Python `Unittest` and `doctest` module should work.
 
-To run the tests, navigate to `tests` and run `pytest`:
+To run the tests, run `pytest` from the project root directory:
 
-    $ cd blur/tests
-    $ pytest
-
-Doctests are extensively used throughout the package's docstrings.
-To run these, run `pytest` over the package code with a flag:
-
-    $ py.test --doctest-modules blur/
+    ~/blur$ pytest
 
 #### Building the documentation
 The documentation for *blur* is built with

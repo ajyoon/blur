@@ -15,7 +15,4 @@ install:
 
 # Run tests
 script:
-    - echo "Running Unit Tests:"
-    - py.test tests/*.py
-    - echo "Running Doc Tests:"
-    - py.test --doctest-modules blur/
+    - pytest

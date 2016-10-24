@@ -1,5 +1,7 @@
 # Change Log
 ---
+### 0.5 (dev)
+
 ### 0.4
 
 * The lowest workable Python 3 version has been correctly identified

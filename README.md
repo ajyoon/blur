@@ -18,7 +18,7 @@ using chance algorithmic in algorithmic art easier blur
 
 *blur* allows you to easily implement complex chance generated elements
 in your works without getting bogged down in the boilerplate and the
-nitty-gritty math. Besides [Python](https://www.python.org/) (version 2.7 or 3.2+),
+nitty-gritty math. Besides [Python](https://www.python.org/) (version 2.7 or 3.3+),
 it has no dependencies, making it easy to incorporate into your project.
 
 ### Installation

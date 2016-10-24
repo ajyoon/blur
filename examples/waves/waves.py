@@ -118,7 +118,7 @@ for pitch in pitches:
                     (0.0001, 100),
                     (0.001, 10)],
             ),
-            amplitugde_multiplier=rand.weighted_rand(amp_multiplier_weights)
+            amplitude_multiplier=rand.weighted_rand(amp_multiplier_weights)
         )
     )
 
